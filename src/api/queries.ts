@@ -76,9 +76,11 @@ export function useLogin() {
   return useMutation({
     mutationFn: (input: LoginInput) => authApi.login(input),
     onSuccess: () => {
-      // Force every consumer of `useMe` to re-read /me now that the
-      // cookie is set. The query will hit the network and resolve
-      // with the fresh user record.
+      // Defense in depth (Product Debug #007): a previous user on
+      // this browser could have left the query cache populated.
+      // Wipe the whole thing so the freshly-signed-in user never
+      // sees the previous user's company / tasks / me data.
+      qc.clear();
       return qc.invalidateQueries({ queryKey: queryKeys.me });
     },
   });
@@ -93,6 +95,10 @@ export function useSignup() {
   return useMutation({
     mutationFn: (input: SignupInput) => authApi.signup(input),
     onSuccess: () => {
+      // Same hardening as useLogin — sign-up is also a session
+      // boundary. Wipe the cache so the freshly-created user
+      // doesn't inherit any pre-existing query state.
+      qc.clear();
       return qc.invalidateQueries({ queryKey: queryKeys.me });
     },
   });

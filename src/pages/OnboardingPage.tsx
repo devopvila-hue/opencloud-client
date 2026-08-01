@@ -89,6 +89,21 @@ export default function OnboardingPage() {
   const [goal, setGoal] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Defense in depth (Product Debug #007): when the signed-in user
+  // changes, force the form back to empty so a stale `company.data`
+  // from the previous user can't hydrate the form via the effect
+  // below. The cache invalidation in useLogin/useSignup is the real
+  // fix; this is a belt-and-suspenders reset in case the network
+  // layer ever leaks a query across the session boundary.
+  useEffect(() => {
+    setName('');
+    setWebsite('');
+    setSector('');
+    setEmployees('');
+    setGoal('');
+    setError(null);
+  }, [me.data?.id]);
+
   // Hydrate from existing company data so the form is editable
   // if the user is re-doing onboarding after a status reset.
   useEffect(() => {

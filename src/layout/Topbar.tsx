@@ -4,7 +4,7 @@ import { Bell, Command, Menu, Moon, Search, Sun } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Avatar } from '@/components/Avatar';
 import { useTheme, brandConfig } from '@/design-system/theme';
-import { useMe } from '@/api/queries';
+import { useLogout, useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
 import { redirectToLogin } from '@/utils/authRedirect';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -19,6 +19,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
   const { theme, toggle, branding } = useTheme();
   const brand = brandConfig[branding];
   const me = useMe();
+  const logout = useLogout();
   const { t } = useI18n();
   const [userOpen, setUserOpen] = useState(false);
 
@@ -126,10 +127,18 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
               <button
                 type="button"
                 onClick={async () => {
+                  // Route through useLogout so the TanStack Query
+                  // cache is cleared via qc.clear() on success.
+                  // A bare fetch would only clear the cookie and
+                  // leave company/tasks/me cached — the next
+                  // signed-in user on this browser would see the
+                  // previous user's company data on the onboarding
+                  // form (Product Debug #007 leak).
                   try {
-                    await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                    await logout.mutateAsync();
                   } catch {
-                    // ignore — we still want to redirect away
+                    // even on failure we want to drop the user
+                    // at the login screen
                   }
                   redirectToLogin();
                 }}

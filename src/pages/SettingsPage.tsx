@@ -5,7 +5,7 @@ import { Button } from '@/components/Button';
 import { Card, CardHeader, CardSection } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { useToast } from '@/components/Toaster';
-import { useMe } from '@/api/queries';
+import { useMe, useLogout } from '@/api/queries';
 import { useTheme } from '@/design-system/theme';
 import { useI18n } from '@/i18n/I18nProvider';
 import { type Locale } from '@/i18n/i18n';
@@ -20,6 +20,7 @@ const languages: { id: Locale; nameKey: string }[] = [
 
 export default function SettingsPage() {
   const me = useMe();
+  const logout = useLogout();
   const { theme, setTheme } = useTheme();
   const { locale, setLocale, t } = useI18n();
   const toast = useToast();
@@ -228,8 +229,13 @@ export default function SettingsPage() {
             variant="danger"
             iconLeft={<LogOut className="h-4 w-4" />}
             onClick={async () => {
+              // Route through useLogout so the TanStack Query cache
+              // is cleared via qc.clear() — the bare fetch path would
+              // only drop the cookie and the next user on this browser
+              // would see the previous user's company data leak
+              // (Product Debug #007).
               try {
-                await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                await logout.mutateAsync();
                 redirectToLogin();
               } catch {
                 toast.push({ tone: 'error', title: t('settings.signout_error') });
