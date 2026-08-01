@@ -15,7 +15,7 @@ import {
   internalMessageSchema,
   loginInputSchema,
   meSchema,
-  sessionResponseSchema,
+  sessionUserSchema,
   signupInputSchema,
   systemStatusSchema,
   taskSchema,
@@ -29,7 +29,7 @@ import {
   type InternalMessage,
   type LoginInput,
   type Me,
-  type SessionResponse,
+  type SessionUser,
   type SignupInput,
   type SystemStatus,
   type Task,
@@ -41,18 +41,27 @@ export const authApi = {
   /**
    * POST /api/v1/auth/login — exchanges email+password for an
    * `opc_session` cookie. The cookie is HttpOnly so JS never sees
-   * it; we only learn that the session is valid via the 200/204
+   * it; we only learn that the session is valid via the 200
    * response. After this returns we invalidate `useMe` to fetch the
    * fresh user record.
    *
    * Validation is performed by the middleware (loginSchema). The
    * client-side schema is best-effort — the middleware response is
    * the source of truth.
+   *
+   * IMPORTANT: the schema passed to apiValidated must match the
+   * INNER payload ({ id, email, … }), not the wrapper. apiValidated
+   * internally does `schema.safeParse(res.data)` where `res.data`
+   * is the value returned by `api()` after stripping the envelope
+   * (`{ data: T, meta?: … }`). Validating against the wrapper
+   * schema (`{ data: SessionUser }`) here would always fail with
+   * `Schema mismatch: Required` because the input has no `data`
+   * property.
    */
-  login: (input: LoginInput): Promise<SessionResponse> => {
+  login: (input: LoginInput): Promise<SessionUser> => {
     // Re-validate locally to fail fast on obviously bad input.
     const body = loginInputSchema.parse(input);
-    return apiValidated('/auth/login', sessionResponseSchema, {
+    return apiValidated('/auth/login', sessionUserSchema, {
       method: 'POST',
       body,
     });
@@ -61,10 +70,13 @@ export const authApi = {
   /**
    * POST /api/v1/auth/signup — creates a new account and immediately
    * signs the user in (sets the same `opc_session` cookie).
+   *
+   * Same schema choice as login(): validate the inner payload, not
+   * the wrapper.
    */
-  signup: (input: SignupInput): Promise<SessionResponse> => {
+  signup: (input: SignupInput): Promise<SessionUser> => {
     const body = signupInputSchema.parse(input);
-    return apiValidated('/auth/signup', sessionResponseSchema, {
+    return apiValidated('/auth/signup', sessionUserSchema, {
       method: 'POST',
       body,
     });

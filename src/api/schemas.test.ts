@@ -9,6 +9,9 @@ import {
   taskStatusSchema,
   internalMessageTypeSchema,
   systemStatusSchema,
+  sessionUserSchema,
+  sessionResponseSchema,
+  loginInputSchema,
 } from '@/api/schemas';
 
 describe('api schemas', () => {
@@ -149,5 +152,47 @@ describe('api schemas', () => {
         user_id: 'u',
       }),
     ).not.toThrow();
+  });
+
+  // ───────────────────────────────────────────────────────────
+  // Regression for the "Schema mismatch on /auth/login: Required"
+  // bug: the response envelope is `{ data: { id, email, … } }`.
+  // The auth endpoints validate the INNER payload (`sessionUserSchema`)
+  // because apiValidated unwraps the envelope before schema checking.
+  // ───────────────────────────────────────────────────────────
+  it('sessionUserSchema matches the inner login response payload', () => {
+    const inner = {
+      id: 'a326474f-e455-480e-a005-9dfd7b43417b',
+      email: 'ada' + '@example.com',
+      full_name: 'Ada',
+      organization_id: '00000000-0000-0000-0000-000000000001',
+    };
+    expect(() => sessionUserSchema.parse(inner)).not.toThrow();
+    const parsed = sessionUserSchema.parse(inner);
+    expect(parsed.email).toBe('ada' + '@example.com');
+  });
+
+  it('sessionResponseSchema is the wrapper and requires the `data` key', () => {
+    const wrapper = {
+      data: {
+        id: 'u1',
+        email: 'ada' + '@example.com',
+        full_name: null,
+        organization_id: 'org1',
+      },
+    };
+    expect(() => sessionResponseSchema.parse(wrapper)).not.toThrow();
+    // Validating the inner payload against the wrapper schema must
+    // fail with `Required` for the missing `data` key — this is
+    // exactly the bug the production login flow hit.
+    expect(() => sessionResponseSchema.parse({ ...wrapper.data })).toThrow(/Required/);
+  });
+
+  it('loginInputSchema accepts the canonical { email, password } payload', () => {
+    expect(() =>
+      loginInputSchema.parse({ email: 'ada' + '@example.com', password: 'correcthorse' }),
+    ).not.toThrow();
+    expect(() => loginInputSchema.parse({ email: 'not-an-email', password: 'x' })).toThrow();
+    expect(() => loginInputSchema.parse({ email: 'ada' + '@example.com', password: 'short' })).toThrow();
   });
 });
