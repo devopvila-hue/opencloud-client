@@ -68,10 +68,12 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   // While we are redirecting, render nothing to avoid a flash of
   // protected content. The redirect is replace:true so the
-  // /onboarding URL doesn't pollute browser history. When the user
-  // is already on /onboarding we still render nothing — the route
-  // element itself is the OnboardingPage, which renders its own UI.
-  if (needsOnboarding) return null;
+  // /onboarding URL doesn't pollute browser history. The exception
+  // is the /onboarding path itself: the user is already on the
+  // page they need to be, so we render children (the OnboardingPage
+  // via the matched route) instead of `null` — otherwise the page
+  // stays blank instead of showing the onboarding form.
+  if (needsOnboarding && !onOnboardingPath) return null;
 
   return <>{children}</>;
 }

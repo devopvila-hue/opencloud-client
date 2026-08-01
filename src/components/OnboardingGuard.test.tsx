@@ -99,8 +99,13 @@ describe('OnboardingGuard', () => {
     await waitFor(() =>
       expect(screen.getByTestId('location')).toHaveTextContent('/onboarding'),
     );
-    // While redirecting, protected content must NOT flash.
-    expect(screen.queryByTestId('protected')).not.toBeInTheDocument();
+    // Once the redirect lands on /onboarding, the children (the
+    // OnboardingPage in production) render normally — the guard
+    // must NOT block them. We verify the landing page is the
+    // /onboarding one, where the test fixture's children are now
+    // expected to be visible.
+    expect(screen.getByTestId('location')).toHaveTextContent('/onboarding');
+    expect(screen.getByTestId('protected')).toBeInTheDocument();
   });
 
   it('redirects to /onboarding when company does not exist', async () => {
@@ -109,14 +114,20 @@ describe('OnboardingGuard', () => {
     await waitFor(() =>
       expect(screen.getByTestId('location')).toHaveTextContent('/onboarding'),
     );
+    // Same as above: the redirect lands on /onboarding where the
+    // children (the OnboardingPage in production) become visible.
+    expect(screen.getByTestId('protected')).toBeInTheDocument();
   });
 
   it('does NOT redirect when already on /onboarding', () => {
     renderGuard('/onboarding');
     expect(screen.getByTestId('location')).toHaveTextContent('/onboarding');
-    // Protected content is hidden (because needsOnboarding is true and
-    // we're not the redirecting branch) but we don't navigate away.
-    expect(screen.queryByTestId('protected')).not.toBeInTheDocument();
+    // When the user is already on /onboarding, the guard renders
+    // children instead of null — the children ARE the OnboardingPage
+    // (matched by the /onboarding route) and must be visible.
+    // Returning null here would leave the user staring at an empty
+    // main area (sidebar + topbar only) — the bug we just fixed.
+    expect(screen.getByTestId('protected')).toBeInTheDocument();
   });
 
   it('renders a spinner while me or company is loading', () => {
