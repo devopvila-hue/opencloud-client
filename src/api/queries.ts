@@ -321,7 +321,17 @@ export function useTasks(filters?: { departmentKey?: string; status?: string; li
   return useQuery<Task[]>({
     queryKey: queryKeys.tasks(filters),
     queryFn: () => tasksApi.list(filters ?? {}),
-    refetchInterval: 10_000,
+    // The previous 10s polling caused 500s to repeat every interval
+    // when the backend was unhealthy, flooding the console. We now
+    // stop polling as soon as the query enters an error state
+    // (TanStack Query's `refetchIntervalInBackground: false` plus
+    // the conditional `refetchInterval` callback) so a single
+    // transient 5xx doesn't snowball into a log-spam. The empty
+    // array (no tasks yet) is the most common success case and
+    // keeps polling — only errors pause it.
+    refetchInterval: (query) => (query.state.error ? false : 10_000),
+    refetchIntervalInBackground: false,
+    retry: 1,
   });
 }
 
