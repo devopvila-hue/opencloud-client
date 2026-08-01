@@ -15,7 +15,7 @@ import { Card, CardSection } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { ErrorState } from '@/components/ErrorState';
 import { useToast } from '@/components/Toaster';
-import { useCompany, useMe, usePatchCompany } from '@/api/queries';
+import { useCompany, useCreateCompany, useMe, usePatchCompany } from '@/api/queries';
 import { ApiClientError } from '@/api/client';
 import { cn } from '@/design-system/cn';
 
@@ -78,6 +78,7 @@ export default function OnboardingPage() {
   const me = useMe();
   const company = useCompany();
   const patch = usePatchCompany();
+  const create = useCreateCompany();
   const toast = useToast();
 
   // Form state
@@ -107,7 +108,7 @@ export default function OnboardingPage() {
     }
   }, [company.data]);
 
-  const isSubmitting = patch.isPending;
+  const isSubmitting = patch.isPending || create.isPending;
   const canSubmit =
     name.trim().length > 0 &&
     website.trim().length > 0 &&
@@ -120,34 +121,30 @@ export default function OnboardingPage() {
     if (!canSubmit) return;
     setError(null);
 
-    // The guard already ensured we have a session, but the company
-    // record might not exist yet (first ever login). In that case we
-    // fall back to a PATCH on the row the backend guarantees for
-    // every org — if even that row is missing the backend returns
-    // a clear 404 which we surface as an error.
-    const targetId = company.data?.id;
-    if (!targetId) {
-      setError(
-        'Your workspace is not yet provisioned. Refresh in a few seconds — the platform is still setting up your account.',
-      );
-      return;
-    }
+    // The onboarding form IS the workspace provisioning — there
+    // is no separate "workspace is being created" service that
+    // runs ahead of us. If the company record doesn't exist yet
+    // (fresh signup, founder reset) we POST /api/v1/companies
+    // to create it. If it already exists, we PATCH it. Same
+    // payload shape on the wire so the backend stays clean.
+    const payload = {
+      name: name.trim(),
+      domain: normalizeUrl(website.trim()),
+      sector: sector || null,
+      employees,
+      // Persist the goal as the sole entry in the goals array so
+      // future re-use (corporate memory, briefings) sees it.
+      goals: [goal],
+      onboarding_status: 'completed' as const,
+      onboarding_completed_at: new Date().toISOString(),
+    };
 
     try {
-      await patch.mutateAsync({
-        id: targetId,
-        patch: {
-          name: name.trim(),
-          domain: normalizeUrl(website.trim()),
-          sector: sector || null,
-          employees,
-          // Persist the goal as the sole entry in the goals array so
-          // future re-use (corporate memory, briefings) sees it.
-          goals: [goal],
-          onboarding_status: 'completed',
-          onboarding_completed_at: new Date().toISOString(),
-        },
-      });
+      if (company.data?.id) {
+        await patch.mutateAsync({ id: company.data.id, patch: payload });
+      } else {
+        await create.mutateAsync(payload);
+      }
       toast.push({
         tone: 'success',
         title: 'Welcome aboard',

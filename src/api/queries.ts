@@ -132,6 +132,23 @@ export function usePatchCompany() {
   });
 }
 
+/**
+ * POST /api/v1/companies — creates the Company record for the
+ * current organization. OnboardingPage uses this when the user
+ * has no company yet (fresh signup / founder reset). Invalidates
+ * `useCompany` on success so the OnboardingGuard immediately
+ * sees the new record and lets the user through to the app.
+ */
+export function useCreateCompany() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (patch: Partial<Company> & { name: string }) => companyApi.create(patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.company });
+    },
+  });
+}
+
 export function useRegenerateMemory() {
   const qc = useQueryClient();
   return useMutation({

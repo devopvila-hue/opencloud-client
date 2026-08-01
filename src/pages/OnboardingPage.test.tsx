@@ -4,13 +4,25 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock the queries module so we can drive me.data / company.data
-// and spy on usePatchCompany.
+// and spy on usePatchCompany / useCreateCompany.
 const meState = vi.fn();
 const companyState = vi.fn();
-const mutateAsync = vi.fn();
+const mutatePatch = vi.fn();
+const mutateCreate = vi.fn();
 const patchState = vi.fn(() => ({
-  mutateAsync,
-  mutate: mutateAsync,
+  mutateAsync: mutatePatch,
+  mutate: mutatePatch,
+  isPending: false,
+  isError: false,
+  isSuccess: false,
+  reset: vi.fn(),
+  data: undefined,
+  error: null,
+  status: 'idle',
+}));
+const createState = vi.fn(() => ({
+  mutateAsync: mutateCreate,
+  mutate: mutateCreate,
   isPending: false,
   isError: false,
   isSuccess: false,
@@ -24,6 +36,7 @@ vi.mock('@/api/queries', () => ({
   useMe: () => meState(),
   useCompany: () => companyState(),
   usePatchCompany: () => patchState(),
+  useCreateCompany: () => createState(),
 }));
 
 // Toaster — stub toast.push so we can spy.
@@ -85,9 +98,13 @@ describe('OnboardingPage', () => {
       },
       isLoading: false,
     });
-    mutateAsync.mockReset();
-    mutateAsync.mockResolvedValue({
+    mutatePatch.mockReset();
+    mutatePatch.mockResolvedValue({
       data: { id: 'co1', onboarding_status: 'completed', name: 'Acme' },
+    });
+    mutateCreate.mockReset();
+    mutateCreate.mockResolvedValue({
+      data: { id: 'co-new', onboarding_status: 'completed', name: 'Acme' },
     });
     pushToast.mockClear();
   });
@@ -142,9 +159,9 @@ describe('OnboardingPage', () => {
     expect(submit).not.toBeDisabled();
     fireEvent.click(submit);
 
-    await waitFor(() => expect(mutateAsync).toHaveBeenCalled());
+    await waitFor(() => expect(mutatePatch).toHaveBeenCalled());
 
-    const [arg] = mutateAsync.mock.calls[0] as [{ id: string; patch: Record<string, unknown> }];
+    const [arg] = mutatePatch.mock.calls[0] as [{ id: string; patch: Record<string, unknown> }];
     expect(arg.id).toBe('co1');
     expect(arg.patch).toMatchObject({
       name: 'Acme Industries',
@@ -184,9 +201,51 @@ describe('OnboardingPage', () => {
     expect((screen.getByLabelText(/sector/i) as HTMLInputElement).value).toBe('Retail / E-commerce');
   });
 
+  it('POSTs to /companies when the user has no company yet (first-time onboarding)', async () => {
+    // No company record exists — exactly the state right after
+    // signup or a founder reset. Onboarding IS the provisioning
+    // step; we must call useCreateCompany, not usePatchCompany.
+    companyState.mockReturnValue({ data: null, isLoading: false });
+    const restore = renderOnboarding().restore;
+
+    fireEvent.change(screen.getByLabelText(/company name/i), {
+      target: { value: 'Brand New Co' },
+    });
+    fireEvent.change(screen.getByLabelText(/website/i), {
+      target: { value: 'new.example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /just me/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Custom apps for the team/i }));
+
+    fireEvent.click(document.querySelector('button[type="submit"]') as HTMLButtonElement);
+
+    await waitFor(() => expect(mutateCreate).toHaveBeenCalled());
+    // We must NOT have tried to PATCH (that path would 404 with
+    // no id) — the new flow goes straight to POST.
+    expect(mutatePatch).not.toHaveBeenCalled();
+
+    const [arg] = mutateCreate.mock.calls[0] as [Record<string, unknown>];
+    expect(arg).toMatchObject({
+      name: 'Brand New Co',
+      domain: 'https://new.example.com',
+      employees: '1',
+      goals: ['software'],
+      onboarding_status: 'completed',
+    });
+    expect(typeof arg.onboarding_completed_at).toBe('string');
+
+    // No "workspace is not yet provisioned" copy anywhere.
+    expect(screen.queryByText(/not yet provisioned/i)).not.toBeInTheDocument();
+
+    expect(pushToast).toHaveBeenCalled();
+    expect(window.location.assign).toHaveBeenCalledWith('/');
+
+    restore();
+  });
+
   it('renders an error block when usePatchCompany fails', async () => {
     const restore = renderOnboarding().restore;
-    mutateAsync.mockRejectedValueOnce(new Error('Boom'));
+    mutatePatch.mockRejectedValueOnce(new Error('Boom'));
 
     fireEvent.change(screen.getByLabelText(/company name/i), { target: { value: 'Acme' } });
     fireEvent.change(screen.getByLabelText(/website/i), { target: { value: 'https://acme.test' } });

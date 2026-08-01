@@ -96,6 +96,16 @@ export const systemApi = {
 export const companyApi = {
   current: (): Promise<Company | null> =>
     api<Company | null>('/companies/current').then((r) => r.data),
+  /**
+   * POST /api/v1/companies — first-time provisioning of the
+   * Company record bound 1:1 to the current organization. Used
+   * by OnboardingPage to break the "no company → can't patch"
+   * deadlock for fresh signups. The middleware guarantees
+   * `name` is required; everything else is optional and gets
+   * persisted verbatim.
+   */
+  create: (patch: Partial<Company> & { name: string }): Promise<Company> =>
+    api<Company>('/companies', { method: 'POST', body: patch }).then((r) => r.data),
   patch: (id: string, patch: Partial<Company>): Promise<Company> =>
     api<Company>(`/companies/${id}`, { method: 'PATCH', body: patch }).then((r) => r.data),
   regenerateMemory: () =>
