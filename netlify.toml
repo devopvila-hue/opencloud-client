@@ -5,8 +5,21 @@
 
 # Environment variables — set these in the Netlify UI or via netlify env:set
 # [build.environment]
-#   VITE_AUTH_URL = "https://app.example.com"   # only when login is on a separate origin
+#   VITE_AUTH_URL = "https://app.nexusaisys.com"   # only when login is on a separate origin
 
+# ============================================================
+# /api/* — proxy to the OPENCloud middleware on api.nexusaisys.com
+# MUST come before the SPA fallback rule below.
+# Without this rule, requests like GET /api/v1/me were answered
+# with the SPA's index.html, breaking every authenticated call.
+# ============================================================
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.nexusaisys.com/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback — every non-API route serves index.html.
 [[redirects]]
   from = "/*"
   to = "/index.html"
