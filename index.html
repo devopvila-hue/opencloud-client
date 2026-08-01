@@ -6,8 +6,21 @@
     <meta name="theme-color" content="#080908" />
     <meta name="color-scheme" content="dark light" />
     <meta name="description" content="OPENCloud Client Portal — your Business Operating System for AI departments." />
-    <link rel="preconnect" href="https://rsms.me/" />
+
+    <!--
+      Design system fonts. Loaded from rsms.me (Inter, sans) and
+      Google Fonts (Fraunces, display). Preconnect cuts the TLS
+      handshake for both domains so the first paint isn't FOIT.
+    -->
+    <link rel="preconnect" href="https://rsms.me/" crossorigin />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    />
+
     <title>OPENCloud — Business Operating System</title>
   </head>
   <body>

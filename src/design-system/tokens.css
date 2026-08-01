@@ -8,6 +8,65 @@
    - Fraunces (display) + Geist/Inter (sans) + JetBrains Mono (mono)
    ============================================================ */
 
+/*
+ * Tailwind v4 is opt-in per-file: the @tailwindcss/vite plugin is
+ * loaded by Vite, but no CSS is generated unless we explicitly
+ * @import the framework. Without this line the bundle ships only
+ * the token + utility layers below and ZERO Tailwind utility
+ * classes (flex, gap-3, rounded-… etc.) — every component breaks
+ * silently.
+ *
+ * Source: https://tailwindcss.com/docs/installation/using-vite
+ */
+@import "tailwindcss";
+
+/*
+ * Project tokens override Tailwind's defaults — declare them under
+ * `@theme` so utility classes like `bg-accent`, `text-foreground`
+ * and `rounded-md` resolve to our palette / radii / font.
+ *
+ * Tailwind v4 reads the @theme block and emits matching CSS
+ * variables on :root, so `bg-accent` becomes
+ * `background-color: var(--color-accent)`.
+ */
+@theme {
+  --color-background: #080908;
+  --color-background-elevated: #101210;
+  --color-surface: #151815;
+  --color-surface-soft: #1b1f1b;
+
+  --color-foreground: #f2f0e9;
+  --color-muted: #989b94;
+  --color-muted-foreground: #c2c4bc;
+
+  --color-accent: #d8ff62;
+  --color-accent-soft: rgba(216, 255, 98, 0.14);
+  --color-accent-foreground: #0a0c08;
+
+  --color-warning: #ffbd59;
+  --color-danger: #ff6961;
+  --color-success: #7ce5a3;
+
+  --color-dept-revenue: #f472b6;
+  --color-dept-operations: #38bdf8;
+  --color-dept-people: #a78bfa;
+  --color-dept-customer: #34d399;
+  --color-dept-compliance: #fbbf24;
+  --color-dept-governance: #a855f7;
+  --color-dept-internal: #c7c8d4;
+
+  --font-sans: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", "Editorial New", "Times New Roman", Georgia, serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+}
+
 @layer base {
   :root {
     /* ---- Brand palette (DeptIA) ---- */
