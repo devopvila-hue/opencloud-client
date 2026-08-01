@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
 import { NotificationsPanel } from './NotificationsPanel';
+import { OnboardingGuard } from '@/components/OnboardingGuard';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { SkeletonGrid } from '@/components/Skeleton';
 import { useState } from 'react';
@@ -64,7 +65,9 @@ export function ShellLayout() {
               </div>
             }
           >
-            <Outlet />
+            <OnboardingGuard>
+              <Outlet />
+            </OnboardingGuard>
           </Suspense>
         </main>
       </div>
