@@ -16,6 +16,7 @@ import { Card } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { useToast } from '@/components/Toaster';
 import { useLogin, useMe, useSignup } from '@/api/queries';
+import { useI18n } from '@/i18n/I18nProvider';
 import { sanitizeNext, isLoginPath, containsLoginPath } from '@/utils/sanitizeNext';
 import { cn } from '@/design-system/cn';
 import { ApiClientError } from '@/api/client';
@@ -45,6 +46,7 @@ export default function LoginPage() {
   const me = useMe();
   const login = useLogin();
   const signup = useSignup();
+  const { t } = useI18n();
 
   // ----- next sanitisation ------------------------------------
   const rawNext = params.get('next');
@@ -94,7 +96,7 @@ export default function LoginPage() {
         description: 'Loading your Business Operating System…',
       });
     } catch (err) {
-      const message = err instanceof ApiClientError ? err.message : 'Sign-in failed';
+      const message = err instanceof ApiClientError ? err.message : t('login.error.invalid');
       setError(message);
     }
   }
@@ -114,12 +116,10 @@ export default function LoginPage() {
             </div>
             <div>
               <h1 className="font-display text-[1.125rem] tracking-[-0.01em] text-[color:var(--foreground)]">
-                {mode === 'login' ? 'Sign in to OPENCloud' : 'Create your OPENCloud account'}
+                {mode === 'login' ? t('app.signin.title') : t('app.signup.title')}
               </h1>
               <p className="mt-0.5 text-xs text-[color:var(--muted-foreground)]">
-                {mode === 'login'
-                  ? 'Welcome back — your Business Operating System is one click away.'
-                  : 'Set up your workspace in under a minute.'}
+                {mode === 'login' ? t('app.signin.subtitle') : t('app.signup.subtitle')}
               </p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
               aria-pressed={mode === 'login'}
             >
               <LogIn className="h-3.5 w-3.5" />
-              Sign in
+              {t('login.mode.signin')}
             </button>
             <button
               type="button"
@@ -152,7 +152,7 @@ export default function LoginPage() {
               aria-pressed={mode === 'signup'}
             >
               <UserPlus className="h-3.5 w-3.5" />
-              Sign up
+              {t('login.mode.signup')}
             </button>
           </div>
 
@@ -169,27 +169,27 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-3" noValidate>
             {mode === 'signup' && (
               <Field
-                label="Full name"
+                label={t('login.field.full_name')}
                 type="text"
                 autoComplete="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Ada Lovelace"
+                placeholder={t('login.full_name_placeholder')}
                 disabled={busy}
               />
             )}
             <Field
-              label="Email"
+              label={t('login.field.email')}
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="[email protected]"
+              placeholder={t('login.email_placeholder')}
               disabled={busy}
             />
             <Field
-              label="Password"
+              label={t('login.field.password')}
               type="password"
               required
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -213,18 +213,17 @@ export default function LoginPage() {
               loading={busy}
             >
               {busy
-                ? mode === 'login' ? 'Signing in…' : 'Creating account…'
-                : mode === 'login' ? 'Sign in' : 'Create account'}
+                ? mode === 'login' ? t('login.button.signing_in') : t('login.button.creating')
+                : mode === 'login' ? t('login.button.signin') : t('login.button.signup')}
             </Button>
           </form>
 
           <div className="mt-5 flex items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/40 p-3 text-xs text-[color:var(--muted-foreground)]">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--accent)]" />
             <div>
-              <p className="font-medium text-[color:var(--foreground)]">Secure session</p>
+              <p className="font-medium text-[color:var(--foreground)]">{t('login.secure.title')}</p>
               <p className="mt-0.5 text-pretty">
-                The session cookie is HttpOnly and HMAC-signed by the middleware. We never store your
-                credentials in this app.
+                {t('login.secure.description')}
               </p>
             </div>
           </div>
@@ -239,12 +238,11 @@ export default function LoginPage() {
           >
             {loopDetected || targetIsLogin ? (
               <p>
-                <strong>Loop detected.</strong> The destination resolved to the login screen — you will be
-                sent to the home page after authentication instead.
+                <strong>{t('login.loop.title')}</strong> {t('login.loop.description')}
               </p>
             ) : (
               <p>
-                Destination after sign-in:&nbsp;
+                {t('login.destination')}&nbsp;
                 <code className="rounded bg-[color:var(--surface-soft)] px-1 py-0.5 font-mono text-[11px]">
                   {next}
                 </code>
@@ -254,7 +252,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-xs text-[color:var(--muted-foreground)]">
             <Link to="/" className="underline-offset-2 hover:text-[color:var(--foreground)] hover:underline">
-              Return home
+              {t('common.return_home')}
             </Link>
           </p>
         </Card>

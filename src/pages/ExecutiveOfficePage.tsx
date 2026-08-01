@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nProvider';
 import {
   Activity,
   AlertTriangle,
@@ -61,6 +62,7 @@ type Opportunity = {
 };
 
 export default function ExecutiveOfficePage() {
+  const { t } = useI18n();
   const def = useDepartment('executive-office');
   const catalog = useDepartmentCatalog();
   const tasks = useTasks({ limit: 50 });
@@ -178,14 +180,13 @@ export default function ExecutiveOfficePage() {
           </div>
           <div>
             <h1 className="font-display text-[1.4rem] tracking-[-0.01em] md:text-[1.75rem]">
-              Executive Office
+              {t('office.header.title')}
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-[color:var(--muted-foreground)] text-pretty">
-              Business Operating System command center. Monitor health, review priorities, and
-              coordinate every department from a single view.
+              {t('office.header.subtitle')}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[color:var(--muted-foreground)]">
-              <span>Last updated {formatRelativeTime(room.data?.generated_at ?? new Date().toISOString())}</span>
+              <span>{t('office.last_updated', { when: formatRelativeTime(room.data?.generated_at ?? new Date().toISOString())})}</span>
               <span>·</span>
               <span>
                 {activeDepartments.length} active · {availableDepartments.length} available

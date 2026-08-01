@@ -41,6 +41,7 @@ vi.mock('@/api/queries', () => {
 
 // Import after the mocks so they hook into the module system.
 import LoginPage from '@/pages/LoginPage';
+import { I18nProvider } from '@/i18n/I18nProvider';
 
 function renderLogin(initialPath: string) {
   const client = new QueryClient({
@@ -48,14 +49,16 @@ function renderLogin(initialPath: string) {
   });
   return render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<div>Home</div>} />
-          <Route path="/dashboard" element={<div>Dashboard</div>} />
-          <Route path="/departments/marketing" element={<div>Departments Marketing</div>} />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<div>Home</div>} />
+            <Route path="/dashboard" element={<div>Dashboard</div>} />
+            <Route path="/departments/marketing" element={<div>Departments Marketing</div>} />
+          </Routes>
+        </MemoryRouter>
+      </I18nProvider>
     </QueryClientProvider>,
   );
 }

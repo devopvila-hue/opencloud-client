@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Languages, LogOut, Moon, Palette, Shield, Sun, User2, Key, Eye, EyeOff, Plus, Trash2, ExternalLink, Check } from 'lucide-react';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
@@ -7,24 +7,31 @@ import { Field } from '@/components/Field';
 import { useToast } from '@/components/Toaster';
 import { useMe } from '@/api/queries';
 import { useTheme } from '@/design-system/theme';
+import { useI18n } from '@/i18n/I18nProvider';
+import { type Locale } from '@/i18n/i18n';
 import { cn } from '@/design-system/cn';
 import { formatRelativeTime } from '@/utils/format';
 import { redirectToLogin } from '@/utils/authRedirect';
 
-const languages = [
-  { id: 'es', label: 'Español' },
-  { id: 'en', label: 'English' },
-  { id: 'pt', label: 'Português' },
+const languages: { id: Locale; nameKey: string }[] = [
+  { id: 'en', nameKey: 'English' },  // will be translated via t() at render
+  { id: 'es', nameKey: 'Spanish' },
 ];
 
 export default function SettingsPage() {
   const me = useMe();
   const { theme, setTheme } = useTheme();
+  const { locale, setLocale, t } = useI18n();
   const toast = useToast();
-  const [language, setLanguage] = useState('en');
   const [notifications, setNotifications] = useState({ email: true, inapp: true, weekly: false });
   const [providers, setProviders] = useState<ProviderRecord[]>([]);
   const [showProviderForm, setShowProviderForm] = useState<ProviderId | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // The language selector drives locale directly — changes are
+  // persisted immediately to localStorage (see I18nProvider) but
+  // we ALSO surface a toast + banner so the user gets feedback.
+  const [langDirty, setLangDirty] = useState(false);
 
   function addProvider(providerId: ProviderId, name: string, key: string, endpoint?: string) {
     const pres = providerPresets.find((p) => p.id === providerId);
@@ -48,20 +55,32 @@ export default function SettingsPage() {
 
   function removeProvider(id: string) {
     setProviders((prev) => prev.filter((p) => p.id !== id));
-    toast.push({ tone: 'info', title: 'Provider key removed' });
+    toast.push({ tone: 'info', title: t('settings.ai_providers.title') });
+  }
+
+  async function handleSaveLanguage() {
+    setSaving(true);
+    toast.push({
+      tone: 'success',
+      title: t('settings.language.saved'),
+      description: t('settings.language.saved_desc'),
+    });
+    setLangDirty(false);
+    await new Promise((r) => setTimeout(r, 600));
+    setSaving(false);
   }
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6 lg:p-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('settings.title')}</h1>
         <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-          Personal preferences and security. Org-wide controls live on the Company page.
+          {t('settings.subtitle')}
         </p>
       </header>
 
       <Card>
-        <CardHeader title="Profile" subtitle="Information tied to your account" />
+        <CardHeader title={t('settings.profile.title')} subtitle="Information tied to your account" />
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent)]">
             <User2 className="h-6 w-6" />
@@ -69,27 +88,27 @@ export default function SettingsPage() {
           <div>
             <div className="text-sm font-medium text-[color:var(--color-fg-1)]">{me.data?.full_name ?? me.data?.email ?? '—'}</div>
             <div className="text-xs text-[color:var(--color-fg-3)]">{me.data?.email}</div>
-            <Badge tone="violet" size="xs" variant="outline" className="mt-1">member</Badge>
+            <Badge tone="violet" size="xs" variant="outline" className="mt-1">{t('settings.profile.member')}</Badge>
           </div>
         </div>
       </Card>
 
       <Card>
-        <CardHeader title="Appearance" subtitle="Switch between dark and light, set language" />
+        <CardHeader title={t('settings.appearance.title')} subtitle={t('settings.appearance.subtitle')} />
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setTheme('dark')}
             className={`flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm ${theme === 'dark' ? 'border-[color:var(--color-accent)] bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent)]' : 'border-[color:var(--color-line-strong)] text-[color:var(--color-fg-2)]'}`}
           >
-            <Moon className="h-4 w-4" /> Dark
+            <Moon className="h-4 w-4" /> {t('common.dark')}
           </button>
           <button
             type="button"
             onClick={() => setTheme('light')}
             className={`flex items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm ${theme === 'light' ? 'border-[color:var(--color-accent)] bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent)]' : 'border-[color:var(--color-line-strong)] text-[color:var(--color-fg-2)]'}`}
           >
-            <Sun className="h-4 w-4" /> Light
+            <Sun className="h-4 w-4" /> {t('common.light')}
           </button>
           <Palette className="ml-auto h-4 w-4 text-[color:var(--color-fg-3)]" />
         </div>
@@ -100,44 +119,56 @@ export default function SettingsPage() {
               <button
                 key={l.id}
                 type="button"
-                onClick={() => setLanguage(l.id)}
-                className={`rounded-full px-3 py-1 text-xs ${language === l.id ? 'bg-[color:var(--color-accent)] text-white' : 'bg-[color:var(--color-bg-3)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg-1)]'}`}
+                onClick={() => { setLocale(l.id); setLangDirty(true); }}
+                className={`rounded-full px-3 py-1 text-xs ${locale === l.id ? 'bg-[color:var(--color-accent)] text-white' : 'bg-[color:var(--color-bg-3)] text-[color:var(--color-fg-2)] hover:text-[color:var(--color-fg-1)]'}`}
               >
-                {l.label}
+                {l.id === 'en' ? t('settings.language.label_en') : t('settings.language.label_es')}
               </button>
             ))}
           </div>
         </CardSection>
+        {langDirty && (
+          <CardSection className="border-t border-[color:var(--color-line)] pt-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[color:var(--color-fg-2)]">
+                {locale === 'es' ? 'Idioma configurado en español.' : 'Language set to English.'}
+              </span>
+              <Button size="sm" variant="primary" iconLeft={<Check className="h-3.5 w-3.5" />} onClick={handleSaveLanguage} loading={saving} disabled={saving}>
+                {saving ? t('common.saving') : t('common.save')}
+              </Button>
+            </div>
+          </CardSection>
+        )}
       </Card>
 
       <Card>
-        <CardHeader title="Notifications" subtitle="Choose how the portal reaches you" />
+        <CardHeader title={t('settings.notifications.title')} subtitle="Choose how the portal reaches you" />
         <div className="space-y-2 text-sm">
           <Toggle
             icon={<Bell className="h-4 w-4" />}
-            label="In-app notifications"
+            label={t('settings.notifications.inapp')}
             checked={notifications.inapp}
-            onChange={(v) => setNotifications((p) => ({ ...p, inapp: v }))}
+            onChange={(v) => setNotifications((p: typeof notifications) => ({ ...p, inapp: v }))}
           />
           <Toggle
             icon={<Bell className="h-4 w-4" />}
-            label="Email notifications"
+            label={t('settings.notifications.email')}
             checked={notifications.email}
-            onChange={(v) => setNotifications((p) => ({ ...p, email: v }))}
+            onChange={(v) => setNotifications((p: typeof notifications) => ({ ...p, email: v }))}
           />
           <Toggle
             icon={<Bell className="h-4 w-4" />}
-            label="Weekly digest"
+            label={t('settings.notifications.weekly')}
             checked={notifications.weekly}
-            onChange={(v) => setNotifications((p) => ({ ...p, weekly: v }))}
+            onChange={(v) => setNotifications((p: typeof notifications) => ({ ...p, weekly: v }))}
           />
         </div>
       </Card>
 
       <Card>
         <CardHeader
-          title="AI Providers (BYOK)"
-          subtitle="Bring your own API keys — we never store them in plaintext"
+          title={t('settings.ai_providers.title')}
+          subtitle={t('settings.ai_providers.subtitle')}
         />
         <CardSection>
           {providers.length === 0 ? (
@@ -184,12 +215,12 @@ export default function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader title="Security" subtitle="Session and access" />
+        <CardHeader title={t('settings.security.title')} subtitle={t('settings.security.subtitle')} />
         <div className="flex flex-wrap items-center gap-2 text-sm text-[color:var(--color-fg-2)]">
           <Shield className="h-4 w-4" />
-          <span>Session: {me.data ? 'active' : '—'}</span>
+          <span>{t('settings.security.session')} {me.data ? t('settings.security.active') : '—'}</span>
           <Badge tone="emerald" size="xs" variant="outline">
-            HttpOnly · SameSite=Lax
+            {t('settings.security.cookie')}
           </Badge>
         </div>
         <CardSection className="mt-3">
@@ -201,7 +232,7 @@ export default function SettingsPage() {
                 await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
                 redirectToLogin();
               } catch {
-                toast.push({ tone: 'error', title: 'Could not sign out' });
+                toast.push({ tone: 'error', title: t('settings.signout_error') });
               }
             }}
           >
@@ -297,6 +328,7 @@ function EmptyProviderState({ onAdd }: { onAdd: () => void }) {
 }
 
 function ProviderRow({ provider, onRemove }: { provider: ProviderRecord; onRemove: () => void }) {
+  const { t } = useI18n();
   const [revealed, setRevealed] = useState(false);
   const PresIcon = provider.icon;
   const masked = '•'.repeat(Math.min(provider.key.length, 8)) + provider.key.slice(-4);
@@ -320,14 +352,14 @@ function ProviderRow({ provider, onRemove }: { provider: ProviderRecord; onRemov
               type="button"
               onClick={() => setRevealed(!revealed)}
               className="rounded p-0.5 text-[color:var(--color-fg-3)] hover:text-[color:var(--color-fg-1)]"
-              aria-label={revealed ? 'Mask key' : 'Reveal key'}
+              aria-label={revealed ? t('settings.ai_providers.mask') : t('settings.ai_providers.reveal')}
             >
               {revealed ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
             </button>
           </div>
           {provider.lastUsed && (
             <div className="mt-0.5 text-[10px] text-[color:var(--color-fg-3)]">
-              Last used {formatRelativeTime(provider.lastUsed)}
+              {t('settings.ai_providers.last_used')}{' '}{formatRelativeTime(provider.lastUsed)}
             </div>
           )}
         </div>
@@ -336,7 +368,7 @@ function ProviderRow({ provider, onRemove }: { provider: ProviderRecord; onRemov
         type="button"
         onClick={onRemove}
         className="rounded-md p-1.5 text-[color:var(--color-fg-3)] hover:bg-[color:var(--color-bg-3)] hover:text-[color:var(--color-rose)]"
-        aria-label="Remove provider"
+        aria-label={t('common.delete')}
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -353,6 +385,7 @@ function ProviderForm({
   onSave: (name: string, key: string, endpoint?: string) => void;
   onCancel: () => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState<string>(provider);
   const [key, setKey] = useState('');
   const [endpoint, setEndpoint] = useState('');
@@ -371,14 +404,14 @@ function ProviderForm({
       </div>
       <input
         type="text"
-        placeholder="Friendly name (optional)"
+        placeholder={t('settings.ai_providers.empty.cta')}
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="w-full rounded-[var(--radius-md)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)] px-3 py-2 text-sm text-[color:var(--color-fg-1)] placeholder:text-[color:var(--color-fg-3)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
       />
       <input
         type="password"
-        placeholder="API key"
+        placeholder={t('settings.ai_providers.key_placeholder')}
         value={key}
         onChange={(e) => setKey(e.target.value)}
         className="w-full rounded-[var(--radius-md)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)] px-3 py-2 text-sm font-mono text-[color:var(--color-fg-1)] placeholder:text-[color:var(--color-fg-3)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"

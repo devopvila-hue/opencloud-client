@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { navItems } from './nav';
 import { cn } from '@/design-system/cn';
 import { useTheme, brandConfig } from '@/design-system/theme';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -13,6 +14,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
   const { branding } = useTheme();
   const brand = brandConfig[branding];
+  const { t } = useI18n();
   const primary = navItems.filter((n) => n.group === 'primary');
   const secondary = navItems.filter((n) => n.group === 'secondary');
 
@@ -22,7 +24,7 @@ export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
         'flex h-full flex-col border-r border-[color:var(--color-line)] bg-[color:var(--color-bg-0)]',
         collapsed ? 'w-[68px]' : 'w-[240px]',
       )}
-      aria-label="Primary navigation"
+      aria-label={t('sidebar.collapse')}
     >
       <div className="flex items-center gap-2 px-4 py-4">
         <div
@@ -50,10 +52,15 @@ export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 pb-4">
-        <SidebarSection title={collapsed ? undefined : 'Workspace'} items={primary} collapsed={collapsed} onNavigate={onNavigate} />
+        <SidebarSection
+          title={collapsed ? undefined : t('common.search')}
+          items={primary}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
         {!collapsed && (
           <div className="mt-5 px-3 text-[10px] uppercase tracking-wider text-[color:var(--color-fg-3)]">
-            Library
+            {t('common.search')}
           </div>
         )}
         <SidebarSection items={secondary} collapsed={collapsed} onNavigate={onNavigate} />
@@ -67,7 +74,7 @@ export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
           />
           {!collapsed && (
             <span className="text-[11px] uppercase tracking-wider text-[color:var(--color-fg-3)]">
-              System active
+              {t('office.health.gateway_up')}
             </span>
           )}
         </div>
@@ -87,6 +94,7 @@ function SidebarSection({
   collapsed: boolean;
   onNavigate?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div>
       {title && (
@@ -121,7 +129,7 @@ function SidebarSection({
                         isActive ? 'text-[color:var(--color-accent)]' : 'text-[color:var(--color-fg-3)]',
                       )}
                     />
-                    {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+                    {!collapsed && <span className="flex-1 truncate">{t(item.labelKey)}</span>}
                     {!collapsed && item.shortcut && (
                       <span className="hidden rounded bg-[color:var(--color-bg-3)] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[color:var(--color-fg-3)] lg:inline-block">
                         {item.shortcut}

@@ -6,6 +6,7 @@ import { Drawer } from '@/components/Drawer';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/Button';
 import { useInternalMessages, useTasks } from '@/api/queries';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/design-system/cn';
 import { formatRelativeTime } from '@/utils/format';
 
@@ -18,6 +19,7 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
   const tasks = useTasks({ limit: 20 });
   const messages = useInternalMessages({ limit: 20 });
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const items = useMemo(() => {
     const out: {
@@ -64,13 +66,13 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
   }, [tasks.data, messages.data]);
 
   return (
-    <Drawer open={open} onClose={onClose} title="Notifications" width="md">
+    <Drawer open={open} onClose={onClose} title={t('topbar.notifications')} width="md">
       {items.length === 0 ? (
         <EmptyState
           icon={<Bell className="h-5 w-5" />}
-          title="You're all caught up"
-          description="Tasks, internal messages and approvals will appear here in real time."
-          action={<Button onClick={() => { onClose(); navigate('/tasks'); }}>Open tasks</Button>}
+          title={t('notifications.empty.title')}
+          description={t('notifications.empty.description')}
+          action={<Button onClick={() => { onClose(); navigate('/tasks'); }}>{t('notifications.empty.cta')}</Button>}
         />
       ) : (
         <ul className="space-y-1">

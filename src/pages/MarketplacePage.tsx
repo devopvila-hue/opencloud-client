@@ -20,6 +20,7 @@ import { useDepartmentCatalog, useActivateDepartment } from '@/api/queries';
 import { useToast } from '@/components/Toaster';
 import type { DepartmentCatalogEntry } from '@/api/schemas';
 import { departments, categoryLabel, getDepartment, iconFromManifest, type DepartmentCategory } from '@/design-system/departments';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/design-system/cn';
 
 const lifecycleTone: Record<string, 'emerald' | 'amber' | 'rose' | 'neutral' | 'cyan' | 'violet'> = {
@@ -35,6 +36,7 @@ const lifecycleTone: Record<string, 'emerald' | 'amber' | 'rose' | 'neutral' | '
 };
 
 export default function MarketplacePage() {
+  const { t } = useI18n();
   const catalog = useDepartmentCatalog();
   const activate = useActivateDepartment();
   const toast = useToast();
@@ -80,9 +82,9 @@ export default function MarketplacePage() {
             <Store className="h-6 w-6" style={{ color: 'var(--accent)' }} />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Marketplace</h1>
+            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('marketplace.header.title')}</h1>
             <p className="mt-1 text-sm text-[color:var(--muted-foreground)]">
-              Browse and install department apps for your Business Operating System.
+              {t('marketplace.header.subtitle')}
             </p>
           </div>
         </div>

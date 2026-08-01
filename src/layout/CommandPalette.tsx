@@ -6,6 +6,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useHotkey } from '@/hooks/useHotkey';
 import { navItems } from './nav';
 import { useConversations, useDepartmentCatalog, useTasks } from '@/api/queries';
+import { useI18n } from '@/i18n/I18nProvider';
 import { getDepartment } from '@/design-system/departments';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -34,6 +35,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const departments = useDepartmentCatalog();
   const tasks = useTasks({ limit: 30 });
   const conversations = useConversations();
+  const { t } = useI18n();
 
   useHotkey('mod+k', () => (open ? onClose() : setQuery('')), { enabled: true });
 
@@ -52,12 +54,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     for (const n of navItems) {
       out.push({
         id: `nav-${n.to}`,
-        group: 'Navigate',
-        title: n.label,
-        subtitle: n.description,
+        group: t('palette.group.navigate'),
+        title: t(n.labelKey),
+        subtitle: undefined,
         icon: n.icon,
         shortcut: n.shortcut,
-        keywords: ['go', 'open', n.label.toLowerCase()],
+        keywords: ['go', 'open', t(n.labelKey).toLowerCase()],
         perform: () => {
           navigate(n.to);
           onClose();
@@ -67,9 +69,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
     out.push({
       id: 'action-new-conversation',
-      group: 'Create',
-      title: 'New conversation',
-      subtitle: 'Start chatting with the Executive Director',
+      group: t('palette.group.create'),
+      title: t('palette.action.new_conversation'),
+      subtitle: t('palette.action.new_conversation'),
       icon: Plus,
       keywords: ['chat', 'conversation', 'talk'],
       perform: () => {
@@ -79,9 +81,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     });
     out.push({
       id: 'action-search-documents',
-      group: 'Search',
-      title: 'Search documents',
-      subtitle: 'Browse uploaded files',
+      group: t('palette.group.search'),
+      title: t('palette.action.search_documents'),
+      subtitle: t('palette.action.search_documents'),
       icon: Hash,
       keywords: ['document', 'file', 'pdf'],
       perform: () => {
@@ -95,7 +97,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         const pres = getDepartment(d.key);
         out.push({
           id: `dept-${d.key}`,
-          group: 'Departments',
+          group: t('palette.group.departments'),
           title: d.name,
           subtitle: d.description,
           icon: pres?.icon ?? Sparkles,
@@ -109,16 +111,16 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
 
     if (tasks.data) {
-      for (const t of tasks.data.slice(0, 20)) {
+      for (const task of tasks.data.slice(0, 20)) {
         out.push({
-          id: `task-${t.id}`,
-          group: 'Tasks',
-          title: t.title,
-          subtitle: `${t.department_key} · ${t.status}`,
+          id: `task-${task.id}`,
+          group: t('palette.group.tasks'),
+          title: task.title,
+          subtitle: `${task.department_key} · ${task.status}`,
           icon: Compass,
-          keywords: ['task', t.department_key, t.title.toLowerCase()],
+          keywords: ['task', task.department_key, task.title.toLowerCase()],
           perform: () => {
-            navigate(`/tasks/${t.id}`);
+            navigate(`/tasks/${task.id}`);
             onClose();
           },
         });
@@ -129,8 +131,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       for (const c of conversations.data.slice(0, 20)) {
         out.push({
           id: `conv-${c.id}`,
-          group: 'Conversations',
-          title: c.title || 'Untitled conversation',
+          group: t('palette.group.conversations'),
+          title: c.title || t('palette.action.new_conversation'),
           subtitle: c.department_key,
           icon: MessageSquare,
           keywords: ['chat', 'conversation'],
@@ -216,7 +218,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Search or jump to anywhere…"
+                placeholder={t('sidebar.search')}
                 className="h-12 flex-1 bg-transparent text-sm text-[color:var(--color-fg-1)] placeholder:text-[color:var(--color-fg-3)] focus:outline-none"
               />
               <kbd className="kbd">esc</kbd>
@@ -224,7 +226,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             <div className="max-h-[60vh] overflow-y-auto p-1">
               {grouped.length === 0 ? (
                 <div className="p-6 text-center text-sm text-[color:var(--color-fg-3)]">
-                  No results for "{debounced}".
+                  {t('palette.no_results', { query: debounced })}
                 </div>
               ) : (
                 grouped.map(([group, list]) => (
@@ -274,13 +276,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               <div className="flex items-center gap-3">
                 <span>
                   <kbd className="kbd">↑</kbd>
-                  <kbd className="kbd">↓</kbd> navigate
+                  <kbd className="kbd">↓</kbd> {t('palette.navigate')}
                 </span>
                 <span>
-                  <kbd className="kbd">↵</kbd> select
+                  <kbd className="kbd">↵</kbd> {t('palette.select')}
                 </span>
               </div>
-              <span>OPENCloud · Business OS</span>
+              <span>{t('palette.footer.right')}</span>
             </div>
           </motion.div>
         </div>

@@ -7,6 +7,7 @@ import { useTheme, brandConfig } from '@/design-system/theme';
 import { useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
 import { redirectToLogin } from '@/utils/authRedirect';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -18,6 +19,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
   const { theme, toggle, branding } = useTheme();
   const brand = brandConfig[branding];
   const me = useMe();
+  const { t } = useI18n();
   const [userOpen, setUserOpen] = useState(false);
 
   return (
@@ -31,7 +33,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
           size="icon"
           variant="ghost"
           onClick={onMenuClick}
-          aria-label="Toggle navigation"
+          aria-label={t('sidebar.collapse')}
           className="lg:hidden"
         >
           <Menu className="h-4 w-4" />
@@ -44,10 +46,10 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
             'hover:border-[color:var(--color-accent)] hover:text-[color:var(--color-fg-2)]',
             'min-w-[200px] sm:min-w-[280px] lg:min-w-[360px]',
           )}
-          aria-label="Quick search"
+          aria-label={t('sidebar.search')}
         >
           <Search className="h-4 w-4 shrink-0" />
-          <span className="flex-1 truncate text-left">Search anything…</span>
+          <span className="flex-1 truncate text-left">{t('sidebar.search')}</span>
           <span className="hidden items-center gap-1 sm:flex">
             <kbd className="kbd">⌘</kbd>
             <kbd className="kbd">K</kbd>
@@ -56,11 +58,17 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
       </div>
 
       <div className="flex items-center gap-1">
-        <Button size="icon" variant="ghost" onClick={toggle} aria-label="Toggle theme">
+        <Button size="icon" variant="ghost" onClick={toggle} aria-label={t('sidebar.theme_toggle')}>
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
-        <Button size="icon" variant="ghost" onClick={onSearchClick} aria-label="Command palette" className="hidden md:inline-flex">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onSearchClick}
+          aria-label={t('topbar.commands')}
+          className="hidden md:inline-flex"
+        >
           <Command className="h-4 w-4" />
         </Button>
 
@@ -68,7 +76,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
           size="icon"
           variant="ghost"
           onClick={onNotificationsClick}
-          aria-label="Notifications"
+          aria-label={t('topbar.notifications')}
         >
           <Bell className="h-4 w-4" />
         </Button>
@@ -80,14 +88,15 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
             className="flex items-center gap-2 rounded-[var(--radius-md)] p-1 hover:bg-[color:var(--color-bg-3)]"
             aria-haspopup="menu"
             aria-expanded={userOpen}
+            aria-label={t('topbar.profile')}
           >
             <Avatar name={me.data?.full_name ?? me.data?.email} size="sm" />
             <div className="hidden text-left md:block">
               <div className="text-xs font-medium text-[color:var(--color-fg-1)]">
-                {me.data?.full_name ?? me.data?.email ?? 'You'}
+                {me.data?.full_name ?? me.data?.email ?? t('common.you')}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-[color:var(--color-fg-3)]">
-                Operator
+                {t('settings.profile.member')}
               </div>
             </div>
           </button>
@@ -97,22 +106,22 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
               className="absolute right-0 top-full mt-1 w-56 overflow-hidden rounded-[var(--radius-md)] border border-[color:var(--color-line-strong)] bg-[color:var(--color-bg-1)] p-1 shadow-[var(--shadow-pop)]"
             >
               <div className="px-3 py-2 text-xs text-[color:var(--color-fg-3)]">
-                Signed in as<br />
-                <span className="text-[color:var(--color-fg-1)]">{me.data?.email}</span>
+                <div>{t('app.signed_in_as', { email: me.data?.email ?? '—' }).split('{email}')[0]}</div>
+                <div className="truncate text-[color:var(--color-fg-1)]">{me.data?.email}</div>
               </div>
               <Link
                 to="/settings"
                 onClick={() => setUserOpen(false)}
                 className="block rounded-[var(--radius-sm)] px-3 py-1.5 text-sm text-[color:var(--color-fg-2)] hover:bg-[color:var(--color-bg-3)]"
               >
-                Settings
+                {t('common.settings')}
               </Link>
               <Link
                 to="/company"
                 onClick={() => setUserOpen(false)}
                 className="block rounded-[var(--radius-sm)] px-3 py-1.5 text-sm text-[color:var(--color-fg-2)] hover:bg-[color:var(--color-bg-3)]"
               >
-                Company profile
+                {t('nav.company')}
               </Link>
               <button
                 type="button"
@@ -126,7 +135,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
                 }}
                 className="block w-full rounded-[var(--radius-sm)] px-3 py-1.5 text-left text-sm text-[color:var(--color-rose)] hover:bg-[color:var(--color-rose)]/10"
               >
-                Sign out
+                {t('common.sign_out')}
               </button>
             </div>
           )}
