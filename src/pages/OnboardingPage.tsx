@@ -15,7 +15,7 @@ import { Card, CardSection } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { ErrorState } from '@/components/ErrorState';
 import { useToast } from '@/components/Toaster';
-import { useCompany, useCreateCompany, useMe, usePatchCompany } from '@/api/queries';
+import { useCompany, useCompanyWithRefetch, useCreateCompany, useMe, usePatchCompany } from '@/api/queries';
 import { ApiClientError } from '@/api/client';
 import { cn } from '@/design-system/cn';
 
@@ -76,7 +76,7 @@ const SECTOR_OPTIONS = [
 
 export default function OnboardingPage() {
   const me = useMe();
-  const company = useCompany();
+  const company = useCompanyWithRefetch();
   const patch = usePatchCompany();
   const create = useCreateCompany();
   const toast = useToast();
@@ -119,24 +119,24 @@ export default function OnboardingPage() {
     goal.length > 0 &&
     !isSubmitting;
 
+  // onSuccess handler that's chained onto the mutation so the
+  // refetch completes before we navigate. Without this, the
+  // OnboardingGuard on `/` could re-evaluate with the stale
+  // `data: null` from cache and bounce us straight back to
+  // /onboarding (Product Debug #007 symptom: "I delete the data,
+  // click continue, and the form reappears empty"). The mutation
+  // already invalidates queryKeys.company; this just awaits the
+  // refetch so the guard sees the new status on next render.
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!canSubmit) return;
     setError(null);
 
-    // The onboarding form IS the workspace provisioning — there
-    // is no separate "workspace is being created" service that
-    // runs ahead of us. If the company record doesn't exist yet
-    // (fresh signup, founder reset) we POST /api/v1/companies
-    // to create it. If it already exists, we PATCH it. Same
-    // payload shape on the wire so the backend stays clean.
     const payload = {
       name: name.trim(),
       domain: normalizeUrl(website.trim()),
       sector: sector || null,
       employees,
-      // Persist the goal as the sole entry in the goals array so
-      // future re-use (corporate memory, briefings) sees it.
       goals: [goal],
       onboarding_status: 'completed' as const,
       onboarding_completed_at: new Date().toISOString(),
@@ -148,6 +148,14 @@ export default function OnboardingPage() {
       } else {
         await create.mutateAsync(payload);
       }
+      // Wait for the company query refetch to settle before we
+      // navigate. Without this, the OnboardingGuard on `/` could
+      // re-evaluate with the stale `data: null` from cache and
+      // bounce us straight back to /onboarding (Product Debug
+      // #007 symptom: "I delete the data, click continue, and
+      // the form reappears empty"). The mutation's onSuccess
+      // invalidates the cache; refetch() waits for the new data.
+      await company.refetch();
       toast.push({
         tone: 'success',
         title: 'Welcome aboard',

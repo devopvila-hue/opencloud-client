@@ -128,6 +128,22 @@ export function useCompany() {
   return useQuery<Company | null>({ queryKey: queryKeys.company, queryFn: companyApi.current });
 }
 
+/**
+ * Hook variant that returns both the cached data AND an explicit
+ * refetch handle. Used by OnboardingPage so the success path of
+ * the create/patch mutation can wait for the refetch to settle
+ * before navigating — without the OnboardingGuard bouncing the
+ * user straight back to /onboarding with the stale `data: null`
+ * (Product Debug #007).
+ */
+export function useCompanyWithRefetch() {
+  const query = useQuery<Company | null>({
+    queryKey: queryKeys.company,
+    queryFn: companyApi.current,
+  });
+  return { data: query.data, isLoading: query.isLoading, refetch: query.refetch };
+}
+
 export function usePatchCompany() {
   const qc = useQueryClient();
   return useMutation({

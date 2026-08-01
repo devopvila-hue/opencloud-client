@@ -34,7 +34,12 @@ const createState = vi.fn(() => ({
 
 vi.mock('@/api/queries', () => ({
   useMe: () => meState(),
-  useCompany: () => companyState(),
+  useCompany: () => ({ data: companyState()?.data ?? null, isLoading: companyState()?.isLoading ?? false }),
+  useCompanyWithRefetch: () => ({
+    data: companyState()?.data ?? null,
+    isLoading: companyState()?.isLoading ?? false,
+    refetch: vi.fn().mockResolvedValue({ data: null }),
+  }),
   usePatchCompany: () => patchState(),
   useCreateCompany: () => createState(),
 }));
