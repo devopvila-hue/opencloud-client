@@ -13,9 +13,12 @@ import {
   companyDepartmentViewSchema,
   healthCheckResultSchema,
   internalMessageSchema,
+  loginInputSchema,
   meSchema,
-  taskSchema,
+  sessionResponseSchema,
+  signupInputSchema,
   systemStatusSchema,
+  taskSchema,
   type Company,
   type CompanyDepartmentView,
   type CorporateMemory,
@@ -24,7 +27,10 @@ import {
   type DepartmentDefinition,
   type HealthCheckResult,
   type InternalMessage,
+  type LoginInput,
   type Me,
+  type SessionResponse,
+  type SignupInput,
   type SystemStatus,
   type Task,
 } from './schemas';
@@ -32,6 +38,38 @@ import { z } from 'zod';
 
 // ----- Auth / Me -----------------------------------------------
 export const authApi = {
+  /**
+   * POST /api/v1/auth/login — exchanges email+password for an
+   * `opc_session` cookie. The cookie is HttpOnly so JS never sees
+   * it; we only learn that the session is valid via the 200/204
+   * response. After this returns we invalidate `useMe` to fetch the
+   * fresh user record.
+   *
+   * Validation is performed by the middleware (loginSchema). The
+   * client-side schema is best-effort — the middleware response is
+   * the source of truth.
+   */
+  login: (input: LoginInput): Promise<SessionResponse> => {
+    // Re-validate locally to fail fast on obviously bad input.
+    const body = loginInputSchema.parse(input);
+    return apiValidated('/auth/login', sessionResponseSchema, {
+      method: 'POST',
+      body,
+    });
+  },
+
+  /**
+   * POST /api/v1/auth/signup — creates a new account and immediately
+   * signs the user in (sets the same `opc_session` cookie).
+   */
+  signup: (input: SignupInput): Promise<SessionResponse> => {
+    const body = signupInputSchema.parse(input);
+    return apiValidated('/auth/signup', sessionResponseSchema, {
+      method: 'POST',
+      body,
+    });
+  },
+
   me: (): Promise<Me> => apiValidated('/me', meSchema),
   logout: () => api<{ ok: true }>('/auth/logout', { method: 'POST' }),
 };

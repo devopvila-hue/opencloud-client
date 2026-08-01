@@ -17,6 +17,42 @@ export const meSchema = z.object({
 });
 export type Me = z.infer<typeof meSchema>;
 
+/**
+ * Session user — returned by POST /api/v1/auth/login and
+ * POST /api/v1/auth/signup. Distinct from `me` because the middleware
+ * returns `organization_id` (the org the session was issued for)
+ * instead of `default_organization_id`. Treated as a "current user"
+ * by the LoginPage — once the session cookie is set we re-fetch
+ * `useMe()` for the canonical record.
+ */
+export const sessionUserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  full_name: z.string().nullable().optional(),
+  organization_id: z.string().nullable().optional(),
+});
+export type SessionUser = z.infer<typeof sessionUserSchema>;
+
+export const sessionResponseSchema = z.object({
+  data: sessionUserSchema,
+});
+export type SessionResponse = z.infer<typeof sessionResponseSchema>;
+
+/** Body sent to POST /api/v1/auth/login. Mirrors `loginSchema` on the backend. */
+export const loginInputSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(120),
+});
+export type LoginInput = z.infer<typeof loginInputSchema>;
+
+/** Body sent to POST /api/v1/auth/signup. Mirrors `signupSchema` on the backend. */
+export const signupInputSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(120),
+  full_name: z.string().min(1).max(200).optional(),
+});
+export type SignupInput = z.infer<typeof signupInputSchema>;
+
 // ----- System ---------------------------------------------------
 export const gatewayInfoSchema = z.object({
   ok: z.boolean(),

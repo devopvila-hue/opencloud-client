@@ -1,79 +1,101 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, KeyRound, Loader2, ShieldCheck } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  KeyRound,
+  Loader2,
+  LogIn,
+  ShieldCheck,
+  UserPlus,
+} from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-import { ErrorState } from '@/components/ErrorState';
-import { useMe } from '@/api/queries';
+import { Field } from '@/components/Field';
+import { useToast } from '@/components/Toaster';
+import { useLogin, useMe, useSignup } from '@/api/queries';
 import { sanitizeNext, isLoginPath, containsLoginPath } from '@/utils/sanitizeNext';
-import { resolveAuthOrigin } from '@/utils/authRedirect';
 import { cn } from '@/design-system/cn';
+import { ApiClientError } from '@/api/client';
 
 /**
- * LoginPage — mounted OUTSIDE the RequireAuth guard.
+ * LoginPage — real email + password authentication.
  *
- * The portal expects authentication to happen on a separate app
- * (`apps/web`) in production; when the user lands here without a
- * valid session cookie we show a one-click bridge to that screen.
- * After the auth callback sets the cookie the user is bounced back
- * to the sanitized `next` target.
+ * Flow:
+ *   1. User lands on /login (typically with ?next=/dashboard).
+ *   2. If they already have a session cookie, useMe() resolves and we
+ *      bounce them to the sanitized `next` immediately.
+ *   3. Otherwise they fill in the form and submit.
+ *   4. We POST to /api/v1/auth/login (or /auth/signup). The
+ *      middleware sets the HttpOnly `opc_session` cookie.
+ *   5. We invalidate `useMe` so the rest of the app re-reads the user.
+ *   6. Once useMe resolves, we navigate to the sanitized `next`.
  *
- * Sanitization is mandatory: the `next` query parameter is the
- * exact payload that has caused loops in the past. We funnel it
- * through `sanitizeNext()` and also short-circuit if the resolved
- * target is itself a login path.
+ * The `next` query parameter is sanitized via `sanitizeNext()` to
+ * prevent the redirect-loop class of bugs that hit us earlier.
  */
+type Mode = 'login' | 'signup';
+
 export default function LoginPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const me = useMe();
+  const login = useLogin();
+  const signup = useSignup();
 
-  // Sanitize the next parameter once. If sanitizeNext returns '/'
-  // we treat that as "go home" and remove the query param entirely.
+  // ----- next sanitisation ------------------------------------
   const rawNext = params.get('next');
   const next = useMemo(() => sanitizeNext(rawNext ?? '/'), [rawNext]);
   const targetIsLogin = useMemo(() => isLoginPath(next), [next]);
-  // Loop detected when the original `next` payload pointed at a login
-  // route (or contained one). sanitizeNext collapses those to '/' but
-  // the user deserves to know we noticed the attempt.
   const loopDetected = useMemo(() => containsLoginPath(rawNext), [rawNext]);
 
-  const [busy, setBusy] = useState(false);
+  // ----- form state --------------------------------------------
+  const initialMode: Mode = params.get('mode') === 'signup' ? 'signup' : 'login';
+  const [mode, setMode] = useState<Mode>(initialMode);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+
+  const mutation = mode === 'login' ? login : signup;
+  const busy = mutation.isPending;
   const [error, setError] = useState<string | null>(null);
 
-  const authOrigin = useMemo(() => resolveAuthOrigin(), []);
-  const isSameOrigin = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    return authOrigin === '' || authOrigin === window.location.origin;
-  }, [authOrigin]);
-
-  // If the user lands here WITH a valid session, redirect immediately
-  // to the sanitized target. This handles the post-login return trip:
-  // apps/web sets the cookie and links the browser back to /login?next=…
-  // at which point useMe() resolves to a user and we bounce them on.
+  // ----- bounce out if already signed in -----------------------
   useEffect(() => {
     if (me.data) {
-      navigate(targetIsLogin ? '/' : next, { replace: true });
+      const target = targetIsLogin ? '/' : next;
+      navigate(target, { replace: true });
     }
   }, [me.data, next, targetIsLogin, navigate]);
 
-  function goToExternalLogin() {
-    setBusy(true);
+  // ----- submit ------------------------------------------------
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError(null);
     try {
-      // We are intentionally building a same-origin login URL — when
-      // VITE_AUTH_URL is unset the auth app is the portal itself, so
-      // we just navigate to /login (which renders this same page on
-      // a real auth backend). When it is set, we hand off to apps/web
-      // and let it handle the credential flow.
-      const target = isSameOrigin
-        ? `/login${next === '/' ? '' : `?next=${encodeURIComponent(next)}`}`
-        : `${authOrigin}/login${next === '/' ? '' : `?next=${encodeURIComponent(next)}`}`;
-      window.location.assign(target);
+      if (mode === 'login') {
+        await login.mutateAsync({ email: email.trim(), password });
+      } else {
+        await signup.mutateAsync({
+          email: email.trim(),
+          password,
+          ...(fullName.trim() ? { full_name: fullName.trim() } : {}),
+        });
+      }
+      // The cookie is now set. useMe is invalidated by the hook.
+      // We don't navigate here — the `useEffect` above will fire
+      // once useMe resolves and bounce to `next`.
+      toast.push({
+        tone: 'success',
+        title: mode === 'login' ? 'Signed in' : 'Account created',
+        description: 'Loading your Business Operating System…',
+      });
     } catch (err) {
-      setBusy(false);
-      setError(err instanceof Error ? err.message : 'Could not start login');
+      const message = err instanceof ApiClientError ? err.message : 'Sign-in failed';
+      setError(message);
     }
   }
 
@@ -92,40 +114,109 @@ export default function LoginPage() {
             </div>
             <div>
               <h1 className="font-display text-[1.125rem] tracking-[-0.01em] text-[color:var(--foreground)]">
-                Sign in to OPENCloud
+                {mode === 'login' ? 'Sign in to OPENCloud' : 'Create your OPENCloud account'}
               </h1>
               <p className="mt-0.5 text-xs text-[color:var(--muted-foreground)]">
-                Continue to your Business Operating System
+                {mode === 'login'
+                  ? 'Welcome back — your Business Operating System is one click away.'
+                  : 'Set up your workspace in under a minute.'}
               </p>
             </div>
           </div>
 
+          {/* Mode toggle */}
+          <div className="mb-5 inline-flex rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/40 p-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setMode('login')}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 transition-colors',
+                mode === 'login'
+                  ? 'bg-[color:var(--accent)] text-[color:var(--accent-foreground)]'
+                  : 'text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]',
+              )}
+              aria-pressed={mode === 'login'}
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('signup')}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 transition-colors',
+                mode === 'signup'
+                  ? 'bg-[color:var(--accent)] text-[color:var(--accent-foreground)]'
+                  : 'text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]',
+              )}
+              aria-pressed={mode === 'signup'}
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              Sign up
+            </button>
+          </div>
+
           {error && (
-            <div className="mb-4">
-              <ErrorState
-                title="Sign-in failed"
-                description={error}
-                retry={goToExternalLogin}
-              />
+            <div
+              role="alert"
+              className="mb-4 flex items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--danger)]/30 bg-[color:var(--rose-soft)] p-3 text-xs text-[color:var(--danger)]"
+            >
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <p className="text-pretty">{error}</p>
             </div>
           )}
 
-          <p className="text-sm text-[color:var(--muted-foreground)] text-pretty">
-            {isSameOrigin
-              ? 'Click below to sign in. Your session cookie will be set on success and you will be redirected to your destination.'
-              : 'You will be redirected to the secure sign-in screen. After authenticating you will be brought back here automatically.'}
-          </p>
+          <form onSubmit={onSubmit} className="space-y-3" noValidate>
+            {mode === 'signup' && (
+              <Field
+                label="Full name"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ada Lovelace"
+                disabled={busy}
+              />
+            )}
+            <Field
+              label="Email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="[email protected]"
+              disabled={busy}
+            />
+            <Field
+              label="Password"
+              type="password"
+              required
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              minLength={8}
+              disabled={busy}
+            />
 
-          <Button
-            variant="primary"
-            className="mt-5 w-full"
-            iconLeft={busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-            onClick={goToExternalLogin}
-            disabled={busy}
-            loading={busy}
-          >
-            {busy ? 'Redirecting…' : 'Continue to sign in'}
-          </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              iconLeft={
+                busy ? <Loader2 className="h-4 w-4 animate-spin" /> :
+                  mode === 'login' ? <ArrowRight className="h-4 w-4" /> :
+                  <CheckCircle2 className="h-4 w-4" />
+              }
+              disabled={busy || !email.trim() || password.length < 8}
+              loading={busy}
+            >
+              {busy
+                ? mode === 'login' ? 'Signing in…' : 'Creating account…'
+                : mode === 'login' ? 'Sign in' : 'Create account'}
+            </Button>
+          </form>
 
           <div className="mt-5 flex items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/40 p-3 text-xs text-[color:var(--muted-foreground)]">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--accent)]" />

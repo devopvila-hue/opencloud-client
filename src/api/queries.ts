@@ -27,7 +27,9 @@ import type {
   DepartmentCatalogEntry,
   DepartmentDefinition,
   InternalMessage,
+  LoginInput,
   Me,
+  SignupInput,
   SystemStatus,
   Task,
   CorporateMemoryMeta,
@@ -57,6 +59,43 @@ export const queryKeys = {
 // ----- Auth / Me ----------------------------------------------
 export function useMe() {
   return useQuery<Me>({ queryKey: queryKeys.me, queryFn: authApi.me });
+}
+
+/**
+ * POST /api/v1/auth/login — exchanges email+password for a session
+ * cookie. On success we eagerly refresh `useMe` so the rest of the
+ * app sees the new session without waiting for a refetch interval.
+ *
+ * The HttpOnly `opc_session` cookie is set by the middleware as a
+ * `Set-Cookie` response header; browsers attach it automatically to
+ * subsequent same-site requests. The LoginPage redirects the user
+ * to the sanitized `next` destination once `useMe` resolves.
+ */
+export function useLogin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: LoginInput) => authApi.login(input),
+    onSuccess: () => {
+      // Force every consumer of `useMe` to re-read /me now that the
+      // cookie is set. The query will hit the network and resolve
+      // with the fresh user record.
+      return qc.invalidateQueries({ queryKey: queryKeys.me });
+    },
+  });
+}
+
+/**
+ * POST /api/v1/auth/signup — creates a new account and immediately
+ * signs the user in (the middleware sets the same cookie as /login).
+ */
+export function useSignup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: SignupInput) => authApi.signup(input),
+    onSuccess: () => {
+      return qc.invalidateQueries({ queryKey: queryKeys.me });
+    },
+  });
 }
 
 export function useLogout() {
