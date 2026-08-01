@@ -3,6 +3,10 @@
   publish = "dist"
   node_version = "20"
 
+# Environment variables — set these in the Netlify UI or via netlify env:set
+# [build.environment]
+#   VITE_AUTH_URL = "https://app.example.com"   # only when login is on a separate origin
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

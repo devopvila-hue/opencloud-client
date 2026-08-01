@@ -9,6 +9,7 @@ import { useMe } from '@/api/queries';
 import { useTheme } from '@/design-system/theme';
 import { cn } from '@/design-system/cn';
 import { formatRelativeTime } from '@/utils/format';
+import { redirectToLogin } from '@/utils/authRedirect';
 
 const languages = [
   { id: 'es', label: 'Español' },
@@ -198,7 +199,7 @@ export default function SettingsPage() {
             onClick={async () => {
               try {
                 await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
-                window.location.assign('/login');
+                redirectToLogin();
               } catch {
                 toast.push({ tone: 'error', title: 'Could not sign out' });
               }

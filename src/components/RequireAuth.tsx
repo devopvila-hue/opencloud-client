@@ -2,6 +2,7 @@ import { type ReactNode, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
+import { redirectToLogin } from '@/utils/authRedirect';
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -14,10 +15,11 @@ export function RequireAuth({ children }: RequireAuthProps) {
 
   useEffect(() => {
     if (me.isError) {
-      const next = encodeURIComponent(location.pathname + location.search);
-      // Redirect to the standalone web app login (apps/web),
-      // then back to this portal with a valid session cookie.
-      window.location.assign(`http://localhost:5173/login?next=${next}`);
+      // Preserve the intended destination so the user lands back here
+      // after a successful sign-in. The login URL is resolved from
+      // VITE_AUTH_URL (or window.location.origin) — never hardcoded.
+      const next = `${location.pathname}${location.search}`;
+      redirectToLogin(next);
     }
   }, [me.isError, location.pathname, location.search, navigate]);
 

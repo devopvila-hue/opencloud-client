@@ -6,6 +6,7 @@ import { Avatar } from '@/components/Avatar';
 import { useTheme, brandConfig } from '@/design-system/theme';
 import { useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
+import { redirectToLogin } from '@/utils/authRedirect';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -116,8 +117,12 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
               <button
                 type="button"
                 onClick={async () => {
-                  await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
-                  window.location.assign('/login');
+                  try {
+                    await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                  } catch {
+                    // ignore — we still want to redirect away
+                  }
+                  redirectToLogin();
                 }}
                 className="block w-full rounded-[var(--radius-sm)] px-3 py-1.5 text-left text-sm text-[color:var(--color-rose)] hover:bg-[color:var(--color-rose)]/10"
               >
