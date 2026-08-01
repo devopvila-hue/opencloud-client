@@ -14,21 +14,33 @@
  * Never hardcode `http://localhost:5173` or any other dev URL here:
  * the production bundle would ship it and the user would be sent
  * back to the developer's machine.
+ *
+ * The `next` query string is normalized through `sanitizeNext` to
+ * prevent the redirect loop where /login?next=/login?next=… grows
+ * without bound.
  */
+
+import { sanitizeNext } from './sanitizeNext';
 
 const LOGIN_PATH = '/login';
 
 /**
  * Returns the full URL to the login screen for a given `next` path.
+ * The `next` value is always passed through `sanitizeNext` to strip
+ * loops, login paths, absolute URLs and other attack vectors.
  * Safe to call during SSR/build (returns `''` when `window` is absent).
  */
 export function buildLoginUrl(next?: string): string {
   if (typeof window === 'undefined') return '';
 
   const base = resolveAuthOrigin();
-  const path = LOGIN_PATH;
-  if (!next) return `${base}${path}`;
-  return `${base}${path}?next=${encodeURIComponent(next)}`;
+  if (!base) return '';
+
+  const safeNext = sanitizeNext(next);
+  // If sanitizeNext fell back to '/' there is no point in adding an
+  // empty `next=/` to the URL — drop the query string entirely.
+  if (safeNext === '/') return `${base}${LOGIN_PATH}`;
+  return `${base}${LOGIN_PATH}?next=${encodeURIComponent(safeNext)}`;
 }
 
 /**
@@ -52,7 +64,8 @@ export function resolveAuthOrigin(): string {
 
 /**
  * Performs a full-page navigation to the login screen, preserving the
- * intended destination in the `next` query string.
+ * intended destination in the `next` query string. The destination is
+ * sanitized to prevent redirect loops.
  */
 export function redirectToLogin(next?: string): void {
   if (typeof window === 'undefined') return;

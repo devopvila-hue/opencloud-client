@@ -9,6 +9,7 @@ import ExecutiveOfficePage from '@/pages/ExecutiveOfficePage';
 import ExecutiveRoomPage from '@/pages/ExecutiveRoomPage';
 import TimelinePage from '@/pages/TimelinePage';
 import OnboardingPage from '@/pages/OnboardingPage';
+import LoginPage from '@/pages/LoginPage';
 
 // Lazily loaded (lower-priority / heavy pages)
 const OrchestrationDetailPage = lazyPage(() => import('@/pages/OrchestrationDetailPage'));
@@ -29,6 +30,12 @@ const MarketplacePage = lazyPage(() => import('@/pages/MarketplacePage'));
 const MarketingOverviewPage = lazyPage(() => import('@/pages/MarketingOverviewPage'));
 
 export const router = createBrowserRouter([
+  // /login is mounted OUTSIDE the RequireAuth guard. RequireAuth
+  // bounces unauthenticated users to /login?next=<target>; if that
+  // route were itself wrapped by RequireAuth the guard would
+  // re-trigger and create a /login?next=/login?next=… loop.
+  { path: '/login', element: <LoginPage /> },
+
   {
     path: '/',
     element: (

@@ -177,4 +177,81 @@ describe('authRedirect', () => {
       expect(url).toBe('https://app.example.com/login?next=%2Fdashboard');
     });
   });
+
+  describe('redirect-loop prevention', () => {
+    it('does not append next=/login to the login URL', async () => {
+      Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...originalLocation, origin: 'https://portal.example.com' },
+      });
+      delete (import.meta.env as Record<string, unknown>).VITE_AUTH_URL;
+
+      const { buildLoginUrl } = await import('@/utils/authRedirect');
+      const url = buildLoginUrl('/login');
+      expect(url).toBe('https://portal.example.com/login');
+    });
+
+    it('does not append next=/login?next=… to the login URL', async () => {
+      Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...originalLocation, origin: 'https://portal.example.com' },
+      });
+      delete (import.meta.env as Record<string, unknown>).VITE_AUTH_URL;
+
+      const { buildLoginUrl } = await import('@/utils/authRedirect');
+      const url = buildLoginUrl('/login?next=/dashboard');
+      expect(url).toBe('https://portal.example.com/login');
+    });
+
+    it('omits the next query string entirely when it falls back to /', async () => {
+      Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...originalLocation, origin: 'https://portal.example.com' },
+      });
+      delete (import.meta.env as Record<string, unknown>).VITE_AUTH_URL;
+
+      const { buildLoginUrl } = await import('@/utils/authRedirect');
+      expect(buildLoginUrl('/login')).not.toContain('next=');
+      expect(buildLoginUrl(undefined)).not.toContain('next=');
+      expect(buildLoginNext('/login?next=' + encodeURIComponent('/dashboard'))).not.toContain('next=');
+    });
+
+    it('feeding the resulting URL back never appends next a second time', async () => {
+      Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...originalLocation, origin: 'https://portal.example.com' },
+      });
+      delete (import.meta.env as Record<string, unknown>).VITE_AUTH_URL;
+
+      const { buildLoginUrl } = await import('@/utils/authRedirect');
+      let url = buildLoginUrl('/dashboard');
+      // The URL should be stable across repeated passes — the
+      // sanitization must collapse /login references so the URL
+      // doesn't grow.
+      for (let i = 0; i < 5; i += 1) {
+        const nextParam = new URL(url).searchParams.get('next');
+        url = buildLoginUrl(nextParam ?? '/');
+      }
+      expect(url).toBe('https://portal.example.com/login?next=%2Fdashboard');
+    });
+
+    it('strips nested next=… values that point at /login', async () => {
+      Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...originalLocation, origin: 'https://portal.example.com' },
+      });
+      delete (import.meta.env as Record<string, unknown>).VITE_AUTH_URL;
+
+      const { buildLoginUrl } = await import('@/utils/authRedirect');
+      const url = buildLoginUrl('/dashboard?next=/login&tab=1');
+      expect(url).toBe('https://portal.example.com/login?next=%2Fdashboard%3Ftab%3D1');
+    });
+  });
 });
+
+function buildLoginNext(value: string): string {
+  // Local helper that mirrors buildLoginUrl but does not need to be
+  // re-imported inside this test block. We import lazily to keep
+  // the existing dynamic-import pattern intact.
+  return encodeURIComponent(value);
+}

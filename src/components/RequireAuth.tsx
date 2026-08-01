@@ -1,8 +1,9 @@
 import { type ReactNode, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
 import { redirectToLogin } from '@/utils/authRedirect';
+import { sanitizeNext, isLoginPath } from '@/utils/sanitizeNext';
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -11,17 +12,24 @@ interface RequireAuthProps {
 export function RequireAuth({ children }: RequireAuthProps) {
   const me = useMe();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
+    // Never redirect to login if we're already on the login screen —
+    // doing so would create an infinite /login?next=/login?next=…
+    // loop. The login route is mounted outside this guard by the
+    // router so we don't expect to land here, but we still defend
+    // against a misconfiguration at runtime.
+    if (isLoginPath(location.pathname)) return;
+
     if (me.isError) {
       // Preserve the intended destination so the user lands back here
-      // after a successful sign-in. The login URL is resolved from
-      // VITE_AUTH_URL (or window.location.origin) — never hardcoded.
-      const next = `${location.pathname}${location.search}`;
+      // after a successful sign-in. sanitizeNext collapses any
+      // /login references, multi-encoded payloads, absolute URLs and
+      // localhost references into a single safe target.
+      const next = sanitizeNext(`${location.pathname}${location.search}`);
       redirectToLogin(next);
     }
-  }, [me.isError, location.pathname, location.search, navigate]);
+  }, [me.isError, location.pathname, location.search]);
 
   if (me.isLoading) {
     return (
