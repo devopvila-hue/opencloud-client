@@ -1,10 +1,12 @@
 import { Link, Outlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Suspense } from 'react';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
 import { NotificationsPanel } from './NotificationsPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { SkeletonGrid } from '@/components/Skeleton';
 import { useState } from 'react';
 
 export function ShellLayout() {
@@ -55,7 +57,15 @@ export function ShellLayout() {
         />
 
         <main className="relative flex-1 overflow-y-auto">
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="p-4 md:p-6">
+                <SkeletonGrid count={8} cols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" itemHeight="h-40" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
 

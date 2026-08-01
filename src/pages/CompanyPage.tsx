@@ -129,6 +129,103 @@ export default function CompanyPage() {
 
           <Card>
             <CardHeader
+              title="Branding"
+              subtitle="Visual identity synced with your departments"
+            />
+            <div className="flex flex-wrap items-start gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)]">
+                {c.logo_url ? (
+                  <img src={c.logo_url} alt={c.name} className="h-16 w-16 rounded-[var(--radius-md)] object-contain" />
+                ) : (
+                  <Building2 className="h-8 w-8 text-[color:var(--color-fg-3)]" />
+                )}
+              </div>
+              <div className="flex-1 space-y-3">
+                <Field
+                  label="Logo URL"
+                  defaultValue={c.logo_url ?? ''}
+                  placeholder="https://example.com/logo.png"
+                  onBlur={(e) => save({ id: c.id, patch: { logo_url: e.target.value } })}
+                />
+                <Field
+                  label="Brand"
+                  defaultValue={c.brand ?? ''}
+                  onBlur={(e) => save({ id: c.id, patch: { brand: e.target.value } })}
+                />
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">Primary</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={c.primary_color}
+                        onChange={(e) => save({ id: c.id, patch: { primary_color: e.target.value } })}
+                        className="h-7 w-7 cursor-pointer rounded-[var(--radius-sm)] border border-[color:var(--color-line)] p-0.5"
+                      />
+                      <Field label="" defaultValue={c.primary_color} onBlur={(e) => save({ id: c.id, patch: { primary_color: e.target.value } })} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">Secondary</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={c.secondary_color}
+                        onChange={(e) => save({ id: c.id, patch: { secondary_color: e.target.value } })}
+                        className="h-7 w-7 cursor-pointer rounded-[var(--radius-sm)] border border-[color:var(--color-line)] p-0.5"
+                      />
+                      <Field label="" defaultValue={c.secondary_color} onBlur={(e) => save({ id: c.id, patch: { secondary_color: e.target.value } })} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">Accent</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={c.accent_color}
+                        onChange={(e) => save({ id: c.id, patch: { accent_color: e.target.value } })}
+                        className="h-7 w-7 cursor-pointer rounded-[var(--radius-sm)] border border-[color:var(--color-line)] p-0.5"
+                      />
+                      <Field label="" defaultValue={c.accent_color} onBlur={(e) => save({ id: c.id, patch: { accent_color: e.target.value } })} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <CardHeader title="Services" subtitle="What your company offers" />
+            <Textarea
+              label="Services (one per line)"
+              defaultValue={c.services.join('\n')}
+              rows={3}
+              onBlur={(e) =>
+                save({
+                  id: c.id,
+                  patch: { services: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) },
+                })
+              }
+            />
+          </Card>
+
+          <Card>
+            <CardHeader title="Products" subtitle="Your product portfolio" />
+            <Textarea
+              label="Products (one per line)"
+              defaultValue={c.products.join('\n')}
+              rows={3}
+              onBlur={(e) =>
+                save({
+                  id: c.id,
+                  patch: { products: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) },
+                })
+              }
+            />
+          </Card>
+
+          <Card>
+            <CardHeader
               title="Corporate memory"
               subtitle="Versioned files maintained by the Executive Director"
               action={
@@ -198,6 +295,24 @@ export default function CompanyPage() {
                 })
               }
             />
+          </Card>
+
+          <Card>
+            <CardHeader title="Team" subtitle="Key contacts and department heads" />
+            <div className="space-y-2">
+              {c.clients.length > 0
+                ? c.clients.map((client) => (
+                    <div key={client} className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)] p-2.5">
+                      <Building2 className="h-4 w-4 text-[color:var(--color-fg-3)]" />
+                      <span className="text-sm text-[color:var(--color-fg-1)]">{client}</span>
+                    </div>
+                  ))
+                : (
+                  <p className="text-xs text-[color:var(--color-fg-3)]">
+                    No team members configured. Add key client contacts and stakeholder names in the Contact section.
+                  </p>
+                )}
+            </div>
           </Card>
 
           <Card>

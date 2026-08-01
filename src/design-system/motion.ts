@@ -69,3 +69,47 @@ export const pageTransition = {
   duration: duration.slow,
   ease: easing.smooth,
 };
+
+/**
+ * Staggered children animation for card grids and lists.
+ * Usage: <motion.div variants={staggerChildren} initial="initial" animate="animate">
+ */
+export const staggerChildren = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+export const staggerItem = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: duration.base, ease: easing.smooth },
+};
+
+/**
+ * Card hover lift — premium DeptIA micro-interaction.
+ */
+export const cardHover = {
+  whileHover: { y: -2, transition: { type: 'spring', stiffness: 400, damping: 26 } },
+  whileTap: { scale: 0.985 },
+};
+
+/**
+ * Thinking dot animation variants.
+ */
+export const thinkingDots = {
+  initial: { opacity: 0.4, y: 0 },
+  animate: {
+    opacity: [0.4, 1, 0.4],
+    y: [0, -2, 0],
+  },
+  transition: {
+    duration: 1.4,
+    repeat: Infinity,
+    ease: easing.smooth,
+  },
+};

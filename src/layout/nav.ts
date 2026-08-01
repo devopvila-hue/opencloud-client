@@ -15,6 +15,7 @@ import {
   Megaphone,
   ShoppingCart,
   Clock,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export const navItems: NavItem[] = [
   { label: 'Chat', to: '/chat', icon: MessageSquare, group: 'primary', shortcut: 'g c', description: 'Talk to your departments' },
   { label: 'Departments', to: '/departments', icon: LayoutGrid, group: 'primary', shortcut: 'g d', description: 'Installed department apps' },
   { label: 'Marketplace', to: '/marketplace', icon: ShoppingCart, group: 'primary', shortcut: 'g m', description: 'Install department apps' },
+  { label: 'Onboarding', to: '/onboarding', icon: Sparkles, group: 'secondary', shortcut: 'g o', description: 'BOS setup wizard' },
   { label: 'Agents', to: '/agents', icon: Bot, group: 'primary', shortcut: 'g a', description: 'Active AI workers' },
   { label: 'Tasks', to: '/tasks', icon: ClipboardList, group: 'primary', shortcut: 'g t', description: 'Internal queue' },
   { label: 'Timeline', to: '/timeline', icon: Clock, group: 'secondary', shortcut: 'g t', description: 'Department events' },

@@ -1,26 +1,32 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { ShellLayout } from '@/layout/ShellLayout';
 import { RequireAuth } from '@/components/RequireAuth';
+import { lazyPage } from '@/utils/lazyPage';
+
+// Eagerly loaded (high-priority / dashboard pages)
 import DashboardPage from '@/pages/DashboardPage';
 import ExecutiveOfficePage from '@/pages/ExecutiveOfficePage';
 import ExecutiveRoomPage from '@/pages/ExecutiveRoomPage';
 import TimelinePage from '@/pages/TimelinePage';
-import OrchestrationDetailPage from '@/pages/OrchestrationDetailPage';
-import ChatPage from '@/pages/ChatPage';
-import DepartmentsPage from '@/pages/DepartmentsPage';
-import DepartmentDetailPage from '@/pages/DepartmentDetailPage';
-import AgentsPage from '@/pages/AgentsPage';
-import TasksPage from '@/pages/TasksPage';
-import TaskDetailPage from '@/pages/TaskDetailPage';
-import ResultsPage from '@/pages/ResultsPage';
-import DocumentsPage from '@/pages/DocumentsPage';
-import CompanyPage from '@/pages/CompanyPage';
-import MemoryFilePage from '@/pages/MemoryFilePage';
-import AnalyticsPage from '@/pages/AnalyticsPage';
-import IntegrationsPage from '@/pages/IntegrationsPage';
-import SettingsPage from '@/pages/SettingsPage';
-import MarketplacePage from '@/pages/MarketplacePage';
-import MarketingOverviewPage from '@/pages/MarketingOverviewPage';
+import OnboardingPage from '@/pages/OnboardingPage';
+
+// Lazily loaded (lower-priority / heavy pages)
+const OrchestrationDetailPage = lazyPage(() => import('@/pages/OrchestrationDetailPage'));
+const ChatPage = lazyPage(() => import('@/pages/ChatPage'));
+const DepartmentsPage = lazyPage(() => import('@/pages/DepartmentsPage'));
+const DepartmentDetailPage = lazyPage(() => import('@/pages/DepartmentDetailPage'));
+const AgentsPage = lazyPage(() => import('@/pages/AgentsPage'));
+const TasksPage = lazyPage(() => import('@/pages/TasksPage'));
+const TaskDetailPage = lazyPage(() => import('@/pages/TaskDetailPage'));
+const ResultsPage = lazyPage(() => import('@/pages/ResultsPage'));
+const DocumentsPage = lazyPage(() => import('@/pages/DocumentsPage'));
+const CompanyPage = lazyPage(() => import('@/pages/CompanyPage'));
+const MemoryFilePage = lazyPage(() => import('@/pages/MemoryFilePage'));
+const AnalyticsPage = lazyPage(() => import('@/pages/AnalyticsPage'));
+const IntegrationsPage = lazyPage(() => import('@/pages/IntegrationsPage'));
+const SettingsPage = lazyPage(() => import('@/pages/SettingsPage'));
+const MarketplacePage = lazyPage(() => import('@/pages/MarketplacePage'));
+const MarketingOverviewPage = lazyPage(() => import('@/pages/MarketingOverviewPage'));
 
 export const router = createBrowserRouter([
   {
@@ -35,9 +41,11 @@ export const router = createBrowserRouter([
       { path: 'executive-office', element: <ExecutiveOfficePage /> },
       { path: 'executive-room', element: <ExecutiveRoomPage /> },
       { path: 'timeline', element: <TimelinePage /> },
+      { path: 'onboarding', element: <OnboardingPage /> },
       { path: 'orchestrations/:id', element: <OrchestrationDetailPage /> },
       { path: 'marketing', element: <MarketingOverviewPage /> },
       { path: 'chat', element: <Navigate to="/chat/new" replace /> },
+      { path: 'chat/new', element: <ChatPage /> },
       { path: 'chat/:id', element: <ChatPage /> },
       { path: 'departments', element: <DepartmentsPage /> },
       { path: 'departments/:id', element: <DepartmentDetailPage /> },

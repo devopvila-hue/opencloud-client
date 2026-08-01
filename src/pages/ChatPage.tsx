@@ -32,10 +32,12 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  status: 'pending' | 'streaming' | 'completed' | 'error' | 'cancelled';
+  status: 'pending' | 'streaming' | 'completed' | 'error' | 'cancelled' | 'thinking';
   created_at: string;
   error?: string;
   attachments?: { name: string; size: number }[];
+  departmentKey?: string;
+  sources?: { title: string; url?: string }[];
 }
 
 export default function ChatPage() {
@@ -125,9 +127,23 @@ export default function ChatPage() {
     let assistantId = `local-assistant-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
-      { id: assistantId, role: 'assistant', content: '', status: 'streaming', created_at: new Date().toISOString() },
+      {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        status: 'thinking',
+        created_at: new Date().toISOString(),
+        departmentKey: department?.key ?? 'executive-office',
+      },
     ]);
     setPendingAssistantId(assistantId);
+
+    // Simulate a brief "thinking" phase before streaming starts
+    await new Promise((resolve) => window.setTimeout(resolve, 1200));
+
+    setMessages((prev) =>
+      prev.map((m) => (m.id === assistantId ? { ...m, status: 'streaming' } : m)),
+    );
 
     await streamPost(`/conversations/${convoId}/messages`, { content }, {
       signal: ac.signal,
@@ -153,6 +169,8 @@ export default function ChatPage() {
                     ...m,
                     content: (data.content as string) || m.content,
                     status: 'completed',
+                    departmentKey: (data.department_key as string) ?? m.departmentKey,
+                    sources: (data.sources as { title: string; url?: string }[]) ?? m.sources,
                   }
                 : m,
             ),
@@ -317,7 +335,7 @@ export default function ChatPage() {
                   'Summarise what my departments did this week',
                   'Draft a plan to launch the new pricing page',
                   'Approve the open tasks waiting for me',
-                  'Show me the latest memory files',
+                  'Show me the latest corporate memory files',
                 ].map((s) => (
                   <button
                     key={s}
@@ -456,6 +474,7 @@ function ChatBubble({
 }) {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
+  const pres = message.departmentKey ? getDepartment(message.departmentKey) : null;
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -468,11 +487,20 @@ function ChatBubble({
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold',
           isUser
             ? 'bg-[color:var(--color-accent)] text-white'
-            : 'bg-[color:var(--color-dept-governance)] text-white',
+            : pres?.cssVar
+              ? `text-white`
+              : 'bg-[color:var(--color-dept-governance)] text-white',
+          pres?.cssVar && !isUser && `shadow-[color-mix(in oklab,var(--accent)_40%,transparent)]`,
         )}
+        style={{
+          background:
+            !isUser && pres?.cssVar
+              ? `linear-gradient(135deg, color-mix(in oklab, var(${pres.cssVar}) 45%, #000), color-mix(in oklab, var(${pres.cssVar}) 60%, #000))`
+              : undefined,
+        }}
         aria-hidden
       >
-        {isUser ? 'You' : 'ED'}
+        {isUser ? 'You' : pres?.shortName.slice(0, 2).toUpperCase() ?? 'ED'}
       </div>
       <div
         className={cn(
@@ -494,13 +522,56 @@ function ChatBubble({
             ))}
           </div>
         )}
+
+        {/* Department badge for assistant messages */}
+        {!isUser && pres && (
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <Badge
+              tone={pres.category === 'governance' ? 'violet' : pres.category === 'revenue' ? 'emerald' : 'amber'}
+              size="xs"
+              variant="outline"
+            >
+              {pres.shortName}
+            </Badge>
+            {message.status === 'thinking' && (
+              <span className="text-[11px] text-[color:var(--color-fg-3)] animate-pulse">
+                thinking…
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="whitespace-pre-wrap break-words">
-          {message.status === 'streaming' && message.content === '' ? (
-            <span className="inline-flex items-center gap-1 text-[color:var(--color-fg-3)]">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:120ms]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:240ms]" />
-            </span>
+          {message.status === 'thinking' && message.content === '' ? (
+            <div className="flex items-center gap-1 text-[color:var(--color-fg-3)]">
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]"
+                aria-hidden
+              />
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:120ms]"
+                aria-hidden
+              />
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:240ms]"
+                aria-hidden
+              />
+            </div>
+          ) : message.status === 'streaming' && message.content === '' ? (
+            <div className="flex items-center gap-1 text-[color:var(--color-fg-3)]">
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]"
+                aria-hidden
+              />
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:120ms]"
+                aria-hidden
+              />
+              <span
+                className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:240ms]"
+                aria-hidden
+              />
+            </div>
           ) : (
             <MarkdownLite text={message.content} />
           )}
@@ -508,6 +579,37 @@ function ChatBubble({
             <span className="ml-0.5 inline-block h-3 w-1 animate-pulse bg-[color:var(--color-accent)]" />
           )}
         </div>
+
+        {/* Sources panel */}
+        {!isUser && message.sources && message.sources.length > 0 && (
+          <div className="mt-2 border-t border-[color:var(--color-line)] pt-2">
+            <div className="text-[10px] uppercase tracking-wider text-[color:var(--color-fg-3)] mb-1.5">
+              Sources used
+            </div>
+            <ul className="space-y-1">
+              {message.sources.map((s, i) => (
+                <li key={i} className="flex items-center gap-1.5 text-[11px]">
+                  <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded bg-[color:var(--color-accent)]/20 text-[color:var(--color-accent)]">
+                    {i + 1}
+                  </span>
+                  {s.url ? (
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-[color:var(--color-fg-2)] hover:text-[color:var(--color-accent)] hover:underline"
+                    >
+                      {truncate(s.title, 50)}
+                    </a>
+                  ) : (
+                    <span className="truncate text-[color:var(--color-fg-2)]">{truncate(s.title, 50)}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {message.status === 'error' && message.error && (
           <div className="mt-2 flex items-center gap-2 rounded-md bg-[color:var(--color-rose-soft)] px-2 py-1 text-xs text-[color:var(--color-rose)]">
             {message.error}
@@ -520,7 +622,7 @@ function ChatBubble({
           )}
         >
           <span>{formatRelativeTime(message.created_at)}</span>
-          {onCopy && message.content && (
+          {onCopy && message.content && message.status !== 'thinking' && (
             <button
               type="button"
               onClick={() => {
