@@ -181,7 +181,14 @@ describe('OnboardingPage', () => {
     restore();
   });
 
-  it('hydrates fields from existing company data (re-edit case)', () => {
+  it('does NOT hydrate from existing company data (re-edit goes through /company, not /onboarding)', () => {
+    // The OnboardingPage is for fresh users only. If the user
+    // already has a company record, the OnboardingGuard sees
+    // onboarding_status='completed' and redirects to '/'. If the
+    // record exists with status='pending', the user is intentionally
+    // redoing onboarding from scratch — not restoring the previous
+    // values, which would leak data across users if a stale cache
+    // ever made it through (Product Debug #007).
     companyState.mockReturnValue({
       data: {
         id: 'co1',
@@ -190,15 +197,16 @@ describe('OnboardingPage', () => {
         sector: 'Retail / E-commerce',
         employees: '2-10',
         goals: ['seo'],
-        onboarding_status: 'completed',
-        onboarding_completed_at: '2025-01-01T00:00:00Z',
+        onboarding_status: 'pending',   // <-- the only state where OnboardingPage is shown with data
+        onboarding_completed_at: null,
       },
       isLoading: false,
     });
     renderOnboarding();
-    expect((screen.getByLabelText(/company name/i) as HTMLInputElement).value).toBe('Existing Co');
-    expect((screen.getByLabelText(/website/i) as HTMLInputElement).value).toBe('existing.example.com');
-    expect((screen.getByLabelText(/sector/i) as HTMLInputElement).value).toBe('Retail / E-commerce');
+    // Form starts EMPTY — the user must re-enter everything.
+    expect((screen.getByLabelText(/company name/i) as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText(/website/i) as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText(/sector/i) as HTMLInputElement).value).toBe('');
   });
 
   it('POSTs to /companies when the user has no company yet (first-time onboarding)', async () => {

@@ -104,18 +104,6 @@ export default function OnboardingPage() {
     setError(null);
   }, [me.data?.id]);
 
-  // Hydrate from existing company data so the form is editable
-  // if the user is re-doing onboarding after a status reset.
-  useEffect(() => {
-    if (!company.data) return;
-    if (!name && company.data.name) setName(company.data.name);
-    if (!website && company.data.domain) setWebsite(company.data.domain);
-    if (!sector && company.data.sector) setSector(company.data.sector);
-    if (!employees && company.data.employees) setEmployees(company.data.employees);
-    if (!goal && company.data.goals?.length) setGoal(company.data.goals[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [company.data]);
-
   // If the user already completed onboarding, no need to be here.
   useEffect(() => {
     if (company.data?.onboarding_status === 'completed') {
