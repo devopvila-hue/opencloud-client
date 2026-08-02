@@ -1,6 +1,6 @@
 /**
  * i18n — single source of truth for all user-facing strings in
- * the OPENCloud Client Portal.
+ * the DEPARTIFY Client Portal.
  *
  * Design:
  *   - Flat dotted keys (`nav.home`, `login.title`) — easier to grep
@@ -131,12 +131,12 @@ export const catalog: Catalog = {
   'common.light':            ['Light', 'Claro'],
 
   // ── Brand / app ───────────────────────────────────────────────
-  'app.name':                ['OPENCloud', 'OPENCloud'],
-  'app.tagline':             ['Business Operating System', 'Sistema Operativo Empresarial'],
-  'app.signin.title':        ['Sign in to OPENCloud', 'Inicia sesión en OPENCloud'],
+  'app.name':                ['DEPARTIFY', 'DEPARTIFY'],
+  'app.tagline':             ['Business Operating System', 'Business Operating System'],
+  'app.signin.title':        ['Sign in to DEPARTIFY', 'Inicia sesión en DEPARTIFY'],
   'app.signin.subtitle':     ['Welcome back — your Business Operating System is one click away.',
-                              'Bienvenido de nuevo — tu Sistema Operativo Empresarial está a un clic.'],
-  'app.signup.title':        ['Create your OPENCloud account', 'Crea tu cuenta de OPENCloud'],
+                              'Bienvenido de nuevo — tu Business Operating System está a un clic.'],
+  'app.signup.title':        ['Create your DEPARTIFY account', 'Crea tu cuenta de DEPARTIFY'],
   'app.signup.subtitle':     ['Set up your workspace in under a minute.',
                               'Configura tu espacio de trabajo en menos de un minuto.'],
   'app.signed_in_as':        ['Signed in as {email}', 'Sesión iniciada como {email}'],
@@ -185,8 +185,8 @@ export const catalog: Catalog = {
   'palette.action.search_documents':  ['Search documents',
                                        'Buscar documentos'],
   'palette.footer.left':        ['navigate', 'navegar'],
-  'palette.footer.right':       ['OPENCloud · Business OS',
-                                 'OPENCloud · Sistema Operativo Empresarial'],
+  'palette.footer.right':       ['DEPARTIFY · Business Operating System',
+                                 'DEPARTIFY · Business Operating System'],
 
   // ── Notifications panel ─────────────────────────────────────
   'notifications.empty.title': ['You\u2019re all caught up',
@@ -310,8 +310,8 @@ export const catalog: Catalog = {
                                  'Cargando tu Sistema Operativo Empresarial…'],
   'onboarding.footer.invite':    ['Already part of an existing workspace? Ask your admin to invite you instead.',
                                   '¿Ya formas parte de un espacio de trabajo existente? Pide a tu administrador que te invite.'],
-  'onboarding.footer.data':      ['All data stays on the OPENCloud infrastructure.',
-                                  'Todos los datos permanecen en la infraestructura de OPENCloud.'],
+  'onboarding.footer.data':      ['All data stays on your private infrastructure.',
+                                  'Todos los datos permanecen en tu infraestructura privada.'],
   'onboarding.footer.cta':       ['One minute. Five questions. Done.',
                                   'Un minuto. Cinco preguntas. Listo.'],
 
@@ -327,6 +327,38 @@ export const catalog: Catalog = {
   'office.health.score':         ['Business Health Score', 'Índice de Salud del Negocio'],
   'office.health.gateway_up':    ['Gateway online', 'Gateway conectado'],
   'office.health.gateway_down':  ['Gateway offline', 'Gateway desconectado'],
+  'health.status.healthy':        ['Operativo', 'Operativo'],
+  'health.status.degraded':       ['Atención requerida', 'Atención requerida'],
+  'health.status.unhealthy':      ['Incidencia', 'Incidencia'],
+  'health.status.unknown':        ['Sin información', 'Sin información'],
+  'lifecycle.active':             ['Activo', 'Activo'],
+  'lifecycle.available':          ['Disponible', 'Disponible'],
+  'lifecycle.licensed':           ['Licenciado', 'Licenciado'],
+  'lifecycle.activating':         ['Activando', 'Activando'],
+  'lifecycle.suspended':           ['Suspendido', 'Suspendido'],
+  'lifecycle.error':              ['Con errores', 'Con errores'],
+  'lifecycle.deactivating':       ['Desactivando', 'Desactivando'],
+  'lifecycle.inactive':           ['Inactivo', 'Inactivo'],
+  'lifecycle.installed':          ['Instalado', 'Instalado'],
+  'task.status.queued':           ['En cola', 'En cola'],
+  'task.status.assigned':         ['Asignada', 'Asignada'],
+  'task.status.running':          ['En curso', 'En curso'],
+  'task.status.waiting_approval': ['Esperando aprobación', 'Esperando aprobación'],
+  'task.status.completed':        ['Completada', 'Completada'],
+  'task.status.failed':           ['Con error', 'Con error'],
+  'task.status.cancelled':        ['Cancelada', 'Cancelada'],
+  'task.status.expired':          ['Expirada', 'Expirada'],
+  'task.status.ready':            ['Lista', 'Lista'],
+  'task.status.paused':           ['Pausada', 'Pausada'],
+  'toast.dept.resumed':            ['Departamento reactivado', 'Departamento reactivado'],
+  'toast.dept.resume_failed':      ['No se pudo reactivar', 'No se pudo reactivar'],
+  'toast.dept.license_granted':    ['Licencia concedida', 'Licencia concedida'],
+  'toast.dept.license_granted_desc': ['Licencia de prueba aplicada a {name}.', 'Licencia de prueba aplicada a {name}.'],
+  'toast.dept.license_failed':     ['No se pudo conceder la licencia', 'No se pudo conceder la licencia'],
+  'toast.health.title':            ['Estado del departamento', 'Estado del departamento'],
+  'toast.health.error':            ['No se pudo comprobar el estado', 'No se pudo comprobar el estado'],
+  'health.lifecycle.title':        ['Estado operativo', 'Estado operativo'],
+  'health.health.title':           ['Salud', 'Salud'],
   'office.health.score_help':    ['Composite of gateway uptime, department health and task success rate.',
                                   'Combinado entre tiempo activo del gateway, salud de departamentos y tasa de éxito de tareas.'],
   'office.section.priorities':   ['Today\u2019s priorities', 'Prioridades de hoy'],
@@ -436,6 +468,54 @@ export const catalog: Catalog = {
   'tasks.empty.title':           ['No tasks yet', 'No hay tareas'],
   'tasks.empty.desc':            ['Tasks will appear here as departments create work.',
                                  'Las tareas aparecerán aquí cuando los departamentos creen trabajo.'],
+  'tasks.new':                   ['New task', 'Nueva tarea'],
+  'tasks.filter':                ['Filter', 'Filtrar'],
+  'tasks.all_departments':       ['All departments', 'Todos los departamentos'],
+  'tasks.create_first':          ['Create your first task', 'Crea tu primera tarea'],
+  'tasks.approve':               ['Approve', 'Aprobar'],
+  'tasks.reject':                ['Reject', 'Rechazar'],
+  'tasks.cancel':                ['Cancel', 'Cancelar'],
+  'tasks.retry':                 ['Retry', 'Reintentar'],
+  'tasks.cancelled_toast':       ['Task cancelled', 'Tarea cancelada'],
+  'tasks.cancel_failed':         ['Cancel failed', 'No se pudo cancelar'],
+  'tasks.retry_toast':           ['Task re-queued', 'Tarea reencolada'],
+  'tasks.retry_failed':          ['Retry failed', 'No se pudo reintentar'],
+  'tasks.approved_toast':        ['Approved', 'Aprobado'],
+  'tasks.rejected_toast':        ['Rejected', 'Rechazado'],
+  'tasks.decision_failed':       ['Decision failed', 'No se pudo registrar la decisión'],
+  'tasks.create_dialog.title':   ['Create a task', 'Crear una tarea'],
+  'tasks.create_dialog.desc':    ['Delegate work to any department — they will execute through their manager agent.',
+                                 'Delega trabajo a cualquier departamento: lo ejecutará a través de su manager.'],
+  'tasks.create.department':     ['Department', 'Departamento'],
+  'tasks.create.department_placeholder': ['Select a department…', 'Selecciona un departamento…'],
+  'tasks.create.title_label':    ['Title', 'Título'],
+  'tasks.create.title_placeholder': ['What needs to happen?', '¿Qué tiene que ocurrir?'],
+  'tasks.create.description_label': ['Description', 'Descripción'],
+  'tasks.create.description_placeholder': ['Add the context, links or steps…', 'Añade contexto, enlaces o pasos…'],
+  'tasks.create.priority_label': ['Priority', 'Prioridad'],
+  'tasks.create.required_toast': ['Department and title are required', 'Departamento y título son obligatorios'],
+  'tasks.create.success_toast':  ['Task created', 'Tarea creada'],
+  'tasks.create.failed_toast':   ['Could not create task', 'No se pudo crear la tarea'],
+  'tasks.create.submit':         ['Create', 'Crear'],
+  'tasks.create.dialog_cancel':  ['Cancel', 'Cancelar'],
+
+  'results.header.title':         ['Results', 'Resultados'],
+  'results.header.subtitle':      ['Library of reports, completed tasks, memory files and uploaded documents.',
+                                  'Biblioteca de informes, tareas completadas, archivos de memoria y documentos subidos.'],
+  'results.tab.tasks':            ['Tasks', 'Tareas'],
+  'results.tab.memory':           ['Memory', 'Memoria'],
+  'results.tab.documents':        ['Documents', 'Documentos'],
+  'results.tasks.empty.title':    ['No completed tasks yet', 'Aún no hay tareas completadas'],
+  'results.tasks.empty.desc':     ['As departments complete work, their outputs appear here.',
+                                  'Cuando los departamentos terminen trabajo, sus resultados aparecerán aquí.'],
+  'results.memory.empty.title':   ['No memory files yet', 'Aún no hay archivos de memoria'],
+  'results.memory.empty.desc':    ['Generate corporate memory from the Company page to start populating this library.',
+                                  'Genera la memoria corporativa desde la página Empresa para empezar a llenar esta biblioteca.'],
+  'results.memory.empty.action':  ['Open company', 'Abrir empresa'],
+  'results.documents.empty.title':['No documents yet', 'Aún no hay documentos'],
+  'results.documents.title':      ['Generated documents', 'Documentos generados'],
+  'results.documents.subtitle':   ['Outputs from completed tasks', 'Resultados de tareas completadas'],
+  'common.open':                  ['Open', 'Abrir'],
 
   // ── Toaster feedback ─────────────────────────────────────────
   'feedback.signed_in':          ['Signed in', 'Sesión iniciada'],
@@ -464,11 +544,12 @@ export function t(
   key: string,
   locale: Locale,
   vars?: Record<string, string | number>,
+  fallback?: string,
 ): string {
   const entry = catalog[key];
   const raw = entry ? entry[locale === 'es' ? 1 : 0] : undefined;
-  const fallback = entry ? entry[0] : undefined;
-  const template = raw ?? fallback ?? key;
+  const fromCatalog = entry ? entry[0] : undefined;
+  const template = raw ?? fromCatalog ?? fallback ?? key;
   if (!vars) return template;
   return template.replace(/\{(\w+)\}/g, (_, k: string) => {
     const value = vars[k];

@@ -91,7 +91,7 @@ export const staggerItem = {
 };
 
 /**
- * Card hover lift — premium DeptIA micro-interaction.
+ * Card hover lift — premium DEPARTIFY micro-interaction.
  */
 export const cardHover = {
   whileHover: { y: -2, transition: { type: 'spring', stiffness: 400, damping: 26 } },

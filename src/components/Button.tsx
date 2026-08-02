@@ -5,7 +5,7 @@ import { cn } from '@/design-system/cn';
 type Variant = 'primary' | 'secondary' | 'ghost' | 'subtle' | 'outline' | 'link' | 'danger';
 type Size = 'sm' | 'md' | 'lg' | 'xl' | 'icon';
 
-/*  Primary: lime accent with near-black text (DeptIA)  */
+/*  Primary: lime accent with near-black text (DEPARTIFY)  */
 const variantStyles: Record<Variant, string> = {
   primary: cn(
     'bg-[color:var(--accent)] text-[color:var(--accent-foreground)]',

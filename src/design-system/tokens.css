@@ -1,8 +1,8 @@
 /* ============================================================
-   OPENCloud Client Portal — Design System (Phase 7)
+   DEPARTIFY Client Portal — Design System (Phase 7)
    Business Operating System visual language.
 
-   Palette & typography adopted from Deptify:
+   Palette & typography (Current Visual Standard v0.9):
    - Dark-first (#080908 → #1b1f1b)
    - Lime accent (#d8ff62) with near-black foreground
    - Fraunces (display) + Geist/Inter (sans) + JetBrains Mono (mono)
@@ -69,7 +69,7 @@
 
 @layer base {
   :root {
-    /* ---- Brand palette (DeptIA) ---- */
+    /* ---- Brand palette (DEPARTIFY) ---- */
     --background: #080908;
     --background-elevated: #101210;
     --surface: #151815;
@@ -104,7 +104,7 @@
     --font-display: "Fraunces", "Editorial New", "Times New Roman", Georgia, serif;
     --font-mono: "Geist Mono", "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
 
-    /* ---- Radii (DeptIA) ---- */
+    /* ---- Radii (DEPARTIFY) ---- */
     --radius-xs: 4px;
     --radius-sm: 6px;
     --radius-md: 10px;
@@ -414,7 +414,7 @@
     100% { box-shadow: 0 0 0 0 transparent; }
   }
 
-  /* ---- Liquid glass (DeptIA premium) ---- */
+  /* ---- Liquid glass (DEPARTIFY premium) ---- */
   .liquid {
     background: color-mix(in oklab, var(--surface) 65%, transparent);
     border: 1px solid var(--border);
@@ -434,7 +434,7 @@
     -webkit-backdrop-filter: blur(12px) saturate(140%);
   }
 
-  /* ---- Radial glow (DeptIA pattern) ---- */
+  /* ---- Radial glow (DEPARTIFY pattern) ---- */
   .radial-glow {
     background-image:
       radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 8%, transparent) 0%, transparent 65%);

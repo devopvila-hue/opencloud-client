@@ -4,8 +4,8 @@ import { ErrorState } from '@/components/ErrorState';
 describe('ErrorState', () => {
   it('renders default title and description', () => {
     render(<ErrorState />);
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText("We couldn't load this content. Try refreshing or check back later.")).toBeInTheDocument();
+    expect(screen.getByText('No se pudo cargar este contenido')).toBeInTheDocument();
+    expect(screen.getByText('Inténtalo de nuevo o vuelve más tarde.')).toBeInTheDocument();
   });
 
   it('renders custom title and description', () => {
@@ -32,7 +32,7 @@ describe('ErrorState', () => {
   it('renders retry button when retry is provided', () => {
     const mockRetry = vi.fn();
     render(<ErrorState retry={mockRetry} />);
-    const button = screen.getByText('Retry');
+    const button = screen.getByText('Reintentar');
     expect(button).toBeInTheDocument();
     button.click();
     expect(mockRetry).toHaveBeenCalled();
