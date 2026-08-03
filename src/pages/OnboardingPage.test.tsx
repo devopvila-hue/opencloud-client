@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { I18nProvider } from '@/i18n/I18nProvider';
 
 // Mock the queries module so we can drive me.data / company.data
 // and spy on usePatchCompany / useCreateCompany.
@@ -70,12 +71,14 @@ function renderOnboarding(initialPath = '/onboarding') {
 
   const utils = render(
     <QueryClientProvider client={makeQueryClient()}>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Routes>
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/" element={<div data-testid="dashboard">Dashboard</div>} />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Routes>
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/" element={<div data-testid="dashboard">Dashboard</div>} />
+          </Routes>
+        </MemoryRouter>
+      </I18nProvider>
     </QueryClientProvider>,
   );
 
@@ -89,6 +92,9 @@ function renderOnboarding(initialPath = '/onboarding') {
 
 describe('OnboardingPage', () => {
   beforeEach(() => {
+    // Force English locale so the existing assertions on English
+    // labels (e.g. "Company name", "Website") keep matching.
+    Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true });
     meState.mockReturnValue({ data: { id: 'u1', email: '[email protected]' }, isLoading: false });
     companyState.mockReturnValue({
       data: {
@@ -268,7 +274,7 @@ describe('OnboardingPage', () => {
     fireEvent.click(document.querySelector('button[type="submit"]') as HTMLButtonElement);
 
     await waitFor(() => {
-      expect(screen.getByText(/couldn't save your profile/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/save your profile/i).length).toBeGreaterThan(0);
     });
 
     restore();

@@ -9,9 +9,11 @@ import { DepartmentCard } from '@/components/DepartmentCard';
 import { Badge } from '@/components/Badge';
 import { useDepartmentCatalog } from '@/api/queries';
 import { departmentList, categoryLabel } from '@/design-system/departments';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/design-system/cn';
 
 export default function DepartmentsPage() {
+  const { t } = useI18n();
   const catalog = useDepartmentCatalog();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'available'>('all');
@@ -46,13 +48,13 @@ export default function DepartmentsPage() {
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Departments</h1>
+          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('nav.departments')}</h1>
           <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-            Activate any department to start delegating work to its manager and specialists.
+            {t('departments.header.subtitle')}
           </p>
         </div>
         <Badge tone="neutral" size="sm" variant="outline" icon={<Layers className="h-3 w-3" />}>
-          {(catalog.data ?? []).length} catalog entries
+          {t('departments.count', { n: (catalog.data ?? []).length })}
         </Badge>
       </header>
 
@@ -60,10 +62,10 @@ export default function DepartmentsPage() {
         <div className="min-w-[240px] flex-1">
           <Field
             leading={<Search className="h-4 w-4" />}
-            placeholder="Search departments, capabilities or descriptions…"
+            placeholder={t('departments.search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search departments"
+            aria-label={t('departments.search.label')}
           />
         </div>
         <FilterChips value={filter} onChange={setFilter} />
@@ -81,7 +83,7 @@ export default function DepartmentsPage() {
                   : 'text-[color:var(--color-fg-3)] hover:bg-[color:var(--color-bg-3)]',
               )}
             >
-              {c === 'all' ? 'All categories' : categoryLabel[c as keyof typeof categoryLabel] ?? c}
+              {c === 'all' ? t('common.all_categories') : categoryLabel[c as keyof typeof categoryLabel] ?? c}
             </button>
           ))}
         </div>
@@ -91,9 +93,9 @@ export default function DepartmentsPage() {
         <SkeletonGrid />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No departments match"
-          description="Try a different search or remove filters."
-          action={<Button onClick={() => { setQuery(''); setFilter('all'); setCategory('all'); }}>Reset filters</Button>}
+          title={t('departments.empty.title')}
+          description={t('departments.empty.desc')}
+          action={<Button onClick={() => { setQuery(''); setFilter('all'); setCategory('all'); }}>{t('common.reset_filters')}</Button>}
         />
       ) : (
         <motion.div

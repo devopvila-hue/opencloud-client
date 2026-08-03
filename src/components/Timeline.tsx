@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/design-system/cn';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export interface TimelineEntry {
   id: string;
@@ -11,9 +12,10 @@ export interface TimelineEntry {
 }
 
 export function Timeline({ entries, className }: { entries: TimelineEntry[]; className?: string }) {
+  const { t } = useI18n();
   if (entries.length === 0) {
     return (
-      <div className={cn('text-sm text-[color:var(--muted-foreground)]', className)}>No activity yet.</div>
+      <div className={cn('text-sm text-[color:var(--muted-foreground)]', className)}>{t('activity.empty')}</div>
     );
   }
   return (

@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
-  KeyRound,
   Loader2,
   LogIn,
   ShieldCheck,
@@ -14,6 +13,7 @@ import {
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Field } from '@/components/Field';
+import { Logo } from '@/components/Logo';
 import { useToast } from '@/components/Toaster';
 import { useLogin, useMe, useSignup } from '@/api/queries';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -92,8 +92,8 @@ export default function LoginPage() {
       // once useMe resolves and bounce to `next`.
       toast.push({
         tone: 'success',
-        title: mode === 'login' ? 'Signed in' : 'Account created',
-        description: 'Loading your Business Operating System…',
+        title: mode === 'login' ? t('login.success.signin') : t('login.success.signup'),
+        description: t('login.success.signin_desc'),
       });
     } catch (err) {
       const message = err instanceof ApiClientError ? err.message : t('login.error.invalid');
@@ -110,15 +110,13 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         <Card variant="elevated" padding="lg">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[color:var(--accent-soft)] text-[color:var(--accent)]">
-              <KeyRound className="h-5 w-5" />
-            </div>
+          <div className="mb-6 flex flex-col items-center gap-3 text-center">
+            <Logo size={48} />
             <div>
-              <h1 className="font-display text-[1.125rem] tracking-[-0.01em] text-[color:var(--foreground)]">
+              <h1 className="font-display text-[1.25rem] tracking-[-0.02em] text-[color:var(--foreground)]">
                 {mode === 'login' ? t('app.signin.title') : t('app.signup.title')}
               </h1>
-              <p className="mt-0.5 text-xs text-[color:var(--muted-foreground)]">
+              <p className="mt-1 text-xs text-[color:var(--muted-foreground)]">
                 {mode === 'login' ? t('app.signin.subtitle') : t('app.signup.subtitle')}
               </p>
             </div>
@@ -195,7 +193,7 @@ export default function LoginPage() {
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder={t('login.field.password_hint')}
               minLength={8}
               disabled={busy}
             />

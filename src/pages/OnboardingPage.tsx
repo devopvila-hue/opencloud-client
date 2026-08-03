@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Globe,
   Loader2,
-  Sparkles,
   Target,
   Users,
 } from 'lucide-react';
@@ -14,6 +13,8 @@ import { Button } from '@/components/Button';
 import { Card, CardSection } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { ErrorState } from '@/components/ErrorState';
+import { Logo } from '@/components/Logo';
+import { useI18n } from '@/i18n/I18nProvider';
 import { useToast } from '@/components/Toaster';
 import { useCompany, useCompanyWithRefetch, useCreateCompany, useMe, usePatchCompany } from '@/api/queries';
 import { ApiClientError } from '@/api/client';
@@ -43,22 +44,32 @@ import { cn } from '@/design-system/cn';
  *     backend's goals array.
  */
 
-const PRIMARY_GOALS: { id: string; label: string; description: string }[] = [
-  { id: 'customers', label: 'Get more customers', description: 'Lead generation and sales pipeline' },
-  { id: 'marketing', label: 'Marketing', description: 'Brand awareness and campaigns' },
-  { id: 'seo', label: 'SEO', description: 'Organic search traffic and rankings' },
-  { id: 'automation', label: 'Automate processes', description: 'Internal workflows and tooling' },
-  { id: 'software', label: 'Build internal software', description: 'Custom apps for the team' },
-  { id: 'other', label: 'Other', description: 'Something else entirely' },
-];
+/**
+ * Primary goals + team-size buckets — labels are resolved via i18n at
+ * render time so they follow the brand default (Spanish first, English
+ * only when the user has switched languages). Keeping the data here as
+ * constants and translating at render time keeps the source of truth in
+ * one place (the catalog) without spreading keys across data files.
+ */
+const PRIMARY_GOAL_IDS = ['customers', 'marketing', 'seo', 'automation', 'software', 'other'] as const;
+type PrimaryGoalId = (typeof PRIMARY_GOAL_IDS)[number];
 
-const EMPLOYEES_OPTIONS = [
-  { id: '1', label: 'Just me' },
-  { id: '2-10', label: '2–10' },
-  { id: '11-50', label: '11–50' },
-  { id: '51-200', label: '51–200' },
-  { id: '201+', label: '201+' },
-];
+const EMPLOYEE_BUCKETS = ['justme', '2-10', '11-50', '51-200', '201'] as const;
+type EmployeeBucket = (typeof EMPLOYEE_BUCKETS)[number];
+
+/**
+ * The portal keeps bucket ids in their i18n form (`justme`, `2-10`,
+ * …) for clean catalog keys; the API still expects the legacy ids
+ * (`1`, `2-10`, …). Translate at submit time so the rest of the
+ * app can keep using the new keys without the backend noticing.
+ */
+const EMPLOYEE_BUCKETS_TO_API: Record<EmployeeBucket, string> = {
+  justme: '1',
+  '2-10': '2-10',
+  '11-50': '11-50',
+  '51-200': '51-200',
+  '201': '201+',
+};
 
 const SECTOR_OPTIONS = [
   'Technology',
@@ -76,6 +87,7 @@ const SECTOR_OPTIONS = [
 
 export default function OnboardingPage() {
   const me = useMe();
+  const { t } = useI18n();
   const company = useCompanyWithRefetch();
   const patch = usePatchCompany();
   const create = useCreateCompany();
@@ -136,7 +148,9 @@ export default function OnboardingPage() {
       name: name.trim(),
       domain: normalizeUrl(website.trim()),
       sector: sector || null,
-      employees,
+      // Map the i18n key ('justme' / '2-10' / …) back to the
+      // backend-expected bucket id ('1' / '2-10' / …) on submit.
+      employees: EMPLOYEE_BUCKETS_TO_API[employees as EmployeeBucket] ?? employees,
       goals: [goal],
       onboarding_status: 'completed' as const,
       onboarding_completed_at: new Date().toISOString(),
@@ -158,13 +172,13 @@ export default function OnboardingPage() {
       await company.refetch();
       toast.push({
         tone: 'success',
-        title: 'Welcome aboard',
-        description: 'Loading your Business Operating System…',
+        title: t('onboarding.welcome.title'),
+        description: t('onboarding.welcome.desc'),
       });
       // Replace history so the user can't click back into onboarding.
       window.location.assign('/');
     } catch (err) {
-      const message = err instanceof ApiClientError ? err.message : 'Could not save your profile';
+      const message = err instanceof ApiClientError ? err.message : t('onboarding.error.title');
       setError(message);
     }
   }
@@ -178,27 +192,18 @@ export default function OnboardingPage() {
         className="w-full max-w-2xl"
       >
         <Card variant="elevated" padding="lg">
-          <header className="mb-6 flex items-start gap-3">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-lg)] text-white"
-              style={{
-                background:
-                  'linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 60%, var(--color-fg-1)))',
-              }}
-            >
-              <Sparkles className="h-6 w-6" />
-            </div>
+          <header className="mb-6 flex flex-col items-center gap-3 text-center">
+            <Logo size={48} />
             <div className="flex-1">
-              <h1 className="font-display text-[1.25rem] tracking-[-0.01em] text-[color:var(--foreground)]">
-                Let's set up your workspace
+              <h1 className="font-display text-[1.25rem] tracking-[-0.02em] text-[color:var(--foreground)]">
+                {t('onboarding.title')}
               </h1>
               <p className="mt-1 text-sm text-[color:var(--muted-foreground)] text-pretty">
-                Five quick questions so the Executive Director knows your business. You can edit
-                everything later from the Company page.
+                {t('onboarding.subtitle')}
               </p>
               {me.data?.email && (
                 <p className="mt-1 text-[11px] text-[color:var(--muted-foreground)]">
-                  Signed in as <span className="font-mono">{me.data.email}</span>
+                  {t('app.signed_in_as', { email: me.data.email })}
                 </p>
               )}
             </div>
@@ -207,42 +212,42 @@ export default function OnboardingPage() {
           <form onSubmit={onSubmit} className="space-y-5" noValidate>
             {error && (
               <ErrorState
-                title="Couldn't save your profile"
+                title={t('onboarding.error.title')}
                 description={error}
                 retry={() => setError(null)}
               />
             )}
 
             <Field
-              label="Company name"
+              label={t('onboarding.field.name')}
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Acme Industries"
+              placeholder={t('onboarding.field.name_ph')}
               autoComplete="organization"
               disabled={isSubmitting}
             />
 
             <Field
-              label="Website"
+              label={t('onboarding.field.website')}
               type="url"
               required
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              placeholder="https://example.com"
+              placeholder={t('onboarding.field.website_ph')}
               autoComplete="url"
               inputMode="url"
               disabled={isSubmitting}
-              hint="We'll start by just saving the URL — automatic enrichment of your company profile arrives in the next version."
+              hint={t('onboarding.field.website_hint')}
             />
 
             <Field
-              label="Sector"
+              label={t('onboarding.field.sector')}
               type="text"
               value={sector}
               onChange={(e) => setSector(e.target.value)}
-              placeholder="Pick or type your sector"
+              placeholder={t('onboarding.field.sector_ph')}
               disabled={isSubmitting}
               list="onboarding-sector-options"
             />
@@ -254,16 +259,16 @@ export default function OnboardingPage() {
 
             <div>
               <label className="mb-2 block text-xs font-medium text-[color:var(--muted-foreground)]">
-                Team size
+                {t('onboarding.field.teamsize')}
               </label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                {EMPLOYEES_OPTIONS.map((opt) => {
-                  const active = employees === opt.id;
+                {EMPLOYEE_BUCKETS.map((id) => {
+                  const active = employees === id;
                   return (
                     <button
-                      key={opt.id}
+                      key={id}
                       type="button"
-                      onClick={() => setEmployees(opt.id)}
+                      onClick={() => setEmployees(id)}
                       disabled={isSubmitting}
                       className={cn(
                         'rounded-[var(--radius-md)] border px-3 py-2 text-sm transition-colors',
@@ -272,7 +277,7 @@ export default function OnboardingPage() {
                           : 'border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]',
                       )}
                     >
-                      {opt.label}
+                      {t(`onboarding.teamsize.${id}`)}
                     </button>
                   );
                 })}
@@ -281,16 +286,16 @@ export default function OnboardingPage() {
 
             <div>
               <label className="mb-2 block text-xs font-medium text-[color:var(--muted-foreground)]">
-                Primary objective
+                {t('onboarding.field.objective')}
               </label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {PRIMARY_GOALS.map((g) => {
-                  const active = goal === g.id;
+                {PRIMARY_GOAL_IDS.map((id) => {
+                  const active = goal === id;
                   return (
                     <button
-                      key={g.id}
+                      key={id}
                       type="button"
-                      onClick={() => setGoal(g.id)}
+                      onClick={() => setGoal(id)}
                       disabled={isSubmitting}
                       className={cn(
                         'flex items-start gap-3 rounded-[var(--radius-md)] border p-3 text-left transition-colors',
@@ -310,9 +315,9 @@ export default function OnboardingPage() {
                         {active && <CheckCircle2 className="h-3 w-3" />}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium">{g.label}</span>
+                        <span className="block text-sm font-medium">{t(`onboarding.objective.${id}`)}</span>
                         <span className="mt-0.5 block text-xs text-[color:var(--muted-foreground)]">
-                          {g.description}
+                          {t(`onboarding.objective.${id}_desc`)}
                         </span>
                       </span>
                     </button>
@@ -324,10 +329,7 @@ export default function OnboardingPage() {
             <CardSection className="rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/30">
               <div className="flex items-start gap-2 text-xs text-[color:var(--muted-foreground)]">
                 <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[color:var(--accent)]" />
-                <p className="text-pretty">
-                  Your workspace, organisation and owner profile are created automatically when you
-                  submit. Nothing leaves the platform — everything is encrypted at rest.
-                </p>
+                <p className="text-pretty">{t('onboarding.workspace_notice')}</p>
               </div>
             </CardSection>
 
@@ -345,20 +347,20 @@ export default function OnboardingPage() {
               disabled={!canSubmit}
               loading={isSubmitting}
             >
-              {isSubmitting ? 'Saving workspace…' : 'Open my Business OS'}
+              {isSubmitting ? t('onboarding.submitting') : t('onboarding.submit')}
             </Button>
           </form>
         </Card>
 
         <p className="mt-6 text-center text-[11px] text-[color:var(--muted-foreground)]">
           <Globe className="mr-1 inline-block h-3 w-3" />
-          Already part of an existing workspace? Ask your admin to invite you instead.
+          {t('onboarding.footer.invite')}
           <span className="mx-2 opacity-50">·</span>
           <Users className="mr-1 inline-block h-3 w-3" />
-          All data stays on your private infrastructure.
+          {t('onboarding.footer.data')}
           <span className="mx-2 opacity-50">·</span>
           <Target className="mr-1 inline-block h-3 w-3" />
-          One minute. Five questions. Done.
+          {t('onboarding.footer.cta')}
         </p>
       </motion.div>
     </div>

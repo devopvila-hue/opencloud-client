@@ -6,6 +6,7 @@ import { cn } from '@/design-system/cn';
 import { Badge } from './Badge';
 import { getDepartment } from '@/design-system/departments';
 import { formatRelativeTime } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { InternalMessage, Task } from '@/api/schemas';
 
 interface FeedEntry {
@@ -27,6 +28,7 @@ interface ActivityFeedProps {
 }
 
 export function ActivityFeed({ tasks = [], messages = [], limit = 20, className }: ActivityFeedProps) {
+  const { t } = useI18n();
   const entries = useMemo<FeedEntry[]>(() => {
     const list: FeedEntry[] = [];
     for (const t of tasks) {
@@ -60,7 +62,7 @@ export function ActivityFeed({ tasks = [], messages = [], limit = 20, className 
   if (entries.length === 0) {
     return (
       <div className={cn('text-sm text-[color:var(--muted-foreground)]', className)}>
-        No activity yet.
+        {t('activity.empty')}
       </div>
     );
   }

@@ -22,16 +22,17 @@
 export const LOCALES = ['en', 'es'] as const;
 export type Locale = (typeof LOCALES)[number];
 
-export const DEFAULT_LOCALE: Locale = 'en';
+export const DEFAULT_LOCALE: Locale = 'es';
 
 /**
  * Browser locale detection.
  *
  *   navigator.language -> "es-ES", "en-US", "es-MX", "pt-BR" …
  *
- * Rule (per product spec):
- *   - "es*"   -> Spanish
- *   - anything else -> English
+ * Rule (per product spec — Spanish first, English only when the
+ * browser explicitly asks for it):
+ *   - "en*"   -> English
+ *   - anything else -> Spanish (the DEPARTIFY default).
  *
  * SSR-safe: returns DEFAULT_LOCALE when navigator is unavailable
  * (e.g. during build-time rendering in a non-DOM environment).
@@ -39,7 +40,7 @@ export const DEFAULT_LOCALE: Locale = 'en';
 export function detectBrowserLocale(): Locale {
   if (typeof navigator === 'undefined') return DEFAULT_LOCALE;
   const raw = (navigator.language ?? '').toLowerCase();
-  if (raw.startsWith('es')) return 'es';
+  if (raw.startsWith('en')) return 'en';
   return DEFAULT_LOCALE;
 }
 
@@ -465,13 +466,14 @@ export const catalog: Catalog = {
   // ── Tasks page ───────────────────────────────────────────────
   'tasks.header.title':          ['Tasks', 'Tareas'],
   'tasks.header.subtitle':       ['Internal queue', 'Cola interna'],
-  'tasks.empty.title':           ['No tasks yet', 'No hay tareas'],
-  'tasks.empty.desc':            ['Tasks will appear here as departments create work.',
-                                 'Las tareas aparecerán aquí cuando los departamentos creen trabajo.'],
+  'tasks.empty.title':           ['No tasks yet', 'Aún no hay tareas'],
+  'tasks.empty.desc':            ['As departments accept work, tasks will appear here.',
+                                 'Cuando los equipos acepten trabajo, las tareas aparecerán aquí.'],
   'tasks.new':                   ['New task', 'Nueva tarea'],
   'tasks.filter':                ['Filter', 'Filtrar'],
-  'tasks.all_departments':       ['All departments', 'Todos los departamentos'],
-  'tasks.create_first':          ['Create your first task', 'Crea tu primera tarea'],
+  'tasks.all_departments':       ['All teams', 'Todos los equipos'],
+  'tasks.status.all':            ['All', 'Todo'],
+  'tasks.create_first':          ['Create the first task', 'Crear la primera tarea'],
   'tasks.approve':               ['Approve', 'Aprobar'],
   'tasks.reject':                ['Reject', 'Rechazar'],
   'tasks.cancel':                ['Cancel', 'Cancelar'],
@@ -526,6 +528,224 @@ export const catalog: Catalog = {
   'feedback.delete_failed':      ['Could not delete', 'No se pudo eliminar'],
   'feedback.error':              ['Something went wrong', 'Algo salió mal'],
   'feedback.copied':             ['Copied', 'Copiado'],
+
+  // ── Sprint 1 — Customer Zero ──────────────────────────────
+  'activity.empty':                ['No activity yet.', 'Aún no hay actividad.'],
+  'error.title':                   ['Could not load this content', 'No se pudo cargar este contenido'],
+  'error.description':             ['Try again or come back later.', 'Inténtalo de nuevo o vuelve más tarde.'],
+  'common.copy_json':              ['Copy JSON', 'Copiar JSON'],
+  'common.all_categories':         ['All categories', 'Todas las categorías'],
+
+  'dashboard.hero.eyebrow':        ['What do you want to achieve today?', '¿Qué quieres conseguir hoy?'],
+  'dashboard.hero.title':          ['Tell your company what you need and we will get started.',
+                                    'Dile a tu empresa qué necesitas y empezaremos.'],
+  'dashboard.hero.subtitle_ok':    ['Your company is connected and ready to work.',
+                                    'Tu empresa está conectada y lista para trabajar.'],
+  'dashboard.hero.subtitle_down':  ['We can\'t reach your company. Check the connection.',
+                                    'No podemos conectar con tu empresa. Revisa la conexión.'],
+  'dashboard.cta.ask':             ['Ask your company', 'Pedir algo a tu empresa'],
+  'dashboard.cta.activate':        ['Activate a team', 'Activar un equipo'],
+  'dashboard.quick.title':         ['Quick actions', 'Acciones rápidas'],
+  'dashboard.quick.view_all':      ['See all', 'Ver todas'],
+  'dashboard.dept_activity.title': ['What your teams are doing', 'Actividad de Departamentos'],
+  'dashboard.dept_activity.sub':   ['Live status from your active teams',
+                                    'Estado en vivo de tus equipos activos'],
+  'dashboard.dept_activity.empty.title': ['Activate your first team', 'Activa tu primer equipo'],
+  'dashboard.dept_activity.empty.desc':  ['Pick a team and we will start working for your company.',
+                                           'Elige un equipo y empezaremos a trabajar para tu empresa.'],
+  'dashboard.dept_card.tasks':     ['{n} tasks in progress', '{n} tareas en curso'],
+
+  'actions.growth':                ['Get more customers', 'Conseguir más clientes'],
+  'actions.meeting':               ['Prepare a meeting', 'Preparar una reunión'],
+  'actions.inbox':                 ['Reply to emails', 'Responder correos'],
+  'actions.campaign':              ['Create a campaign', 'Crear una campaña'],
+  'actions.offer':                 ['Prepare an offer', 'Preparar una oferta'],
+  'actions.growth_desc':           ['Find leads and bring them to your company.',
+                                    'Detecta leads y tráelos a tu empresa.'],
+  'actions.meeting_desc':          ['Get a clear agenda and talking points in one place.',
+                                    'Una agenda clara y puntos clave en un solo lugar.'],
+  'actions.inbox_desc':            ['Sort and respond to your pending emails.',
+                                    'Ordena y responde tus correos pendientes.'],
+  'actions.campaign_desc':         ['Design a campaign ready to publish.',
+                                    'Diseña una campaña lista para publicar.'],
+  'actions.offer_desc':            ['Build a tailored offer for a real lead.',
+                                    'Crea una oferta a medida para un lead real.'],
+
+  'chat.header.title':             ['Conversations', 'Conversaciones'],
+  'chat.header.new':               ['New conversation', 'Nueva conversación'],
+  'chat.empty.title':              ['No conversations yet', 'Aún no hay conversaciones'],
+  'chat.delete.confirm':          ['Delete this conversation?', '¿Borrar esta conversación?'],
+  'chat.status.streaming':         ['streaming…', 'transmitiendo…'],
+  'chat.status.ready':             ['ready', 'listo'],
+  'chat.status.live':              ['live', 'en vivo'],
+  'chat.status.idle':              ['idle', 'en espera'],
+  'chat.start.title':              ['Start a conversation', 'Empieza una conversación'],
+  'chat.start.desc':               ['Talk to {name} about goals, plans, reports and approvals.',
+                                    'Habla con {name} sobre objetivos, planes, informes y aprobaciones.'],
+  'chat.start.suggestion.weekly':  ['Summarise what my departments did this week',
+                                    'Resúmeme lo que han hecho mis departamentos esta semana'],
+  'chat.start.suggestion.launch':   ['Draft a plan to launch the new pricing page',
+                                    'Borrador de plan para lanzar la nueva página de precios'],
+  'chat.start.suggestion.approve': ['Approve the open tasks waiting for me',
+                                    'Aprueba las tareas pendientes que me esperan'],
+  'chat.start.suggestion.memory':   ['Show me the latest corporate memory files',
+                                    'Muéstrame los últimos archivos de memoria corporativa'],
+  'chat.composer.placeholder':     ['Message {name}…', 'Escribe a {name}…'],
+  'chat.composer.hint':            ['Enter to send · Shift+Enter for newline',
+                                    'Intro para enviar · Mayús+Intro para nueva línea'],
+  'chat.message.thinking':         ['thinking…', 'pensando…'],
+  'chat.message.sources':          ['Sources used', 'Fuentes utilizadas'],
+  'chat.jump_latest':              ['Jump to latest', 'Ir al último'],
+
+  'departments.search.placeholder':['Search teams, capabilities or examples…',
+                                    'Busca equipos, capacidades o ejemplos…'],
+  'departments.search.label':      ['Search departments', 'Buscar departamentos'],
+  'departments.detail.recent_tasks':     ['Recent tasks', 'Tareas recientes'],
+  'departments.detail.no_tasks':          ['No tasks yet', 'Aún no hay tareas'],
+  'departments.detail.internal_activity':['Internal activity', 'Actividad interna'],
+  'departments.detail.internal_sub':      ['Live messages from this team',
+                                           'Mensajes en vivo de este equipo'],
+  'departments.detail.health_title':      ['Last health check', 'Última comprobación'],
+  'departments.detail.health_sub':        ['Detailed checks from the most recent run',
+                                           'Comprobaciones detalladas del último ciclo'],
+  'departments.detail.no_health':         ['No health check run yet',
+                                           'Aún no se ha comprobado la salud'],
+  'departments.detail.manager_sub':       ['Lead agent coordinating this team',
+                                           'Agente principal que coordina este equipo'],
+  'departments.detail.health.cta':        ['Run health check', 'Comprobar salud'],
+  'departments.detail.activate':          ['Activate', 'Activar'],
+  'departments.detail.reactivate':        ['Reactivate', 'Reactivar'],
+  'departments.detail.deactivate':        ['Deactivate', 'Desactivar'],
+  'departments.detail.suspend':           ['Suspend', 'Suspender'],
+  'departments.detail.resume':            ['Resume', 'Reanudar'],
+  'departments.detail.configure':         ['Configure', 'Configurar'],
+  'departments.detail.license':           ['Grant lab license', 'Conceder licencia de prueba'],
+  'departments.detail.toast.activated':    ['Team activated', 'Equipo activado'],
+  'departments.detail.toast.activated_desc':['{name} is now working for your company.',
+                                             '{name} ya está trabajando para tu empresa.'],
+  'departments.detail.toast.activate_failed':['Could not activate team', 'No se pudo activar el equipo'],
+  'departments.detail.toast.deactivated':  ['Team deactivated', 'Equipo desactivado'],
+  'departments.detail.toast.deactivate_failed':['Could not deactivate', 'No se pudo desactivar'],
+  'departments.detail.toast.suspended':   ['Team suspended', 'Equipo suspendido'],
+  'departments.detail.toast.suspend_failed':['Could not suspend', 'No se pudo suspender'],
+
+  'marketplace.installed':         ['Active', 'Activo'],
+  'marketplace.installing':        ['Activating…', 'Activando…'],
+  'marketplace.install_ok':        ['Team activated', 'Equipo activado'],
+  'marketplace.install_ok_desc':   ['{name} is now active.', '{name} ya está activo.'],
+  'marketplace.install_failed':    ['Could not activate', 'No se pudo activar'],
+  'marketplace.hint.what.title':   ['What is a team?', '¿Qué es un equipo?'],
+  'marketplace.hint.what.desc':    ['A bundle of capabilities, prompts and policies ready to work for your company.',
+                                    'Un conjunto de capacidades, instrucciones y políticas listas para trabajar para ti.'],
+  'marketplace.hint.how.title':    ['How do I activate one?', '¿Cómo activo uno?'],
+  'marketplace.hint.how.desc':     ['Click Activate. We provision the workspace, register the lead agent and run the first health check.',
+                                    'Pulsa Activar. Provisionamos el espacio, registramos al responsable y lanzamos la primera comprobación.'],
+  'marketplace.hint.remove.title': ['Can I remove a team?', '¿Puedo quitar un equipo?'],
+  'marketplace.hint.remove.desc':  ['Yes. Open any team page and deactivate it. Data is preserved.',
+                                    'Sí. Abre la página del equipo y desactívalo. Los datos se conservan.'],
+
+  'agents.search.placeholder':     ['Search by agent id, team or capability…',
+                                    'Busca por agente, equipo o capacidad…'],
+  'agents.empty.title':            ['No agents match', 'Ningún agente coincide'],
+  'agents.empty.desc':             ['Adjust your search or filters.', 'Ajusta tu búsqueda o filtros.'],
+
+  'analytics.kpi.total':           ['Total tasks', 'Tareas totales'],
+  'analytics.kpi.completion':      ['Completion', 'Finalización'],
+  'analytics.kpi.messages':        ['Internal messages', 'Mensajes internos'],
+  'analytics.kpi.latency':         ['Average latency', 'Latencia media'],
+  'analytics.tasks_by_team':       ['Tasks by team', 'Tareas por equipo'],
+  'analytics.tasks_by_team_sub':   ['Distribution across active and inactive teams',
+                                    'Distribución entre equipos activos e inactivos'],
+  'analytics.messages_type':      ['Message types', 'Tipos de mensaje'],
+  'analytics.messages_type_sub':   ['How your teams communicate', 'Cómo se comunican tus equipos'],
+  'analytics.system':              ['System', 'Sistema'],
+  'analytics.system_sub':          ['Gateway and database reachability',
+                                    'Conectividad del gateway y la base de datos'],
+  'analytics.no_data':             ['No data yet', 'Aún no hay datos'],
+
+  'documents.upload.cta':          ['Upload document', 'Subir documento'],
+  'documents.upload.title':        ['Upload document', 'Subir documento'],
+  'documents.upload.drop':         ['Drop a file or click to select',
+                                    'Suelta un archivo o haz clic para seleccionar'],
+  'documents.empty.title':         ['No documents yet', 'Aún no hay documentos'],
+  'documents.toast.uploaded':      ['Document uploaded', 'Documento subido'],
+  'documents.toast.upload_failed': ['Upload failed', 'Error al subir'],
+  'documents.toast.deleted':       ['Document deleted', 'Documento eliminado'],
+  'documents.toast.delete_failed': ['Delete failed', 'Error al eliminar'],
+  'documents.confirm_delete':      ['Delete {name}?', '¿Eliminar {name}?'],
+
+  'integrations.header.subtitle':  ['Connect external services. Available soon.',
+                                    'Conecta servicios externos. Disponible pronto.'],
+  'integrations.api_keys':         ['API keys', 'Claves API'],
+  'integrations.api_keys_sub':     ['Manage programmatic access to your workspace',
+                                    'Gestiona el acceso programático a tu espacio'],
+  'integrations.no_keys':          ['No keys generated yet', 'Aún no se han generado claves'],
+  'integrations.generate':         ['Generate key', 'Generar clave'],
+
+  'company.empty.title':           ['No company profile yet', 'Aún no hay perfil de empresa'],
+  'company.empty.desc':            ['Create your company profile to start personalising your teams.',
+                                    'Crea el perfil de tu empresa para empezar a personalizar tus equipos.'],
+  'company.no_description':        ['No description set yet.', 'Aún no hay descripción.'],
+  'company.brand_placeholder':     ['brand', 'marca'],
+  'company.sector_placeholder':    ['sector', 'sector'],
+  'company.toast.updated':         ['Company updated', 'Empresa actualizada'],
+  'company.toast.update_failed':   ['Update failed', 'Error al actualizar'],
+  'company.regenerate':           ['Regenerate', 'Regenerar'],
+  'company.toast.regenerated':     ['Memory regenerated', 'Memoria regenerada'],
+  'company.memory.version':        ['v{version} · updated {when} ({absolute})',
+                                   'v{version} · actualizada {when} ({absolute})'],
+
+  'memory.not_found.title':        ['Memory file not found', 'Archivo de memoria no encontrado'],
+  'memory.not_found.desc':         ['No file with key "{key}" exists for this company.',
+                                    'No existe ningún archivo con la clave "{key}" para esta empresa.'],
+  'memory.back_to_company':        ['Back to company', 'Volver a la empresa'],
+  'memory.corporate':              ['corporate memory', 'memoria corporativa'],
+  'memory.file_key':               ['File key:', 'Clave del archivo:'],
+
+  'timeline.header.subtitle':      ['Everything that has happened across your teams.',
+                                    'Todo lo que ha ocurrido en tus equipos.'],
+  'timeline.loading':              ['Loading timeline…', 'Cargando cronología…'],
+
+  'orchestration.not_specified':   ['Orchestration not specified', 'Orquestación no especificada'],
+  'orchestration.missing_id':      ['Missing id.', 'Falta el id.'],
+  'orchestration.loading':        ['Loading orchestration…', 'Cargando orquestación…'],
+
+  'marketing.open_team':           ['Talk to the team', 'Hablar con el equipo'],
+  'marketing.configure':           ['Configure', 'Configurar'],
+  'marketing.status.active':       ['active', 'activo'],
+
+  'office.cta.open':               ['Open office', 'Abrir oficina'],
+  'office.cta.talk':               ['Talk to Executive Director', 'Hablar con el Director Ejecutivo'],
+  'office.cta.activate':           ['Activate', 'Activar'],
+  'office.cta.manage':             ['Manage', 'Gestionar'],
+  'office.cta.all_teams':          ['All teams', 'Todos los equipos'],
+  'office.cta.view_tasks':         ['View all tasks', 'Ver todas las tareas'],
+
+  'megamenu.title':                ['Teams for your company', 'Equipos para tu empresa'],
+  'megamenu.featured':             ['Top', 'Top'],
+  'megamenu.founder.title':        ['Founder Edition', 'Founder Edition'],
+  'megamenu.founder.desc':         ['Direct guidance from the DEPARTIFY team for your first 30 days.',
+                                    'Acompañamiento directo del equipo DEPARTIFY durante tus primeros 30 días.'],
+  'megamenu.usecases.title':       ['Use cases', 'Casos de uso'],
+  'megamenu.usecases.desc':        ['Companies like yours are already using DEPARTIFY.',
+                                    'Empresas como la tuya ya están usando DEPARTIFY.'],
+  'megamenu.coming.title':         ['Coming soon', 'Próximamente'],
+  'megamenu.coming.desc':          ['Three new teams this quarter.',
+                                    'Tres equipos nuevos este trimestre.'],
+  'megamenu.view_all.title':       ['See every team', 'Ver todos los equipos'],
+  'megamenu.view_all.desc':        ['Compare what each one delivers and start when you want.',
+                                    'Compara qué entrega cada uno y empieza cuando quieras.'],
+
+  'settings.profile.info':         ['Information tied to your account', 'Información de tu cuenta'],
+  'settings.notifications.intro':  ['Choose how the portal reaches you',
+                                    'Cómo quieres que el portal te contacte'],
+  'settings.ai_providers.how':     ['How BYOK works', 'Cómo funciona BYOK'],
+  'settings.ai_providers.how_desc':['Your key is sent directly to the provider. We never store it in plaintext.',
+                                    'Tu clave se envía directamente al proveedor. Nunca la guardamos en texto plano.'],
+  'settings.ai_providers.saved_toast': ['{name} key saved', 'Clave de {name} guardada'],
+  'settings.language.current_es':  ['Language set to Spanish.', 'Idioma configurado en español.'],
+  'settings.language.current_en':  ['Language set to English.', 'Language set to English.'],
+
 };
 
 // ────────────────────────────────────────────────────────────────────

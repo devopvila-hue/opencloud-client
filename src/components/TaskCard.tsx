@@ -60,7 +60,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             color: presentation?.cssVar ? `var(${presentation.cssVar})` : undefined,
           }}
         >
-          <Icon className="h-4.5 w-4.5" />
+          <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">

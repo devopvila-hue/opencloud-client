@@ -273,7 +273,7 @@ function Toggle({
         className={`relative inline-block h-5 w-9 rounded-full transition-colors ${checked ? 'bg-[color:var(--color-accent)]' : 'bg-[color:var(--color-bg-3)]'}`}
       >
         <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`}
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-[color:var(--background)] transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`}
         />
       </span>
     </button>

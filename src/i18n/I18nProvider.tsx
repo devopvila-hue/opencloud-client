@@ -16,8 +16,13 @@ import {
  *
  * Resolution order on first mount:
  *   1. localStorage (`opencloud.locale`) — the user's explicit choice.
- *   2. `navigator.language` — auto-detect (es* → es, else en).
- *   3. DEFAULT_LOCALE (en) — fallback for SSR or sandboxed browsers.
+ *   2. Browser detection (en* → en, else es) — only on the client.
+ *   3. DEFAULT_LOCALE (es) — fallback for SSR / sandboxed browsers.
+ *
+ * Spanish (Spain) is the brand default. English only kicks in when
+ * the browser explicitly asks for it (`en*`). Any other browser
+ * locale falls back to Spanish so first-time visitors from outside
+ * Spain still land in Spanish.
  *
  * Setter:
  *   - Writes to localStorage so the choice survives reloads and

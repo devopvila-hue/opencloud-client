@@ -4,11 +4,14 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  Calendar,
   CheckCircle2,
   Clock,
   Crown,
+  FileText,
   Layers,
   Loader2,
+  Mail,
   Megaphone,
   MessageSquare,
   Plug,
@@ -73,62 +76,156 @@ export default function DashboardPage() {
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
-      <motion.header variants={fadeUp} className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Welcome back</h1>
-          <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
+      <motion.header
+        variants={fadeUp}
+        className="rounded-[var(--radius-2xl)] border border-[color:var(--color-line)] bg-gradient-to-b from-[color:var(--color-bg-2)] to-[color:var(--color-bg-1)] p-6 sm:p-8"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-[color:var(--color-muted-foreground)]">
+              ¿Qué quieres conseguir hoy?
+            </span>
+          </div>
+          <h1 className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] tracking-[-0.02em] text-[color:var(--foreground)] text-balance">
+            Dile a tu empresa qué necesitas y empezaremos.
+          </h1>
+          <p className="max-w-2xl text-sm text-[color:var(--color-muted-foreground)] text-pretty">
             {system.data?.gateway.ok ? (
               <span className="inline-flex items-center gap-1.5">
-                <span className="live-dot" /> Gateway connected · {system.data.gateway.models.length} models available
+                <span className="live-dot" /> Tu empresa está conectada y lista para trabajar.
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-[color:var(--color-rose)]">
-                <AlertTriangle className="h-3.5 w-3.5" /> Gateway unreachable
+                <AlertTriangle className="h-3.5 w-3.5" /> No podemos conectar con tu empresa. Revisa la conexión.
               </span>
             )}
           </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button iconLeft={<MessageSquare className="h-4 w-4" />} onClick={() => (window.location.href = '/chat/new')}>
-            New conversation
-          </Button>
-          <Button
-            variant="primary"
-            iconLeft={<Zap className="h-4 w-4" />}
-            onClick={() => (window.location.href = '/departments')}
-          >
-            Browse departments
-          </Button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button
+              variant="primary"
+              size="lg"
+              iconLeft={<MessageSquare className="h-4 w-4" />}
+              onClick={() => (window.location.href = '/chat/new')}
+            >
+              Pedir algo a tu empresa
+            </Button>
+            <Button
+              size="lg"
+              iconLeft={<Zap className="h-4 w-4" />}
+              onClick={() => (window.location.href = '/departments')}
+            >
+              Activar un equipo
+            </Button>
+          </div>
         </div>
       </motion.header>
 
-      {/* ── KPIs ───────────────────────────────────────────── */}
-      <motion.section variants={fadeUp} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ── Acciones rápidas ─────────────────────────────────── */}
+      <motion.section variants={fadeUp} aria-labelledby="quick-actions">
+        <div className="mb-3 flex items-end justify-between">
+          <h2
+            id="quick-actions"
+            className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-[color:var(--color-muted-foreground)]"
+          >
+            Acciones rápidas
+          </h2>
+          <Link to="/marketplace" className="text-xs text-[color:var(--color-muted-foreground)] hover:text-[color:var(--foreground)]">
+            Ver todas →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {[
+            { icon: Megaphone, title: 'Conseguir más clientes', to: '/chat/new?intent=growth' },
+            { icon: Calendar, title: 'Preparar una reunión', to: '/chat/new?intent=meeting' },
+            { icon: Mail, title: 'Responder correos', to: '/chat/new?intent=inbox' },
+            { icon: Megaphone, title: 'Crear una campaña', to: '/chat/new?intent=campaign' },
+            { icon: FileText, title: 'Preparar una oferta', to: '/chat/new?intent=offer' },
+          ].map((qa) => {
+            const Icon = qa.icon;
+            return (
+              <Link
+                key={qa.title}
+                to={qa.to}
+                className="flex flex-col gap-2 rounded-[var(--radius-lg)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)]/40 p-4 transition-all hover:border-[color:var(--color-accent)]/40 hover:bg-[color:var(--color-bg-2)]"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-[22%] bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent)]">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-medium text-[color:var(--foreground)]">{qa.title}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </motion.section>
+
+      {/* ── Actividad de Departamentos ─────────────────────── */}
+      <motion.section variants={fadeUp} aria-labelledby="dept-activity">
+        <div className="mb-3 flex items-end justify-between">
+          <h2
+            id="dept-activity"
+            className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-[color:var(--color-muted-foreground)]"
+          >
+            Actividad de Departamentos
+          </h2>
+          <span className="text-xs text-[color:var(--color-muted-foreground)]">Qué está haciendo tu empresa</span>
+        </div>
+        {activeDepartments.length === 0 ? (
+          <Card>
+            <EmptyState
+              icon={<Sparkles className="h-5 w-5" />}
+              title="Activa tu primer equipo"
+              description="Elige un departamento y empezaremos a trabajar para tu empresa."
+              action={<Button onClick={() => (window.location.href = '/marketplace')}>Ver departamentos</Button>}
+            />
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {activeDepartments.slice(0, 4).map((d) => {
+              const Icon = iconFromManifest(d.icon);
+              return (
+                <Link key={d.key} to={`/departments/${d.key}`}>
+                  <HealthCard
+                    title={d.name}
+                    subtitle={`${d.name} — ${runningTasks.filter((t) => t.department_key === d.key).length} tareas en curso`}
+                    status={d.installation?.health ?? 'unknown'}
+                    checkedAt={d.last_health?.checked_at}
+                    durationMs={d.last_health?.duration_ms}
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </motion.section>
+
+      {/* ── KPIs ─────────────────────────────────────────────── */}
+      <motion.section variants={fadeUp} aria-labelledby="kpis" className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 id="kpis" className="sr-only">Indicadores</h2>
         <MetricTile
-          label="Active departments"
+          label="Equipos activos"
           value={activeDepartments.length}
-          hint={`of ${catalog.data?.length ?? 0} available`}
+          hint={`de ${catalog.data?.length ?? 0} disponibles`}
           icon={<Layers className="h-4 w-4" />}
           accent="--color-dept-governance"
         />
         <MetricTile
-          label="Tasks running"
+          label="Tareas en curso"
           value={runningTasks.length}
-          hint={`${attentionTasks.length} need attention`}
+          hint={`${attentionTasks.length} necesitan tu OK`}
           icon={<Loader2 className={cn('h-4 w-4', runningTasks.length > 0 && 'animate-spin')} />}
           accent="--color-cyan"
         />
         <MetricTile
-          label="Completed today"
+          label="Terminadas hoy"
           value={completedToday.length}
-          hint={pluralize((tasks.data ?? []).length, 'total task')}
+          hint={pluralize((tasks.data ?? []).length, 'tarea en total')}
           icon={<CheckCircle2 className="h-4 w-4" />}
           accent="--color-emerald"
         />
         <MetricTile
-          label="Gateway latency"
+          label="Tiempo de respuesta"
           value={system.data ? `${system.data.gateway.latency_ms} ms` : '—'}
-          hint={system.data ? `Supabase ${system.data.supabase.latency_ms} ms` : 'measuring…'}
+          hint={system.data ? `Base de datos ${system.data.supabase.latency_ms} ms` : 'midiendo…'}
           icon={<Activity className="h-4 w-4" />}
           accent="--color-accent"
         />

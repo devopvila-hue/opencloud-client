@@ -61,7 +61,7 @@ export function Logo({
   const mark = (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-[var(--radius-md)] shrink-0',
+        'inline-flex items-center justify-center rounded-[22%] shrink-0',
         className,
       )}
       style={{ width: size, height: size, backgroundColor: containerFill }}

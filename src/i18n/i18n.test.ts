@@ -38,11 +38,11 @@ describe('detectBrowserLocale', () => {
     expect(detectBrowserLocale()).toBe('en');
   });
 
-  it('returns "en" for any non-Espanol locale', () => {
+  it('returns "es" for any non-English locale (Spanish is the brand default)', () => {
     Object.defineProperty(navigator, 'language', { value: 'pt-BR', configurable: true });
-    expect(detectBrowserLocale()).toBe('en');
+    expect(detectBrowserLocale()).toBe('es');
     Object.defineProperty(navigator, 'language', { value: 'fr-FR', configurable: true });
-    expect(detectBrowserLocale()).toBe('en');
+    expect(detectBrowserLocale()).toBe('es');
   });
 });
 

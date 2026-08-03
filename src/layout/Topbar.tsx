@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, Command, Menu, Moon, Search, Sun } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Avatar } from '@/components/Avatar';
 import { Logo } from '@/components/Logo';
+import { MegaMenu } from '@/components/MegaMenu';
 import { useTheme, brandConfig } from '@/design-system/theme';
 import { useLogout, useMe } from '@/api/queries';
+import { departments } from '@/design-system/departments';
 import { cn } from '@/design-system/cn';
 import { redirectToLogin } from '@/utils/authRedirect';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -33,10 +35,26 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
   const { t } = useI18n();
   const [userOpen, setUserOpen] = useState(false);
 
+  const megaMenuItems = useMemo(
+    () =>
+      Object.values(departments).map((d) => ({
+        key: d.key,
+        name: { es: d.name, en: d.name },
+        icon: d.icon,
+        color: d.color,
+        outcomes: d.outcomes,
+        examples: d.examples,
+        estimatedTime: d.estimatedTime,
+        priority: d.priority,
+        featured: d.featured,
+      })),
+    [],
+  );
+
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-[color:var(--color-line)] bg-[color:var(--color-bg-0)]/80 px-3 backdrop-blur md:px-5',
+        'sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[color:var(--color-line)] bg-[color:var(--color-bg-0)]/40 px-3 backdrop-blur-md transition-colors md:px-5',
       )}
     >
       <div className="flex items-center gap-2">
@@ -58,6 +76,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
           external
           ariaLabel={t('app.name')}
         />
+        <MegaMenu triggerLabel={t('nav.departments')} items={megaMenuItems} />
         <button
           type="button"
           onClick={onSearchClick}
