@@ -27,6 +27,8 @@ import { getDepartment } from '@/design-system/departments';
 import { cn } from '@/design-system/cn';
 import { formatRelativeTime, truncate } from '@/utils/format';
 import { streamPost, type SseEvent } from '@/api/client';
+import { useI18n } from '@/i18n/I18nProvider';
+
 
 interface ChatMessage {
   id: string;
@@ -68,6 +70,7 @@ export default function ChatPage() {
   const [pendingAssistantId, setPendingAssistantId] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<{ name: string; size: number }[]>([]);
   const [autoScroll, setAutoScroll] = useState(true);
+  const { t } = useI18n();
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -431,12 +434,12 @@ export default function ChatPage() {
                     void send(draft);
                   }
                 }}
-                placeholder={`Message ${department?.name ?? 'the Executive Director'}…`}
+                placeholder={t('chat.composer.placeholder', { name: department?.name ?? 'Director Ejecutivo' })}
                 rows={1}
                 className="flex-1 resize-none bg-transparent py-2 text-sm text-[color:var(--color-fg-1)] placeholder:text-[color:var(--color-fg-3)] focus:outline-none"
               />
               {streaming ? (
-                <Button size="icon" variant="danger" onClick={stop} aria-label="Stop generation">
+                <Button size="icon" variant="danger" onClick={stop} aria-label={t('chat.action.stop')}>
                   <Square className="h-4 w-4" />
                 </Button>
               ) : (
@@ -444,7 +447,7 @@ export default function ChatPage() {
                   size="icon"
                   variant="primary"
                   type="submit"
-                  aria-label="Send"
+                  aria-label={t('chat.action.send')}
                   disabled={!draft.trim()}
                 >
                   <Send className="h-4 w-4" />
@@ -452,7 +455,7 @@ export default function ChatPage() {
               )}
             </div>
             <div className="mt-2 text-center text-[11px] text-[color:var(--color-fg-3)]">
-              Enter to send · Shift+Enter for newline
+              {t('chat.composer.hint')}
             </div>
           </div>
         </form>

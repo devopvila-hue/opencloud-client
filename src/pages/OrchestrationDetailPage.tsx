@@ -22,6 +22,7 @@ import {
   useResumeOrchestration,
 } from '@/api/queries';
 import { formatRelativeTime, formatDateTime } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const STATUS_COLORS: Record<string, string> = {
   queued: 'var(--color-text-muted)',
@@ -37,6 +38,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrchestrationDetailPage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const orch = useOrchestration(id ?? '');
   const steps = useOrchestrationSteps(id ?? '');
@@ -46,7 +48,7 @@ export default function OrchestrationDetailPage() {
   const escalateMutation = useEscalateOrchestration();
 
   if (!id) {
-    return <EmptyState title="Orchestration no especificada" description="Falta el id." />;
+    return <EmptyState title={t('orchestration.not_specified')} description={t('orchestration.missing_id')} />;
   }
 
   if (orch.isLoading || steps.isLoading) {
@@ -54,7 +56,7 @@ export default function OrchestrationDetailPage() {
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
         <div className="flex items-center gap-3 text-text-muted">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Cargando orquestación...</span>
+          <span>{t('orchestration.loading')}</span>
         </div>
       </div>
     );

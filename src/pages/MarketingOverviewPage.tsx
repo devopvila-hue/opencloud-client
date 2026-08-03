@@ -33,6 +33,7 @@ import {
 } from '@/api/queries';
 import { formatRelativeTime, truncate } from '@/utils/format';
 import { iconFromManifest } from '@/design-system/departments';
+import { useI18n } from '@/i18n/I18nProvider';
 import { cn } from '@/design-system/cn';
 
 interface SpecialistView {
@@ -64,6 +65,7 @@ const WORKFLOWS = [
 ];
 
 export default function MarketingOverviewPage() {
+  const { t } = useI18n();
   const catalog = useDepartmentCatalog();
   const def = useDepartment('marketing');
   const tasks = useTasks({ departmentKey: 'marketing', limit: 30 });
@@ -98,7 +100,7 @@ export default function MarketingOverviewPage() {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Marketing</h1>
+              <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('marketing.header.title')}</h1>
               <Badge tone={lifecycle === 'active' ? 'emerald' : 'neutral'} size="sm" icon={<Dot tone={lifecycle === 'active' ? 'emerald' : 'neutral'} pulse={lifecycle === 'active'} />}>
                 {lifecycle}
               </Badge>
@@ -115,14 +117,14 @@ export default function MarketingOverviewPage() {
             iconLeft={<MessageSquare className="h-4 w-4" />}
             onClick={() => (window.location.href = '/chat/new?department=marketing')}
           >
-            Hablar con el equipo
+            {t('marketing.open_team')}
           </Button>
           <Button
             variant="outline"
             iconLeft={<SettingsIcon className="h-4 w-4" />}
             onClick={() => (window.location.href = '/departments/marketing')}
           >
-            Configurar
+            {t('marketing.configure')}
           </Button>
         </div>
       </header>

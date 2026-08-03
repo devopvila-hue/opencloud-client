@@ -681,6 +681,7 @@ export const catalog: Catalog = {
                                     'Gestiona el acceso programático a tu espacio'],
   'integrations.no_keys':          ['No keys generated yet', 'Aún no se han generado claves'],
   'integrations.generate':         ['Generate key', 'Generar clave'],
+  'integrations.connect':          ['Connect', 'Conectar'],
 
   'company.empty.title':           ['No company profile yet', 'Aún no hay perfil de empresa'],
   'company.empty.desc':            ['Create your company profile to start personalising your teams.',
@@ -746,6 +747,12 @@ export const catalog: Catalog = {
   'settings.language.current_es':  ['Language set to Spanish.', 'Idioma configurado en español.'],
   'settings.language.current_en':  ['Language set to English.', 'Language set to English.'],
 
+
+  'chat.header.delete':           ['Delete conversation', 'Borrar conversación'],
+  'agent.role.manager':         ['Managers', 'Responsables'],
+  'agent.role.specialist':      ['Specialists', 'Especialistas'],
+  'agent.role.observer':        ['Observers', 'Observadores'],
+  'common.untitled':              ['Untitled', 'Sin título'],
 };
 
 // ────────────────────────────────────────────────────────────────────

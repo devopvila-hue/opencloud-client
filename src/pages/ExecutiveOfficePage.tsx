@@ -199,7 +199,7 @@ export default function ExecutiveOfficePage() {
           iconLeft={<MessageSquare className="h-4 w-4" />}
           onClick={() => (window.location.href = '/chat/new?department=executive-office')}
         >
-          Talk to Executive Director
+          {t('office.cta.talk')}
         </Button>
       </motion.header>
 
@@ -324,7 +324,7 @@ export default function ExecutiveOfficePage() {
                     description="New tasks will appear here as the Executive Director identifies work."
                     action={
                       <Button size="sm" iconLeft={<Plus className="h-3.5 w-3.5" />} onClick={() => (window.location.href = '/tasks')}>
-                        View all tasks
+                        {t('office.cta.view_tasks')}
                       </Button>
                     }
                   />
@@ -515,7 +515,7 @@ export default function ExecutiveOfficePage() {
                 action={
                   <Link to="/departments">
                     <Button variant="ghost" size="sm" iconRight={<ChevronRight className="h-4 w-4" />}>
-                      All departments
+                      {t('office.cta.all_teams')}
                     </Button>
                   </Link>
                 }
@@ -606,7 +606,7 @@ export default function ExecutiveOfficePage() {
                 action={
                   <Link to="/company">
                     <Button variant="ghost" size="sm" iconRight={<ChevronRight className="h-4 w-4" />}>
-                      Manage
+                      {t('office.cta.manage')}
                     </Button>
                   </Link>
                 }
@@ -826,6 +826,7 @@ function RiskRow({ risk }: { risk: Risk }) {
 }
 
 function OpportunityRow({ opportunity }: { opportunity: Opportunity }) {
+  const { t } = useI18n();
   const pres = getDepartment(opportunity.departmentKey);
   return (
     <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/30 p-3 transition-colors hover:bg-[color:var(--surface-soft)]/60">
@@ -837,7 +838,7 @@ function OpportunityRow({ opportunity }: { opportunity: Opportunity }) {
         </div>
       </div>
       <Button size="sm" variant="ghost" iconLeft={<Play className="h-3 w-3" />} onClick={() => (window.location.href = `/departments/${opportunity.departmentKey}`)}>
-        Activate
+        {t('office.cta.activate')}
       </Button>
     </div>
   );

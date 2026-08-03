@@ -113,7 +113,7 @@ export default function TasksPage() {
                     : 'text-[color:var(--color-fg-3)] hover:text-[color:var(--color-fg-1)]',
                 )}
               >
-                {s}
+                {s === 'all' ? t('tasks.status.all') : t(`task.status.${s}`)}
               </button>
             ))}
           </div>

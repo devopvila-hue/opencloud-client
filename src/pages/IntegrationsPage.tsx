@@ -2,6 +2,7 @@ import { Cloud, KeyRound, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Card, CardHeader } from '@/components/Card';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface Integration {
   id: string;
@@ -28,24 +29,25 @@ const integrations: Integration[] = [
 const categories = ['all', 'productivity', 'communication', 'crm', 'finance', 'social'] as const;
 
 export default function IntegrationsPage() {
+  const { t } = useI18n();
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Integrations</h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('nav.integrations')}</h1>
         <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-          Bring external services into your workspace. Phase 4 prepares the UI — every connection will be activated in the next phases.
+          {t('integrations.header.subtitle')}
         </p>
       </header>
 
       <Card>
-        <CardHeader title="API keys" subtitle="Manage programmatic access to your workspace" />
+        <CardHeader title={t('integrations.api_keys')} subtitle={t('integrations.api_keys_sub')} />
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)] p-3">
           <div className="flex items-center gap-2 text-sm text-[color:var(--color-fg-2)]">
             <KeyRound className="h-4 w-4" />
-            <span>No keys generated yet</span>
+            <span>{t('integrations.no_keys')}</span>
           </div>
           <Button variant="outline" disabled>
-            Generate key
+            {t('integrations.generate')}
           </Button>
         </div>
       </Card>
@@ -73,14 +75,14 @@ export default function IntegrationsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <h3 className="truncate text-sm font-medium text-[color:var(--color-fg-1)]">{it.name}</h3>
-                      <Badge tone="amber" size="xs">coming soon</Badge>
+                      <Badge tone="amber" size="xs">{t('megamenu.coming.title')}</Badge>
                     </div>
                     <p className="mt-0.5 text-xs text-[color:var(--color-fg-3)]">{it.description}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-end">
                   <Button size="sm" variant="outline" disabled>
-                    Connect
+                    {t('integrations.connect')}
                   </Button>
                 </div>
               </Card>

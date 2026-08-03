@@ -6,6 +6,7 @@ import React from 'react';
 import TimelinePage from '@/pages/TimelinePage';
 import { ThemeProvider } from '@/design-system/theme';
 import { ToastProvider } from '@/components/Toaster';
+import { I18nProvider } from '@/i18n/I18nProvider';
 
 const mockTimeline = vi.hoisted(() => ({
   data: [
@@ -69,6 +70,11 @@ function renderWithProviders(node: React.ReactNode) {
   const qc = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: 0 } },
   });
+  // Force English locale so the existing English assertions keep
+  // matching after Sprint 2. detectBrowserLocale reads navigator.
+  Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true });
+  // Also clear any persisted locale from earlier tests.
+  try { localStorage.removeItem('opencloud.locale'); } catch {}
   return render(
     React.createElement(
       MemoryRouter,
@@ -77,9 +83,13 @@ function renderWithProviders(node: React.ReactNode) {
         QueryClientProvider,
         { client: qc },
         React.createElement(
-          ThemeProvider,
+          I18nProvider,
           null,
-          React.createElement(ToastProvider, null, node),
+          React.createElement(
+            ThemeProvider,
+            null,
+            React.createElement(ToastProvider, null, node),
+          ),
         ),
       ),
     ),

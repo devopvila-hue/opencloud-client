@@ -9,10 +9,12 @@ import { Badge } from '@/components/Badge';
 import { useToast } from '@/components/Toaster';
 import { useDeleteDocument, useDocuments, useUploadDocument } from '@/api/queries';
 import { formatBytes, formatRelativeTime } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const ACCEPT = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown'];
 
 export default function DocumentsPage() {
+  const { t } = useI18n();
   const docs = useDocuments();
   const upload = useUploadDocument();
   const del = useDeleteDocument();
@@ -39,10 +41,10 @@ export default function DocumentsPage() {
   }
 
   function onDelete(id: string, name: string) {
-    if (!confirm(`Delete ${name}?`)) return;
+    if (!confirm(t('documents.confirm_delete', { name }))) return;
     del.mutate(id, {
-      onSuccess: () => toast.push({ tone: 'success', title: 'Document deleted' }),
-      onError: (e: Error) => toast.push({ tone: 'error', title: 'Delete failed', description: e.message }),
+      onSuccess: () => toast.push({ tone: 'success', title: t('documents.toast.deleted') }),
+      onError: (e: Error) => toast.push({ tone: 'error', title: t('documents.toast.delete_failed'), description: e.message }),
     });
   }
 

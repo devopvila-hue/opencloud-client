@@ -11,6 +11,7 @@ import { Badge, Dot } from '@/components/Badge';
 import { EmptyState } from '@/components/EmptyState';
 import { useTimeline } from '@/api/queries';
 import { formatRelativeTime, formatDateTime } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const EVENT_TYPE_COLORS: Record<string, string> = {
   'orchestration.created': 'var(--color-info)',
@@ -27,6 +28,7 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
 };
 
 export default function TimelinePage() {
+  const { t } = useI18n();
   const { data, isLoading } = useTimeline();
 
   if (isLoading) {
@@ -34,7 +36,7 @@ export default function TimelinePage() {
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
         <div className="flex items-center gap-3 text-text-muted">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Cargando timeline...</span>
+          <span>{t('timeline.loading')}</span>
         </div>
       </div>
     );
@@ -56,11 +58,9 @@ export default function TimelinePage() {
             <Activity className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold">Timeline</h1>
+            <h1 className="text-2xl font-semibold">{t('nav.timeline')}</h1>
             <p className="text-sm text-text-muted">
-              Línea cronológica de eventos entre el Executive Director y los departamentos.
-              Cada mensaje del Department Bus, cada paso de orquestación y cada orchestration
-              aparece aquí.
+              {t('timeline.header.subtitle')}
             </p>
           </div>
         </div>

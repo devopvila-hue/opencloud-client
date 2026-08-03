@@ -7,8 +7,10 @@ import { BarChart } from '@/components/Chart';
 import { useDepartmentCatalog, useInternalMessages, useSystemStatus, useTasks } from '@/api/queries';
 import { getDepartment } from '@/design-system/departments';
 import { formatDuration } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export default function AnalyticsPage() {
+  const { t } = useI18n();
   const system = useSystemStatus();
   const tasks = useTasks({ limit: 200 });
   const messages = useInternalMessages({ limit: 200 });
@@ -44,24 +46,24 @@ export default function AnalyticsPage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Analytics</h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('analytics.header.title')}</h1>
         <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-          Operational metrics across every department and agent.
+          {t('analytics.header.subtitle')}
         </p>
       </header>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricTile label="Total tasks" value={(tasks.data ?? []).length} icon={<Layers className="h-4 w-4" />} accent="--color-dept-governance" />
-        <MetricTile label="Completion" value={`${completion}%`} icon={<Sparkles className="h-4 w-4" />} accent="--color-emerald" />
-        <MetricTile label="Internal messages" value={(messages.data ?? []).length} icon={<Activity className="h-4 w-4" />} accent="--color-cyan" />
-        <MetricTile label="Avg health latency" value={formatDuration(avgLatency)} icon={<Timer className="h-4 w-4" />} accent="--color-amber" />
+        <MetricTile label={t('analytics.kpi.total')} value={(tasks.data ?? []).length} icon={<Layers className="h-4 w-4" />} accent="--color-dept-governance" />
+        <MetricTile label={t('analytics.kpi.completion')} value={`${completion}%`} icon={<Sparkles className="h-4 w-4" />} accent="--color-emerald" />
+        <MetricTile label={t('analytics.kpi.messages')} value={(messages.data ?? []).length} icon={<Activity className="h-4 w-4" />} accent="--color-cyan" />
+        <MetricTile label={t('analytics.kpi.latency')} value={formatDuration(avgLatency)} icon={<Timer className="h-4 w-4" />} accent="--color-amber" />
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Tasks by department" subtitle="Distribution across active and inactive departments" />
+          <CardHeader title={t('analytics.tasks_by_team')} subtitle={t('analytics.tasks_by_team_sub')} />
           {tasksByDept.length === 0 ? (
-            <EmptyState icon={<BarChart3 className="h-5 w-5" />} title="No data yet" />
+            <EmptyState icon={<BarChart3 className="h-5 w-5" />} title={t('analytics.no_data')} />
           ) : (
             <BarChart
               data={tasksByDept.map(([k, v]) => ({ label: getDepartment(k)?.name ?? k, value: v }))}
@@ -71,9 +73,9 @@ export default function AnalyticsPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Internal message types" subtitle="How departments communicate" />
+          <CardHeader title={t('analytics.messages_type')} subtitle={t('analytics.messages_type_sub')} />
           {messagesByType.length === 0 ? (
-            <EmptyState icon={<BarChart3 className="h-5 w-5" />} title="No data yet" />
+            <EmptyState icon={<BarChart3 className="h-5 w-5" />} title={t('analytics.no_data')} />
           ) : (
             <BarChart data={messagesByType.map(([k, v]) => ({ label: k, value: v }))} height={220} />
           )}
@@ -81,7 +83,7 @@ export default function AnalyticsPage() {
       </div>
 
       <Card>
-        <CardHeader title="System" subtitle="Gateway and Supabase reachability" />
+        <CardHeader title={t('analytics.system')} subtitle={t('analytics.system_sub')} />
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field label="Gateway URL" value={system.data?.gateway.gateway_url ?? '—'} />
           <Field label="Gateway latency" value={formatDuration(system.data?.gateway.latency_ms ?? null)} />

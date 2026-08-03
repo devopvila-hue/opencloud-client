@@ -6,6 +6,7 @@ import { Field } from '@/components/Field';
 import { AgentCard } from '@/components/AgentCard';
 import { useDepartmentCatalog } from '@/api/queries';
 import { departmentList, getDepartment, iconFromManifest } from '@/design-system/departments';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { DepartmentCatalogEntry } from '@/api/schemas';
 
 interface AgentView {
@@ -18,6 +19,7 @@ interface AgentView {
 }
 
 export default function AgentsPage() {
+  const { t } = useI18n();
   const catalog = useDepartmentCatalog();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'manager' | 'specialist'>('all');
@@ -80,9 +82,9 @@ export default function AgentsPage() {
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Agents</h1>
+          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{t('agents.header.title')}</h1>
           <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-            Every worker registered for your workspace — managers and specialists.
+            {t('agents.header.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-1 rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)] p-0.5 text-xs">
@@ -93,7 +95,7 @@ export default function AgentsPage() {
               onClick={() => setFilter(v)}
               className={`rounded-full px-3 py-1 transition-colors ${filter === v ? 'bg-[color:var(--color-accent)] text-white' : 'text-[color:var(--color-fg-3)] hover:text-[color:var(--color-fg-1)]'}`}
             >
-              {v}
+              {t(v === 'all' ? 'tasks.status.all' : `agent.role.${v}`)}
             </button>
           ))}
         </div>
@@ -102,7 +104,7 @@ export default function AgentsPage() {
       <div className="max-w-md">
         <Field
           leading={<Search className="h-4 w-4" />}
-          placeholder="Search by agent id, department or capability…"
+          placeholder={t('agents.search.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -117,8 +119,8 @@ export default function AgentsPage() {
       ) : grouped.length === 0 ? (
         <EmptyState
           icon={<Bot className="h-5 w-5" />}
-          title="No agents match"
-          description="Try a different search or filter."
+          title={t('agents.empty.title')}
+          description={t('agents.empty.desc')}
         />
       ) : (
         <div className="space-y-6">

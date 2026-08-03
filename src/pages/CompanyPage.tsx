@@ -7,9 +7,11 @@ import { EmptyState } from '@/components/EmptyState';
 import { Field, Textarea } from '@/components/Field';
 import { useCompany, useMemoryFile, useMemoryList, usePatchCompany, useRegenerateMemory } from '@/api/queries';
 import { useToast } from '@/components/Toaster';
+import { useI18n } from '@/i18n/I18nProvider';
 import { formatRelativeTime } from '@/utils/format';
 
 export default function CompanyPage() {
+  const { t } = useI18n();
   const company = useCompany();
   const patch = usePatchCompany();
   const regen = useRegenerateMemory();
@@ -36,9 +38,9 @@ export default function CompanyPage() {
   async function save(patchObj: Parameters<typeof patch.mutate>[0]) {
     try {
       await patch.mutateAsync(patchObj);
-      toast.push({ tone: 'success', title: 'Company updated' });
+      toast.push({ tone: 'success', title: t('company.toast.updated') });
     } catch (e) {
-      toast.push({ tone: 'error', title: 'Update failed', description: (e as Error).message });
+      toast.push({ tone: 'error', title: t('company.toast.update_failed'), description: (e as Error).message });
     }
   }
 
@@ -54,10 +56,10 @@ export default function CompanyPage() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{c.name}</h1>
-            <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">{c.description ?? 'No description set yet.'}</p>
+            <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">{c.description ?? t('company.no_description')}</p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <Badge tone="violet" size="xs">{c.brand ?? 'brand'}</Badge>
-              <Badge tone="cyan" size="xs" variant="outline">{c.sector ?? 'sector'}</Badge>
+              <Badge tone="violet" size="xs">{c.brand ?? t('company.brand_placeholder')}</Badge>
+              <Badge tone="cyan" size="xs" variant="outline">{c.sector ?? t('company.sector_placeholder')}</Badge>
               <Badge tone="neutral" size="xs" variant="outline">{c.country ?? 'country'}</Badge>
             </div>
           </div>
