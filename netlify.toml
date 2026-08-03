@@ -5,17 +5,17 @@
 
 # Environment variables — set these in the Netlify UI or via netlify env:set
 # [build.environment]
-#   VITE_AUTH_URL = "https://app.deptify.com"     # only when login is on a separate origin
+#   VITE_AUTH_URL = "https://app.departify.app"     # only when login is on a separate origin
 
 # ============================================================
-# /api/* — proxy to the OPENCloud middleware on api.deptify.com
+# /api/* — proxy to the DEPARTIFY API on api.departify.app
 # MUST come before the SPA fallback rule below.
 # Without this rule, requests like GET /api/v1/me were answered
 # with the SPA's index.html, breaking every authenticated call.
 # ============================================================
 [[redirects]]
   from = "/api/*"
-  to = "https://api.deptify.com/api/:splat"
+  to = "https://api.departify.app/api/:splat"
   status = 200
   force = true
 

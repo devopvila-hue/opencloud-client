@@ -33,7 +33,7 @@ vi.mock('@/design-system/theme', () => ({
   useTheme: () => ({ theme: 'dark' as const, setTheme: vi.fn(), toggle: vi.fn(), branding: 'departify' as const, setBranding: vi.fn() }),
   ThemeProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   brandConfig: {
-    departify: { name: 'DEPARTIFY', tagline: 'Business Operating System', product: 'Business Operating System', description: '', domain: 'deptify.com' },
+    departify: { name: 'DEPARTIFY', tagline: 'Business Operating System', product: 'Business Operating System', description: '', domain: 'departify.app' },
   },
 }));
 

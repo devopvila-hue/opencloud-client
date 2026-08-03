@@ -66,6 +66,6 @@ export const brandConfig: Record<Branding, {
     tagline: 'Business Operating System',
     product: 'Business Operating System',
     description: 'Coordinated teams of AI departments that know your business, work with your tools, and execute under your control.',
-    domain: 'deptify.com',
+    domain: 'departify.app',
   },
 };
