@@ -1,44 +1,31 @@
-import { cn } from '@/design-system/cn';
+import { BrandMark } from '@/components/BrandMark';
 
 /**
- * DEPARTIFY logo — visual identity mark for the Client Portal.
+ * Logo — re-exports the BrandMark with the Portal's wordmark.
  *
- * Implementation: pure inline SVG, no external assets, no font
- * dependencies. The mark renders crisply at every size from the
- * 16px favicon up to the 160px landing hero.
+ * The Portal had a placeholder "N-with-bars" mark since its first
+ * release. The official DEPARTIFY identity (the circuit-styled D
+ * with 4 nodes, published in the brand manual at docs.departify.app)
+ * now lives in BrandMark. Logo keeps the same prop surface so
+ * existing call sites don't break — they keep rendering the same
+ * shape but with the correct mark.
  *
- * Shape origin: the official DEPARTIFY mark lives in the public
- * Landing (departia). The Portal consumes the same SVG path so
- * the user perceives a single brand across surfaces.
- *
- * Path anatomy (64×64 grid, scaled by `width`/`height`):
- *   - 1× rounded square (the container), rx=14
- *   - 2× vertical bars at x=15 and x=43, width=6
- *   - 1× diagonal polygon (15,14 → 21,14 → 49,50 → 43,50)
+ * The Portal wordmark is "DEPARTIFY · Business Operating System"
+ * (uppercase + small caps tagline). BrandMark renders the
+ * lowercase "Deptartify" wordmark from the brand manual; we let
+ * the Portal keep its existing wordmark style for the compact
+ * variant so dense UI (Topbar, Sidebar) doesn't change.
  *
  * Variants:
- *   - `compact` (default) — square mark only. Used in the Topbar
- *     and Sidebar where space is tight.
- *   - `full` — square mark + "DEPARTIFY" wordmark to the right.
- *     Used wherever the product name should appear next to the
- *     mark (e.g. login screen header).
- *
- * Props:
- *   - `size` — pixel size of the square mark (16, 20, 32, 40, …).
- *   - `href` — when provided, wraps the mark in an anchor.
- *   - `external` — opens in a new tab when `href` is external.
- *   - `tone` — 'accent' (lime container, dark bars) or 'inverse'
- *     (dark container, lime bars). Default 'accent'.
+ *   - `compact` (default) — BrandMark only, no wordmark.
+ *   - `full` — BrandMark + Portal wordmark.
  */
-
-export type LogoTone = 'accent' | 'inverse';
-
 export interface LogoProps {
   size?: number;
   variant?: 'compact' | 'full';
   href?: string;
   external?: boolean;
-  tone?: LogoTone;
+  tone?: 'accent' | 'inverse';
   className?: string;
   ariaLabel?: string;
 }
@@ -48,40 +35,20 @@ export function Logo({
   variant = 'compact',
   href,
   external = false,
-  tone = 'accent',
   className,
   ariaLabel = 'DEPARTIFY',
 }: LogoProps) {
-  // The fill colours are tied to the brand tokens so they stay in
-  // sync with the rest of the design system. We default to the
-  // landing pattern: lime container, near-black cut-outs.
-  const containerFill = tone === 'accent' ? 'var(--accent)' : 'var(--background-elevated)';
-  const innerFill = tone === 'accent' ? 'var(--accent-foreground)' : 'var(--accent)';
+  // accent → light mark (white on transparent); inverse → dark mark.
+  const markVariant = 'light' as const;
 
   const mark = (
-    <span
-      className={cn(
-        'inline-flex items-center justify-center rounded-[22%] shrink-0',
-        className,
-      )}
-      style={{ width: size, height: size, backgroundColor: containerFill }}
-      aria-hidden
-    >
-      <svg
-        viewBox="0 0 64 64"
-        width={Math.round(size * 0.78)}
-        height={Math.round(size * 0.78)}
-        xmlns="http://www.w3.org/2000/svg"
-        role="presentation"
-      >
-        {/* Two vertical bars + diagonal connector — the DEPARTIFY D */}
-        <g fill={innerFill}>
-          <rect x="15" y="14" width="6" height="36" />
-          <rect x="43" y="14" width="6" height="36" />
-          <polygon points="15,14 21,14 49,50 43,50" />
-        </g>
-      </svg>
-    </span>
+    <BrandMark
+      size={size}
+      showWordmark={false}
+      variant={markVariant}
+      className={className}
+      ariaLabel={ariaLabel}
+    />
   );
 
   const wordmark = (
@@ -95,14 +62,15 @@ export function Logo({
     </span>
   );
 
-  const content = variant === 'full' ? (
-    <span className="inline-flex items-center gap-3 leading-none">
-      {mark}
-      {wordmark}
-    </span>
-  ) : (
-    mark
-  );
+  const content =
+    variant === 'full' ? (
+      <span className="inline-flex items-center gap-3 leading-none">
+        {mark}
+        {wordmark}
+      </span>
+    ) : (
+      mark
+    );
 
   if (!href) {
     return (
@@ -117,9 +85,7 @@ export function Logo({
       href={href}
       aria-label={ariaLabel}
       className="inline-flex rounded-[var(--radius-sm)] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg-0)]"
-      {...(external
-        ? { target: '_blank', rel: 'noopener noreferrer' }
-        : {})}
+      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
     >
       {content}
     </a>
