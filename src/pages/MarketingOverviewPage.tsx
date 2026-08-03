@@ -131,10 +131,10 @@ export default function MarketingOverviewPage() {
 
       {/* KPIs */}
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricTile label="Tareas completadas" value={completedTasks.length} icon={<CheckCircle2 className="h-4 w-4" />} accent="--color-emerald" />
-        <MetricTile label="Tareas activas" value={runningTasks.length} icon={<Activity className="h-4 w-4" />} accent="--color-cyan" />
-        <MetricTile label="Conversaciones" value={marketingConversations.length} icon={<MessageSquare className="h-4 w-4" />} accent="--color-dept-revenue" />
-        <MetricTile label="Especialistas" value={MARKETING_SPECIALISTS.length} icon={<Bot className="h-4 w-4" />} accent="--color-violet" />
+        <MetricTile label={t('marketing.kpi.completed')} value={completedTasks.length} icon={<CheckCircle2 className="h-4 w-4" />} accent="--color-emerald" />
+        <MetricTile label={t('marketing.kpi.active')} value={runningTasks.length} icon={<Activity className="h-4 w-4" />} accent="--color-cyan" />
+        <MetricTile label={t('marketing.kpi.conversations')} value={marketingConversations.length} icon={<MessageSquare className="h-4 w-4" />} accent="--color-dept-revenue" />
+        <MetricTile label={t('marketing.kpi.specialists')} value={MARKETING_SPECIALISTS.length} icon={<Bot className="h-4 w-4" />} accent="--color-violet" />
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -142,7 +142,7 @@ export default function MarketingOverviewPage() {
         <div className="space-y-6 lg:col-span-2">
           {/* Capacidades */}
           <Card>
-            <CardHeader title="Capacidades" subtitle="Lo que el departamento puede entregar" />
+            <CardHeader title={t('marketing.capabilities.title')} subtitle={t('marketing.capabilities.subtitle')} />
             <div className="flex flex-wrap gap-2">
               {capabilities.map((c) => (
                 <span
@@ -158,8 +158,8 @@ export default function MarketingOverviewPage() {
           {/* Equipo */}
           <Card>
             <CardHeader
-              title="Equipo"
-              subtitle="Marketing Manager y 8 especialistas coordinados"
+              title={t('marketing.team.title')}
+              subtitle={t('marketing.team.subtitle')}
             />
             <div className="mb-4 flex items-center gap-3 rounded-[var(--radius-md)] border border-[color:var(--color-line)] bg-[color:var(--color-accent-soft)] p-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[color:var(--color-dept-revenue)] text-white">
@@ -167,16 +167,16 @@ export default function MarketingOverviewPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[color:var(--color-fg-1)]">marketing-manager</span>
-                  <Badge tone="emerald" size="xs" icon={<Dot tone="emerald" pulse />}>active</Badge>
+                  <span className="text-sm font-medium text-[color:var(--color-fg-1)]">{t('marketing.team.manager_id')}</span>
+                  <Badge tone="emerald" size="xs" icon={<Dot tone="emerald" pulse />}>{t('marketing.status.active')}</Badge>
                   <Badge tone="violet" size="xs" variant="outline">manager</Badge>
                 </div>
                 <p className="mt-0.5 text-xs text-[color:var(--color-fg-3)]">
-                  Coordina a los 8 especialistas y devuelve el resultado al Executive Director.
+                  {t('marketing.team.manager_desc')}
                 </p>
               </div>
               <Link to="/chat/new?department=marketing" className="text-xs text-[color:var(--color-accent)] hover:underline">
-                Hablar →
+                {t('marketing.team.talk')}
               </Link>
             </div>
 
@@ -199,7 +199,7 @@ export default function MarketingOverviewPage() {
 
           {/* Workflows */}
           <Card>
-            <CardHeader title="Workflows" subtitle="7 cadenas operativas que el manager orquesta" />
+            <CardHeader title={t('marketing.workflows.title')} subtitle={t('marketing.workflows.subtitle')} />
             <ul className="divide-y divide-[color:var(--color-line)]">
               {WORKFLOWS.map((w) => {
                 const WIcon = w.icon;
@@ -223,7 +223,9 @@ export default function MarketingOverviewPage() {
                       </div>
                     </div>
                     <Badge tone="neutral" size="xs" variant="outline">
-                      {w.specialists.length} specialists
+                      {w.specialists.length === 1
+                        ? t('marketing.workflows.specialists_one')
+                        : t('marketing.workflows.specialists_other', { count: w.specialists.length })}
                     </Badge>
                   </li>
                 );
@@ -233,7 +235,7 @@ export default function MarketingOverviewPage() {
 
           {/* Actividad reciente */}
           <Card>
-            <CardHeader title="Actividad reciente" subtitle="Tareas y mensajes del departamento" />
+            <CardHeader title={t('marketing.activity.title')} subtitle={t('marketing.activity.subtitle')} />
             <ActivityFeed tasks={tasks.data ?? []} messages={messages.data ?? []} limit={12} />
           </Card>
         </div>
@@ -242,7 +244,7 @@ export default function MarketingOverviewPage() {
         <div className="space-y-6">
           {/* Health */}
           <HealthCard
-            title="Estado del departamento"
+            title={t('marketing.health.title')}
             subtitle={lifecycle}
             status={health}
             checkedAt={lastHealth?.checked_at ?? marketingEntry?.last_health?.checked_at}
@@ -252,22 +254,22 @@ export default function MarketingOverviewPage() {
           {/* Conversaciones */}
           <Card>
             <CardHeader
-              title="Conversaciones con marketing"
-              subtitle={`${marketingConversations.length} total`}
+              title={t('marketing.conversations.title')}
+              subtitle={t('marketing.conversations.total', { count: marketingConversations.length })}
               action={
                 <Link to="/chat" className="text-xs text-[color:var(--color-accent)] hover:underline">
-                  Ver todas
+                  {t('marketing.conversations.see_all')}
                 </Link>
               }
             />
             {marketingConversations.length === 0 ? (
               <EmptyState
                 icon={<MessageSquare className="h-5 w-5" />}
-                title="Sin conversaciones"
-                description="Inicia una para hablar con el equipo de marketing."
+                title={t('marketing.conversations.empty.title')}
+                description={t('marketing.conversations.empty.desc')}
                 action={
                   <Button size="sm" onClick={() => (window.location.href = '/chat/new?department=marketing')}>
-                    Iniciar
+                    {t('marketing.conversations.start')}
                   </Button>
                 }
               />
@@ -282,7 +284,7 @@ export default function MarketingOverviewPage() {
                       <MessageSquare className="h-3.5 w-3.5 text-[color:var(--color-fg-3)]" />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-[color:var(--color-fg-1)]">
-                          {truncate(c.title || 'Sin título', 40)}
+                          {truncate(c.title || t('marketing.conversations.untitled'), 40)}
                         </div>
                         <div className="text-xs text-[color:var(--color-fg-3)]">
                           {formatRelativeTime(c.updated_at)}
@@ -298,7 +300,7 @@ export default function MarketingOverviewPage() {
 
           {/* Activation progress */}
           <Card>
-            <CardHeader title="Activación del departamento" subtitle="Cobertura operativa" />
+            <CardHeader title={t('marketing.activation.title')} subtitle={t('marketing.activation.subtitle')} />
             <div className="space-y-3">
               <ProgressBar
                 value={
@@ -309,60 +311,63 @@ export default function MarketingOverviewPage() {
                 size="sm"
               />
               <p className="text-xs text-[color:var(--color-fg-3)]">
-                {MARKETING_SPECIALISTS.filter((s) => s.status === 'active').length} de {MARKETING_SPECIALISTS.length} especialistas operativos
+                {t('marketing.activation.summary', {
+                  active: MARKETING_SPECIALISTS.filter((s) => s.status === 'active').length,
+                  total: MARKETING_SPECIALISTS.length,
+                })}
               </p>
             </div>
           </Card>
 
           {/* Notas */}
           <Card>
-            <CardHeader title="Cómo hablar con marketing" />
+            <CardHeader title={t('marketing.notes.title')} />
             <ol className="space-y-2 text-sm text-[color:var(--color-fg-2)]">
               <li className="flex gap-2">
                 <span className="text-[color:var(--color-accent)]">1.</span>
-                Habla en español. El manager responde en tu idioma.
+                {t('marketing.notes.step1')}
               </li>
               <li className="flex gap-2">
                 <span className="text-[color:var(--color-accent)]">2.</span>
-                Cada respuesta sigue el esquema canónico: Objetivo, Resumen, Análisis, Recomendaciones, Entregables, Riesgos, Próximos pasos, Estado.
+                {t('marketing.notes.step2')}
               </li>
               <li className="flex gap-2">
                 <span className="text-[color:var(--color-accent)]">3.</span>
-                El manager orquesta a los specialists. No tienes que nombrarlos.
+                {t('marketing.notes.step3')}
               </li>
               <li className="flex gap-2">
                 <span className="text-[color:var(--color-accent)]">4.</span>
-                Las tareas departamentales siguen el flujo del Department Core (Fase 3).
+                {t('marketing.notes.step4')}
               </li>
             </ol>
           </Card>
 
           {/* Quick actions */}
           <Card>
-            <CardHeader title="Acciones rápidas" />
+            <CardHeader title={t('marketing.quick.title')} />
             <div className="space-y-2">
               <QuickAction
                 icon={<MessageSquare className="h-4 w-4" />}
-                label="Iniciar conversación"
-                hint="Hablar con el equipo de marketing"
+                label={t('marketing.quick.start.label')}
+                hint={t('marketing.quick.start.hint')}
                 onClick={() => (window.location.href = '/chat/new?department=marketing')}
               />
               <QuickAction
                 icon={<Sparkles className="h-4 w-4" />}
-                label="Pedir una campaña"
-                hint="'Quiero captar 100 autónomos en 3 meses'"
+                label={t('marketing.quick.campaign.label')}
+                hint={t('marketing.quick.campaign.hint')}
                 onClick={() => (window.location.href = '/chat/new?department=marketing&prompt=campaign')}
               />
               <QuickAction
                 icon={<SettingsIcon className="h-4 w-4" />}
-                label="Configurar capacidades"
-                hint="Activar / desactivar specialists"
+                label={t('marketing.quick.config.label')}
+                hint={t('marketing.quick.config.hint')}
                 onClick={() => (window.location.href = '/departments/marketing')}
               />
               <QuickAction
                 icon={<Crown className="h-4 w-4" />}
-                label="Executive Office"
-                hint="Coordinación cross-departamento"
+                label={t('marketing.quick.executive.label')}
+                hint={t('marketing.quick.executive.hint')}
                 onClick={() => (window.location.href = '/executive-office')}
               />
             </div>

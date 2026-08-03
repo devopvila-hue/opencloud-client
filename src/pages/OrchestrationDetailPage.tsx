@@ -69,7 +69,7 @@ export default function OrchestrationDetailPage() {
   if (!o) {
     return (
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
-        <EmptyState title="Orchestration no encontrada" description={id} />
+        <EmptyState title={t('orchestration.not_found')} description={id} />
       </div>
     );
   }
@@ -108,11 +108,11 @@ export default function OrchestrationDetailPage() {
               >
                 {o.status}
               </Badge>
-              <span>Iniciada: {formatDateTime(o.created_at)}</span>
+              <span>{t('orchestration.started', { absolute: formatDateTime(o.created_at) })}</span>
               <span>· {formatRelativeTime(o.created_at)}</span>
               {o.completed_at && (
                 <span>
-                  · Finalizada: {formatDateTime(o.completed_at)} (
+                  · {t('orchestration.finished', { absolute: formatDateTime(o.completed_at) })} (
                   {formatRelativeTime(o.completed_at)})
                 </span>
               )}
@@ -123,7 +123,7 @@ export default function OrchestrationDetailPage() {
           {(o.status === 'failed' || o.status === 'escalated') && (
             <Button onClick={() => resumeMutation.mutate({ id: o.id })} variant="secondary">
               <Play className="mr-1 h-4 w-4" />
-              Reanudar
+              {t('orchestration.action.resume')}
             </Button>
           )}
           {(o.status === 'running' || o.status === 'waiting' || o.status === 'delegated') && (
@@ -132,20 +132,20 @@ export default function OrchestrationDetailPage() {
                 onClick={() =>
                   escalateMutation.mutate({
                     id: o.id,
-                    reason: 'Escalated manually from Executive Room',
+                    reason: t('orchestration.reason.escalate'),
                   })
                 }
                 variant="secondary"
               >
                 <Pause className="mr-1 h-4 w-4" />
-                Escalar
+                {t('orchestration.action.escalate')}
               </Button>
               <Button
-                onClick={() => cancelMutation.mutate({ id: o.id, reason: 'cancelled by user' })}
+                onClick={() => cancelMutation.mutate({ id: o.id, reason: t('orchestration.reason.cancel') })}
                 variant="ghost"
               >
                 <X className="mr-1 h-4 w-4" />
-                Cancelar
+                {t('orchestration.action.cancel')}
               </Button>
             </>
           )}
@@ -155,20 +155,20 @@ export default function OrchestrationDetailPage() {
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
-            title="Pasos"
-            subtitle="Cada paso es una delegación a un departamento. Ordénalos por sequence."
+            title={t('orchestration.steps.title')}
+            subtitle={t('orchestration.steps.subtitle')}
           />
           <CardSection>
             <div className="mb-3">
               <ProgressBar value={progress} />
               <p className="mt-1 text-xs text-text-muted">
-                {completed} / {total} pasos completados · {progress}%
+                {t('orchestration.steps.progress', { completed, total, percent: progress })}
               </p>
             </div>
             {stepList.length === 0 ? (
               <EmptyState
-                title="Sin pasos"
-                description="Esta orquestación no tiene pasos definidos."
+                title={t('orchestration.steps.empty.title')}
+                description={t('orchestration.steps.empty.desc')}
               />
             ) : (
               <div className="space-y-2">
@@ -218,14 +218,14 @@ export default function OrchestrationDetailPage() {
 
         <Card>
           <CardHeader
-            title="Department Bus"
-            subtitle="Mensajes entre el Executive Director y este plan."
+            title={t('orchestration.bus.title')}
+            subtitle={t('orchestration.bus.subtitle')}
           />
           <CardSection>
             {busList.length === 0 ? (
               <EmptyState
-                title="Sin mensajes"
-                description="Aún no hay actividad en el bus para esta orquestación."
+                title={t('orchestration.bus.empty.title')}
+                description={t('orchestration.bus.empty.desc')}
               />
             ) : (
               <div className="space-y-2">
@@ -265,8 +265,8 @@ export default function OrchestrationDetailPage() {
       {o.result && (
         <Card>
           <CardHeader
-            title="Resultado consolidado"
-            subtitle="El Executive Director consolidó los outputs de cada paso en este objeto."
+            title={t('orchestration.result.title')}
+            subtitle={t('orchestration.result.subtitle')}
           />
           <CardSection>
             <pre className="overflow-x-auto rounded-[var(--radius-sm)] bg-surface-2 p-3 text-xs">

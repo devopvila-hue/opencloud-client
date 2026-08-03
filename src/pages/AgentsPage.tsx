@@ -126,7 +126,14 @@ export default function AgentsPage() {
         <div className="space-y-6">
           {grouped.map(([deptName, list]) => (
             <Card key={deptName}>
-              <CardHeader title={deptName} subtitle={`${list.length} agent${list.length === 1 ? '' : 's'}`} />
+              <CardHeader
+                title={deptName}
+                subtitle={
+                  list.length === 1
+                    ? t('agents.group.subtitle_one')
+                    : t('agents.group.subtitle_other', { count: list.length })
+                }
+              />
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {list.map((a) => {
                   const pres = getDepartment(a.entry.key);

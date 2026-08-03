@@ -140,7 +140,7 @@ describe('TimelinePage', () => {
   it('renders links to orchestration details', async () => {
     renderWithProviders(React.createElement(TimelinePage));
     await waitFor(() => {
-      expect(screen.getAllByText('Ver orquestación').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('View orchestration').length).toBeGreaterThan(0);
     });
   });
 });

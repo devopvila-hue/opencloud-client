@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FileText, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Card, CardHeader } from '@/components/Card';
+import { PageHeader } from '@/components/PageHeader';
 import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
 import { Field } from '@/components/Field';
@@ -31,10 +32,10 @@ export default function DocumentsPage() {
           mimeType: file.type || 'application/octet-stream',
           contentBase64: b64,
         });
-        toast.push({ tone: 'success', title: 'Document uploaded', description: file.name });
+        toast.push({ tone: 'success', title: t('documents.toast.uploaded'), description: file.name });
         setUploadOpen(false);
       } catch (e) {
-        toast.push({ tone: 'error', title: 'Upload failed', description: (e as Error).message });
+        toast.push({ tone: 'error', title: t('documents.toast.upload_failed'), description: (e as Error).message });
       }
     };
     reader.readAsDataURL(file);
@@ -50,17 +51,15 @@ export default function DocumentsPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Documents</h1>
-          <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-            Upload PDFs, DOCX, TXT or Markdown. Documents are visible to every active department.
-          </p>
-        </div>
-        <Button variant="primary" iconLeft={<Upload className="h-4 w-4" />} onClick={() => setUploadOpen(true)}>
-          Upload
-        </Button>
-      </header>
+      <PageHeader
+        title={t('documents.header.title')}
+        subtitle={t('documents.header.subtitle')}
+        action={
+          <Button variant="primary" iconLeft={<Upload className="h-4 w-4" />} onClick={() => setUploadOpen(true)}>
+            {t('documents.upload.cta')}
+          </Button>
+        }
+      />
 
       {docs.isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -71,9 +70,9 @@ export default function DocumentsPage() {
       ) : (docs.data ?? []).length === 0 ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
-          title="No documents yet"
-          description="Upload your first document to make it available to all active departments."
-          action={<Button onClick={() => setUploadOpen(true)}>Upload document</Button>}
+          title={t('documents.empty.title')}
+          description={t('documents.empty.desc')}
+          action={<Button onClick={() => setUploadOpen(true)}>{t('documents.upload.cta')}</Button>}
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -104,7 +103,7 @@ export default function DocumentsPage() {
                   onClick={() => onDelete(d.id, d.filename)}
                   loading={del.isPending}
                 >
-                  Delete
+                  {t('documents.action.delete')}
                 </Button>
               </div>
             </Card>
@@ -128,6 +127,7 @@ function UploadDialog({
   onPick: (f: File) => void;
   loading: boolean;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
@@ -135,11 +135,11 @@ function UploadDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      title="Upload document"
-      description="PDF, DOCX, TXT or Markdown up to 25 MB."
+      title={t('documents.upload.title')}
+      description={t('documents.dialog.hint')}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t('documents.dialog.cancel')}</Button>
           <Button
             variant="primary"
             iconLeft={<Upload className="h-4 w-4" />}
@@ -147,14 +147,14 @@ function UploadDialog({
             loading={loading}
             onClick={() => file && onPick(file)}
           >
-            Upload
+            {t('documents.dialog.upload')}
           </Button>
         </>
       }
     >
       <div className="space-y-3">
         <Field
-          label="Display name (optional)"
+          label={t('documents.dialog.display_name')}
           placeholder={file?.name ?? 'report.pdf'}
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -167,7 +167,7 @@ function UploadDialog({
               <strong className="text-[color:var(--color-fg-1)]">{file.name}</strong> · {formatBytes(file.size)}
             </span>
           ) : (
-            <span>Drop a file or click to select</span>
+            <span>{t('documents.upload.drop')}</span>
           )}
           <input
             type="file"

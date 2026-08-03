@@ -27,8 +27,8 @@ export default function CompanyPage() {
       <div className="mx-auto w-full max-w-5xl p-6">
         <EmptyState
           icon={<Building2 className="h-5 w-5" />}
-          title="No company profile yet"
-          description="Create your company profile to start personalising your departments."
+          title={t('company.empty.title')}
+          description={t('company.empty.desc')}
         />
       </div>
     );
@@ -60,7 +60,7 @@ export default function CompanyPage() {
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <Badge tone="violet" size="xs">{c.brand ?? t('company.brand_placeholder')}</Badge>
               <Badge tone="cyan" size="xs" variant="outline">{c.sector ?? t('company.sector_placeholder')}</Badge>
-              <Badge tone="neutral" size="xs" variant="outline">{c.country ?? 'country'}</Badge>
+              <Badge tone="neutral" size="xs" variant="outline">{c.country ?? t('company.country_placeholder')}</Badge>
             </div>
           </div>
         </div>
@@ -69,42 +69,42 @@ export default function CompanyPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <CardHeader title="Profile" subtitle="Edit fields and save individually" />
+            <CardHeader title={t('company.cards.profile')} subtitle={t('company.cards.profile_sub')} />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field
-                label="Name"
+                label={t('company.fields.name')}
                 defaultValue={c.name}
                 onBlur={(e) => save({ id: c.id, patch: { name: e.target.value } })}
               />
               <Field
-                label="Brand"
+                label={t('company.fields.brand')}
                 defaultValue={c.brand ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { brand: e.target.value } })}
               />
               <Field
-                label="Domain"
+                label={t('company.fields.domain')}
                 defaultValue={c.domain ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { domain: e.target.value } })}
               />
               <Field
-                label="Sector"
+                label={t('company.fields.sector')}
                 defaultValue={c.sector ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { sector: e.target.value } })}
               />
               <Field
-                label="Country"
+                label={t('company.fields.country')}
                 defaultValue={c.country ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { country: e.target.value } })}
               />
               <Field
-                label="Employees"
+                label={t('company.fields.employees')}
                 defaultValue={c.employees ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { employees: e.target.value } })}
               />
             </div>
             <div className="mt-3">
               <Textarea
-                label="Description"
+                label={t('company.fields.description')}
                 defaultValue={c.description ?? ''}
                 rows={3}
                 onBlur={(e) => save({ id: c.id, patch: { description: e.target.value } })}
@@ -112,17 +112,17 @@ export default function CompanyPage() {
             </div>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Field
-                label="Primary color"
+                label={t('company.fields.primary_color')}
                 defaultValue={c.primary_color}
                 onBlur={(e) => save({ id: c.id, patch: { primary_color: e.target.value } })}
               />
               <Field
-                label="Secondary color"
+                label={t('company.fields.secondary_color')}
                 defaultValue={c.secondary_color}
                 onBlur={(e) => save({ id: c.id, patch: { secondary_color: e.target.value } })}
               />
               <Field
-                label="Accent color"
+                label={t('company.fields.accent_color')}
                 defaultValue={c.accent_color}
                 onBlur={(e) => save({ id: c.id, patch: { accent_color: e.target.value } })}
               />
@@ -131,8 +131,8 @@ export default function CompanyPage() {
 
           <Card>
             <CardHeader
-              title="Branding"
-              subtitle="Visual identity synced with your departments"
+              title={t('company.cards.branding')}
+              subtitle={t('company.cards.branding_sub')}
             />
             <div className="flex flex-wrap items-start gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-[color:var(--color-line)] bg-[color:var(--color-bg-2)]">
@@ -144,19 +144,19 @@ export default function CompanyPage() {
               </div>
               <div className="flex-1 space-y-3">
                 <Field
-                  label="Logo URL"
+                  label={t('company.fields.logo_url')}
                   defaultValue={c.logo_url ?? ''}
                   placeholder="https://example.com/logo.png"
                   onBlur={(e) => save({ id: c.id, patch: { logo_url: e.target.value } })}
                 />
                 <Field
-                  label="Brand"
+                  label={t('company.fields.brand')}
                   defaultValue={c.brand ?? ''}
                   onBlur={(e) => save({ id: c.id, patch: { brand: e.target.value } })}
                 />
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs text-[color:var(--color-fg-3)]">Primary</label>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">{t('company.color.primary')}</label>
                     <div className="mt-1 flex items-center gap-2">
                       <input
                         type="color"
@@ -168,7 +168,7 @@ export default function CompanyPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-[color:var(--color-fg-3)]">Secondary</label>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">{t('company.color.secondary')}</label>
                     <div className="mt-1 flex items-center gap-2">
                       <input
                         type="color"
@@ -180,7 +180,7 @@ export default function CompanyPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-[color:var(--color-fg-3)]">Accent</label>
+                    <label className="block text-xs text-[color:var(--color-fg-3)]">{t('company.color.accent')}</label>
                     <div className="mt-1 flex items-center gap-2">
                       <input
                         type="color"
@@ -197,9 +197,9 @@ export default function CompanyPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Services" subtitle="What your company offers" />
+            <CardHeader title={t('company.cards.services')} subtitle={t('company.cards.services_sub')} />
             <Textarea
-              label="Services (one per line)"
+              label={t('company.fields.services')}
               defaultValue={c.services.join('\n')}
               rows={3}
               onBlur={(e) =>
@@ -212,9 +212,9 @@ export default function CompanyPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Products" subtitle="Your product portfolio" />
+            <CardHeader title={t('company.cards.products')} subtitle={t('company.cards.products_sub')} />
             <Textarea
-              label="Products (one per line)"
+              label={t('company.fields.products')}
               defaultValue={c.products.join('\n')}
               rows={3}
               onBlur={(e) =>
@@ -228,21 +228,21 @@ export default function CompanyPage() {
 
           <Card>
             <CardHeader
-              title="Corporate memory"
-              subtitle="Versioned files maintained by the Executive Director"
+              title={t('company.cards.memory')}
+              subtitle={t('company.cards.memory_sub')}
               action={
                 <Button
                   variant="primary"
                   iconLeft={<RefreshCw className="h-4 w-4" />}
-                  onClick={() => regen.mutate(undefined, { onSuccess: () => toast.push({ tone: 'success', title: 'Memory regenerated' }) })}
+                  onClick={() => regen.mutate(undefined, { onSuccess: () => toast.push({ tone: 'success', title: t('company.toast.regenerated') }) })}
                   loading={regen.isPending}
                 >
-                  Regenerate
+                  {t('company.regenerate')}
                 </Button>
               }
             />
             {(memory.data ?? []).length === 0 ? (
-              <EmptyState icon={<FileText className="h-5 w-5" />} title="No memory files yet" />
+              <EmptyState icon={<FileText className="h-5 w-5" />} title={t('company.memory.empty')} />
             ) : (
               <ul className="divide-y divide-[color:var(--color-line)]">
                 {(memory.data ?? []).map((m) => (
@@ -267,16 +267,16 @@ export default function CompanyPage() {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Mission & vision" />
+            <CardHeader title={t('company.cards.mission_vision')} />
             <Textarea
-              label="Mission"
+              label={t('company.fields.mission')}
               defaultValue={c.mission ?? ''}
               rows={3}
               onBlur={(e) => save({ id: c.id, patch: { mission: e.target.value } })}
             />
             <div className="mt-3">
               <Textarea
-                label="Vision"
+                label={t('company.fields.vision')}
                 defaultValue={c.vision ?? ''}
                 rows={3}
                 onBlur={(e) => save({ id: c.id, patch: { vision: e.target.value } })}
@@ -285,9 +285,9 @@ export default function CompanyPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Goals" />
+            <CardHeader title={t('company.cards.goals')} />
             <Textarea
-              label="Active goals (one per line)"
+              label={t('company.fields.goals')}
               defaultValue={c.goals.join('\n')}
               rows={4}
               onBlur={(e) =>
@@ -300,7 +300,7 @@ export default function CompanyPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Team" subtitle="Key contacts and department heads" />
+            <CardHeader title={t('company.cards.team')} subtitle={t('company.cards.team_sub')} />
             <div className="space-y-2">
               {c.clients.length > 0
                 ? c.clients.map((client) => (
@@ -311,27 +311,27 @@ export default function CompanyPage() {
                   ))
                 : (
                   <p className="text-xs text-[color:var(--color-fg-3)]">
-                    No team members configured. Add key client contacts and stakeholder names in the Contact section.
+                    {t('company.team.empty')}
                   </p>
                 )}
             </div>
           </Card>
 
           <Card>
-            <CardHeader title="Contact" />
+            <CardHeader title={t('company.cards.contact')} />
             <div className="grid grid-cols-1 gap-3">
               <Field
-                label="Email"
+                label={t('company.fields.email')}
                 defaultValue={c.email ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { email: e.target.value } })}
               />
               <Field
-                label="Phone"
+                label={t('company.fields.phone')}
                 defaultValue={c.phone ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { phone: e.target.value } })}
               />
               <Field
-                label="Address"
+                label={t('company.fields.address')}
                 defaultValue={c.address ?? ''}
                 onBlur={(e) => save({ id: c.id, patch: { address: e.target.value } })}
               />

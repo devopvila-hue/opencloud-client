@@ -69,14 +69,18 @@ export default function TimelinePage() {
 
       <Card>
         <CardHeader
-          title="Eventos"
-          subtitle={`${events.length} eventos recientes · auto-refresh 8s`}
+          title={t('timeline.events.title')}
+          subtitle={
+            events.length === 1
+              ? t('timeline.events.subtitle_one')
+              : t('timeline.events.subtitle_other', { count: events.length })
+          }
         />
         <CardSection>
           {events.length === 0 ? (
             <EmptyState
-              title="Sin eventos en la timeline"
-              description="Cuando el Executive Director orqueste algo, aparecerá aquí."
+              title={t('timeline.events.empty.title')}
+              description={t('timeline.events.empty.desc')}
             />
           ) : (
             <div className="relative ml-3 border-l border-border">
@@ -99,13 +103,13 @@ export default function TimelinePage() {
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-1 text-sm">
                     <span className="font-medium">{e.source}</span>
-                    <span className="text-text-muted">en</span>
+                    <span className="text-text-muted">{t('timeline.events.in')}</span>
                     <span className="font-medium">{e.source_department}</span>
                     {e.target_department && (
                       <>
                         <ChevronRight className="h-3 w-3 text-text-muted" />
                         <span className="font-medium">{e.target}</span>
-                        <span className="text-text-muted">en</span>
+                        <span className="text-text-muted">{t('timeline.events.in')}</span>
                         <span className="font-medium">{e.target_department}</span>
                       </>
                     )}
@@ -124,7 +128,7 @@ export default function TimelinePage() {
                       to={`/orchestrations/${e.orchestration_id}`}
                       className="mt-1 inline-block text-xs text-info underline"
                     >
-                      Ver orquestación
+                      {t('timeline.events.link')}
                     </Link>
                   )}
                 </div>

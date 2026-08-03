@@ -114,23 +114,23 @@ export default function ExecutiveOfficePage() {
     if (d.installation?.health === 'unhealthy') {
       risks.push({
         departmentKey: d.key,
-        title: `${d.name} is unhealthy`,
-        description: d.installation?.last_error ? truncate(d.installation.last_error, 100) : 'Health checks are failing',
+        title: t('office.unhealthy.title', { name: d.name }),
+        description: d.installation?.last_error ? truncate(d.installation.last_error, 100) : t('office.risk.health_fail'),
       });
     } else if (d.installation?.lifecycle === 'error') {
       risks.push({
         departmentKey: d.key,
-        title: `${d.name} has an error`,
-        description: d.installation?.last_error ? truncate(d.installation.last_error, 100) : 'Department failed to start correctly',
+        title: t('office.unhealthy.title', { name: d.name }),
+        description: d.installation?.last_error ? truncate(d.installation.last_error, 100) : t('office.risk.dept_error'),
       });
     }
   }
-  for (const t of failedTasks.slice(0, 3)) {
-    const pres = getDepartment(t.department_key);
+  for (const task of failedTasks.slice(0, 3)) {
+    const pres = getDepartment(task.department_key);
     risks.push({
-      departmentKey: t.department_key,
-      title: `Task "${truncate(t.title, 40)}" failed`,
-      description: t.error ? truncate(t.error, 100) : 'Review the task for details',
+      departmentKey: task.department_key,
+      title: t('office.unhealthy.task_failed', { title: truncate(task.title, 40) }),
+      description: task.error ? truncate(task.error, 100) : t('office.risk.review_task'),
     });
     void pres;
   }
@@ -228,10 +228,10 @@ export default function ExecutiveOfficePage() {
                   </div>
                   <div>
                     <h2 className="font-display text-[1.0625rem] tracking-[-0.01em] text-[color:var(--foreground)]">
-                      Business Health Score
+                      {t('office.health.score')}
                     </h2>
                     <p className="mt-1 text-xs text-[color:var(--muted-foreground)]">
-                      Composite of gateway uptime, department health and task success rate.
+                      {t('office.health.score_help')}
                     </p>
                   </div>
                 </div>
@@ -241,30 +241,30 @@ export default function ExecutiveOfficePage() {
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <HealthMetric
                     icon={<Layers className="h-4 w-4" />}
-                    label="Active departments"
+                    label={t('office.health.active_depts')}
                     value={activeDepartments.length}
-                    hint={`of ${departmentSummaries.length} catalogued`}
+                    hint={t('office.health.active_depts_hint', { total: departmentSummaries.length })}
                     color="var(--color-dept-governance)"
                   />
                   <HealthMetric
                     icon={<CheckCircle2 className="h-4 w-4" />}
-                    label="Success rate"
+                    label={t('office.health.success_rate')}
                     value={`${Math.round(successRate * 100)}%`}
-                    hint={`${failedTasks.length} failed`}
+                    hint={t('office.health.success_rate_hint', { count: failedTasks.length })}
                     color="var(--color-emerald)"
                   />
                   <HealthMetric
                     icon={<Heartbeat className="h-4 w-4" />}
-                    label="Healthy"
+                    label={t('office.health.healthy')}
                     value={`${healthyDepartments.length}/${activeDepartments.length}`}
-                    hint="departments"
+                    hint={t('office.health.healthy_depts')}
                     color="var(--color-emerald)"
                   />
                   <HealthMetric
                     icon={<Clock className="h-4 w-4" />}
-                    label="Avg duration"
+                    label={t('office.health.avg_duration')}
                     value={avgDuration ? formatDuration(avgDuration) : '—'}
-                    hint={totalCompletedToday > 0 ? `${totalCompletedToday} today` : 'no data yet'}
+                    hint={totalCompletedToday > 0 ? t('office.health.today', { count: totalCompletedToday }) : t('office.health.no_data')}
                     color="var(--color-dept-people)"
                   />
                 </div>
@@ -277,30 +277,30 @@ export default function ExecutiveOfficePage() {
       {/* ── KPI Cards ─────────────────────────────────────── */}
       <motion.section variants={staggerItem} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Tasks running"
+          label={t('office.kpi.tasks_running')}
           value={activeTaskCount}
-          hint={`${pendingDecisions.length} awaiting approval`}
+          hint={t('office.kpi.awaiting', { count: pendingDecisions.length })}
           icon={<Layers className="h-4 w-4" />}
           accent="--color-dept-operations"
         />
         <KpiCard
-          label="Completed today"
+          label={t('office.kpi.completed_today')}
           value={completedToday}
-          hint={pluralize(allTasks.length, 'total task')}
+          hint={allTasks.length === 1 ? t('office.kpi.total_tasks_one') : t('office.kpi.total_tasks_other', { count: allTasks.length })}
           icon={<CheckCircle2 className="h-4 w-4" />}
           accent="--color-emerald"
         />
         <KpiCard
-          label="Failed today"
+          label={t('office.kpi.failed_today')}
           value={failedToday}
-          hint={failedTasks.length > 0 ? 'Requires review' : 'All clear'}
+          hint={failedTasks.length > 0 ? t('office.kpi.requires_review') : t('office.kpi.all_clear')}
           icon={<AlertTriangle className="h-4 w-4" />}
           accent="--color-rose"
         />
         <KpiCard
-          label="Pending tasks"
+          label={t('office.kpi.pending_tasks')}
           value={totalPending}
-          hint="Across all departments"
+          hint={t('office.kpi.across_depts')}
           icon={<Clock className="h-4 w-4" />}
           accent="--color-dept-people"
         />
@@ -478,13 +478,13 @@ export default function ExecutiveOfficePage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-[color:var(--foreground)]">executive-director</span>
+                      <span className="text-sm font-medium text-[color:var(--foreground)]">{t('office.executive_director.id')}</span>
                       <Badge tone="emerald" size="xs" icon={<Dot tone="emerald" pulse />}>
-                        active
+                        {t('office.executive_director.active')}
                       </Badge>
                     </div>
                     <p className="mt-1 text-xs text-[color:var(--muted-foreground)]">
-                      Coordinates departments, maintains corporate memory, and proposes next steps.
+                      {t('office.executive_director.desc')}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button
@@ -492,11 +492,11 @@ export default function ExecutiveOfficePage() {
                         iconLeft={<MessageSquare className="h-3.5 w-3.5" />}
                         onClick={() => (window.location.href = '/chat/new?department=executive-office')}
                       >
-                        Start chat
+                        {t('office.executive_director.cta1')}
                       </Button>
                       <Link to="/executive-room">
                         <Button size="sm" variant="ghost" iconLeft={<Activity className="h-3.5 w-3.5" />}>
-                          Executive Room
+                          {t('office.executive_director.cta2')}
                         </Button>
                       </Link>
                     </div>
@@ -565,12 +565,12 @@ export default function ExecutiveOfficePage() {
           <motion.section variants={staggerItem}>
             <Card>
               <CardHeader
-                title="Pulse"
-                subtitle="Internal message volume"
+                title={t('office.pulse.title')}
+                subtitle={t('office.pulse.subtitle')}
                 action={
                   <span className="inline-flex items-center gap-1 text-xs text-[color:var(--muted-foreground)]">
                     <Clock className="h-3 w-3" />
-                    24h
+                    {t('office.pulse.window')}
                   </span>
                 }
               />
@@ -585,13 +585,13 @@ export default function ExecutiveOfficePage() {
                       height={48}
                     />
                     <div className="grid grid-cols-3 gap-2 text-center">
-                      <Stat label="events" value={messages.data.length} />
-                      <Stat label="tasks" value={allTasks.length} />
-                      <Stat label="departments" value={departmentSummaries.length} />
+                      <Stat label={t('office.pulse.events')} value={messages.data.length} />
+                      <Stat label={t('office.pulse.tasks')} value={allTasks.length} />
+                      <Stat label={t('office.pulse.departments')} value={departmentSummaries.length} />
                     </div>
                   </div>
                 ) : (
-                  <EmptyState title="No activity yet" description="Once departments start working you'll see the pulse here." />
+                  <EmptyState title={t('office.pulse.empty')} description={t('office.pulse.empty_desc')} />
                 )}
               </CardSection>
             </Card>
@@ -649,22 +649,22 @@ export default function ExecutiveOfficePage() {
               <CardSection>
                 <ul className="space-y-2 text-sm">
                   <Row
-                    label="Gateway"
-                    value={system.data?.gateway.ok ? `${system.data.gateway.latency_ms} ms` : 'Unreachable'}
+                    label={t('office.company_health.gateway')}
+                    value={system.data?.gateway.ok ? `${system.data.gateway.latency_ms} ms` : t('office.health.unreachable')}
                     ok={system.data?.gateway.ok ?? false}
                   />
                   <Row
-                    label="Supabase"
+                    label={t('office.company_health.supabase')}
                     value={system.data?.supabase.configured ? `${system.data.supabase.latency_ms} ms` : '—'}
                     ok={system.data?.supabase.configured ?? false}
                   />
                   <Row
-                    label="Departments active"
+                    label={t('office.company_health.active_depts')}
                     value={`${activeDepartments.length}/${departmentSummaries.length}`}
                     ok={activeDepartments.length > 0}
                   />
                   <Row
-                    label="Active orchestrations"
+                    label={t('office.company_health.active_orchestrations')}
                     value={room.data?.active_orchestrations.length ?? 0}
                     ok={(room.data?.active_orchestrations.length ?? 0) < 5}
                   />
@@ -794,10 +794,10 @@ function TaskRow({
       {showApproveButtons && (
         <div className="flex gap-1">
           <Button size="sm" variant="ghost" iconLeft={<CheckCircle2 className="h-3 w-3" />}>
-            Approve
+            {t('office.cta.approve')}
           </Button>
           <Button size="sm" variant="ghost" iconLeft={<Pause className="h-3 w-3" />}>
-            Reject
+            {t('office.cta.reject')}
           </Button>
         </div>
       )}

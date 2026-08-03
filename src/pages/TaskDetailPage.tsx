@@ -10,8 +10,10 @@ import { getDepartment } from '@/design-system/departments';
 import { useToast } from '@/components/Toaster';
 import { Timeline } from '@/components/Timeline';
 import { JsonBlock } from '@/components/JsonBlock';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export default function TaskDetailPage() {
+  const { t } = useI18n();
   const params = useParams<{ id: string }>();
   const id = params.id ?? '';
   const task = useTask(id);
@@ -33,32 +35,32 @@ export default function TaskDetailPage() {
       <div className="mx-auto w-full max-w-5xl p-6">
         <EmptyState
           icon={<ClipboardList className="h-5 w-5" />}
-          title="Task not found"
-          description="It may have been deleted or never existed."
-          action={<Link to="/tasks" className="text-sm text-[color:var(--color-accent)] hover:underline">Back to queue</Link>}
+          title={t('task.detail.not_found')}
+          description={t('task.detail.not_found_desc')}
+          action={<Link to="/tasks" className="text-sm text-[color:var(--color-accent)] hover:underline">{t('task.detail.back_queue')}</Link>}
         />
       </div>
     );
   }
-  const t = task.data;
-  const pres = getDepartment(t.department_key);
+  const taskData = task.data;
+  const pres = getDepartment(taskData.department_key);
 
-  function act<T>(fn: () => Promise<T>, success: string) {
+  function act<T>(fn: () => Promise<T>, successKey: string) {
     return async () => {
       try {
         await fn();
-        toast.push({ tone: 'success', title: success });
+        toast.push({ tone: 'success', title: t(successKey) });
       } catch (e) {
-        toast.push({ tone: 'error', title: 'Action failed', description: (e as Error).message });
+        toast.push({ tone: 'error', title: t('task.detail.action_failed'), description: (e as Error).message });
       }
     };
   }
 
   const timeline = [
-    { id: 'created', title: 'Task created', subtitle: t.id, at: formatRelativeTime(t.created_at) },
-    t.started_at ? { id: 'started', title: 'Agent started', subtitle: t.assigned_agent ?? t.target_agent ?? '', at: formatRelativeTime(t.started_at) } : null,
-    t.approved_at ? { id: 'approved', title: 'Approved', subtitle: t.approved_by ?? '', at: formatRelativeTime(t.approved_at) } : null,
-    t.completed_at ? { id: 'completed', title: 'Completed', subtitle: t.status, at: formatRelativeTime(t.completed_at) } : null,
+    { id: 'created', title: t('task.detail.timeline_created'), subtitle: taskData.id, at: formatRelativeTime(taskData.created_at) },
+    taskData.started_at ? { id: 'started', title: t('task.detail.timeline_started'), subtitle: taskData.assigned_agent ?? taskData.target_agent ?? '', at: formatRelativeTime(taskData.started_at) } : null,
+    taskData.approved_at ? { id: 'approved', title: t('task.detail.timeline_approved'), subtitle: taskData.approved_by ?? '', at: formatRelativeTime(taskData.approved_at) } : null,
+    taskData.completed_at ? { id: 'completed', title: t('task.detail.timeline_completed'), subtitle: taskData.status, at: formatRelativeTime(taskData.completed_at) } : null,
   ].filter(Boolean) as { id: string; title: string; subtitle?: string; at: string }[];
 
   return (
@@ -66,35 +68,35 @@ export default function TaskDetailPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Link to="/tasks" className="inline-flex items-center gap-1 text-xs text-[color:var(--color-fg-3)] hover:text-[color:var(--color-fg-1)]">
-            <ArrowLeft className="h-3 w-3" /> Back to queue
+            <ArrowLeft className="h-3 w-3" /> {t('task.detail.back_queue')}
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t.title}</h1>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{taskData.title}</h1>
           <p className="mt-1 text-sm text-[color:var(--color-fg-3)]">
-            {pres?.name ?? t.department_key} · {t.status.replace('_', ' ')}
+            {pres?.name ?? taskData.department_key} · {taskData.status.replace('_', ' ')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={t.status === 'completed' ? 'emerald' : t.status === 'failed' ? 'rose' : 'cyan'} size="sm" icon={<Dot tone={t.status === 'completed' ? 'emerald' : t.status === 'failed' ? 'rose' : 'cyan'} pulse={t.status === 'running'} />}>
-            {t.status.replace('_', ' ')}
+          <Badge tone={taskData.status === 'completed' ? 'emerald' : taskData.status === 'failed' ? 'rose' : 'cyan'} size="sm" icon={<Dot tone={taskData.status === 'completed' ? 'emerald' : taskData.status === 'failed' ? 'rose' : 'cyan'} pulse={taskData.status === 'running'} />}>
+            {taskData.status.replace('_', ' ')}
           </Badge>
-          {t.status === 'waiting_approval' && (
+          {taskData.status === 'waiting_approval' && (
             <>
-              <Button variant="primary" onClick={act(() => approve.mutateAsync({ id: t.id, approve: true }), 'Approved')}>
-                Approve
+              <Button variant="primary" onClick={act(() => approve.mutateAsync({ id: taskData.id, approve: true }), 'task.detail.approved_toast')}>
+                {t('task.detail.approve')}
               </Button>
-              <Button variant="outline" onClick={act(() => approve.mutateAsync({ id: t.id, approve: false }), 'Rejected')}>
-                Reject
+              <Button variant="outline" onClick={act(() => approve.mutateAsync({ id: taskData.id, approve: false }), 'task.detail.rejected_toast')}>
+                {t('task.detail.reject')}
               </Button>
             </>
           )}
-          {(t.status === 'failed' || t.status === 'cancelled' || t.status === 'expired') && (
-            <Button variant="primary" iconLeft={<RotateCcw className="h-4 w-4" />} onClick={act(() => retry.mutateAsync({ id: t.id }), 'Retried')}>
-              Retry
+          {(taskData.status === 'failed' || taskData.status === 'cancelled' || taskData.status === 'expired') && (
+            <Button variant="primary" iconLeft={<RotateCcw className="h-4 w-4" />} onClick={act(() => retry.mutateAsync({ id: taskData.id }), 'task.detail.retried_toast')}>
+              {t('task.detail.retry')}
             </Button>
           )}
-          {['queued', 'assigned', 'running', 'waiting_approval'].includes(t.status) && (
-            <Button variant="danger" iconLeft={<Trash2 className="h-4 w-4" />} onClick={act(() => cancel.mutateAsync({ id: t.id, reason: 'manual' }), 'Cancelled')}>
-              Cancel
+          {['queued', 'assigned', 'running', 'waiting_approval'].includes(taskData.status) && (
+            <Button variant="danger" iconLeft={<Trash2 className="h-4 w-4" />} onClick={act(() => cancel.mutateAsync({ id: taskData.id, reason: 'manual' }), 'task.detail.cancelled_toast')}>
+              {t('task.detail.cancel')}
             </Button>
           )}
         </div>
@@ -103,35 +105,35 @@ export default function TaskDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <CardHeader title="Overview" />
-            {t.description && <p className="text-sm text-[color:var(--color-fg-2)]">{t.description}</p>}
+            <CardHeader title={t('task.detail.overview')} />
+            {taskData.description && <p className="text-sm text-[color:var(--color-fg-2)]">{taskData.description}</p>}
             <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
-              <Field label="Priority" value={t.priority.toString()} />
-              <Field label="Attempts" value={`${t.attempts}/${t.max_attempts}`} />
-              <Field label="Source agent" value={t.source_agent ?? '—'} />
-              <Field label="Target agent" value={t.target_agent ?? '—'} />
-              <Field label="Created" value={formatDateTime(t.created_at)} />
-              <Field label="Updated" value={formatDateTime(t.updated_at)} />
-              {t.started_at && <Field label="Started" value={formatDateTime(t.started_at)} />}
-              {t.completed_at && <Field label="Completed" value={formatDateTime(t.completed_at)} />}
+              <Field label={t('task.detail.priority')} value={taskData.priority.toString()} />
+              <Field label={t('task.detail.attempts')} value={`${taskData.attempts}/${taskData.max_attempts}`} />
+              <Field label={t('task.detail.source_agent')} value={taskData.source_agent ?? '—'} />
+              <Field label={t('task.detail.target_agent')} value={taskData.target_agent ?? '—'} />
+              <Field label={t('task.detail.created')} value={formatDateTime(taskData.created_at)} />
+              <Field label={t('task.detail.updated')} value={formatDateTime(taskData.updated_at)} />
+              {taskData.started_at && <Field label={t('task.detail.started')} value={formatDateTime(taskData.started_at)} />}
+              {taskData.completed_at && <Field label={t('task.detail.completed')} value={formatDateTime(taskData.completed_at)} />}
             </dl>
-            {t.error && (
+            {taskData.error && (
               <div className="mt-3 rounded-md bg-[color:var(--color-rose-soft)] px-3 py-2 text-xs text-[color:var(--color-rose)]">
-                {t.error}
+                {taskData.error}
               </div>
             )}
           </Card>
 
-          {t.result && (
+          {taskData.result && (
             <Card>
               <CardHeader title="Result" subtitle="Returned by the manager agent" />
-              <JsonBlock value={t.result} />
+              <JsonBlock value={taskData.result} />
             </Card>
           )}
 
           <Card>
             <CardHeader title="Payload" subtitle="Input sent to the agent" />
-            <JsonBlock value={t.payload} />
+            <JsonBlock value={taskData.payload} />
           </Card>
         </div>
 

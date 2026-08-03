@@ -213,7 +213,7 @@ describe('OrchestrationDetailPage', () => {
   it('renders department bus messages', async () => {
     renderWithProviders(React.createElement(OrchestrationDetailPage));
     await waitFor(() => {
-      expect(screen.getByText('Department Bus')).toBeInTheDocument();
+      expect(screen.getByText(/Department Bus|Bus de departamentos/)).toBeInTheDocument();
       expect(screen.getByText('Market research needed')).toBeInTheDocument();
     });
   });
