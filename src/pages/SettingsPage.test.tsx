@@ -30,10 +30,10 @@ vi.mock('@/i18n/I18nProvider', () => ({
 }));
 
 vi.mock('@/design-system/theme', () => ({
-  useTheme: () => ({ theme: 'dark' as const, setTheme: vi.fn(), toggle: vi.fn(), branding: 'opencloud' as const, setBranding: vi.fn() }),
+  useTheme: () => ({ theme: 'dark' as const, setTheme: vi.fn(), toggle: vi.fn(), branding: 'departify' as const, setBranding: vi.fn() }),
   ThemeProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   brandConfig: {
-    opencloud: { name: 'OPENCloud', tagline: '', product: 'Business OS', description: '', domain: 'opencloud.io' },
+    departify: { name: 'DEPARTIFY', tagline: 'Business Operating System', product: 'Business Operating System', description: '', domain: 'deptify.com' },
   },
 }));
 

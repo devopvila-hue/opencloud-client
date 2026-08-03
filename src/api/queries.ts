@@ -112,6 +112,21 @@ export function useLogout() {
   });
 }
 
+/**
+ * POST /api/v1/auth/password-change — V1 BLOCKER 3.
+ * Wires `authApi.passwordChange` to a mutation hook. On success the
+ * session cookie remains valid; the user does not need to sign in
+ * again with the new password. We intentionally do NOT clear the
+ * query cache here (the data shown is still authoritative for the
+ * current user — changing the password does not change identity).
+ */
+export function usePasswordChange() {
+  return useMutation({
+    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
+      authApi.passwordChange(currentPassword, newPassword),
+  });
+}
+
 // ----- System --------------------------------------------------
 export function useSystemStatus(options?: Partial<UseQueryOptions<SystemStatus>>) {
   return useQuery<SystemStatus>({

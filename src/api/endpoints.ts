@@ -3,7 +3,7 @@
  * Every page consumes these through TanStack Query hooks.
  */
 
-import { api, apiValidated, streamPost, type SseEvent } from './client';
+import { api, apiValidated, streamPost, type ApiSuccess, type SseEvent } from './client';
 import {
   companySchema,
   corporateMemoryMetaSchema,
@@ -84,6 +84,25 @@ export const authApi = {
 
   me: (): Promise<Me> => apiValidated('/me', meSchema),
   logout: () => api<{ ok: true }>('/auth/logout', { method: 'POST' }),
+
+  /**
+   * POST /api/v1/auth/password-change — V1 BLOCKER 3.
+   * Verifies the current password against Supabase Auth (via the
+   * middleware's ANON client) and then updates the user record via
+   * `auth.admin.updateUserById`. The new password is committed
+   * immediately; the existing session cookie remains valid.
+   *
+   * Returns `{ ok: true }` on success. On failure surfaces the
+   * server-provided error via `ApiClientError`.
+   */
+  passwordChange: (
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<ApiSuccess<{ ok: true }>> =>
+    api<{ ok: true }>('/auth/password-change', {
+      method: 'POST',
+      body: { currentPassword, newPassword },
+    }),
 };
 
 // ----- System -------------------------------------------------

@@ -28,6 +28,7 @@ import { TaskCard } from '@/components/TaskCard';
 import { ActivityFeed } from '@/components/ActivityFeed';
 import { EmptyState } from '@/components/EmptyState';
 import { useToast } from '@/components/Toaster';
+import { useI18n } from '@/i18n/I18nProvider';
 import {
   useActivateDepartment,
   useDeactivateDepartment,
@@ -59,6 +60,7 @@ const lifecycleBadge: Record<string, { tone: 'emerald' | 'amber' | 'rose' | 'neu
 };
 
 export default function DepartmentDetailPage() {
+  const { t } = useI18n();
   const params = useParams<{ id: string }>();
   const id = params.id ?? '';
   const def = useDepartment(id);
@@ -120,23 +122,27 @@ export default function DepartmentDetailPage() {
     resume.mutate(
       { id, reason: 'manual' },
       {
-        onSuccess: () => toast.push({ tone: 'success', title: 'Department resumed' }),
-        onError: (e: Error) => toast.push({ tone: 'error', title: 'Resume failed', description: e.message }),
+        onSuccess: () => toast.push({ tone: 'success', title: t('toast.dept.resumed', 'Departamento reactivado') }),
+        onError: (e: Error) => toast.push({ tone: 'error', title: t('toast.dept.resume_failed', 'No se pudo reactivar'), description: e.message }),
       },
     );
   }
   function onHealth() {
     healthCheck.mutate(id, {
-      onSuccess: (data) => toast.push({ tone: data.status === 'healthy' ? 'success' : 'info', title: `Health: ${data.status}` }),
-      onError: (e: Error) => toast.push({ tone: 'error', title: 'Health check failed', description: e.message }),
+      onSuccess: (data) => toast.push({
+        tone: data.status === 'healthy' ? 'success' : 'info',
+        title: t('toast.health.title', 'Estado del departamento'),
+        description: t(`health.status.${data.status}`, data.status),
+      }),
+      onError: (e: Error) => toast.push({ tone: 'error', title: t('toast.health.error', 'No se pudo comprobar el estado'), description: e.message }),
     });
   }
   function onGrantLicense() {
     grantLicense.mutate(
       { id, body: { plan: 'lab', idempotencyKey: `portal-${id}-${Date.now()}` } },
       {
-        onSuccess: () => toast.push({ tone: 'success', title: 'License granted', description: `Lab license applied to ${entry?.name ?? id}.` }),
-        onError: (e: Error) => toast.push({ tone: 'error', title: 'License failed', description: e.message }),
+        onSuccess: () => toast.push({ tone: 'success', title: t('toast.dept.license_granted', 'Licencia concedida'), description: t('toast.dept.license_granted_desc', `Licencia de prueba aplicada a ${entry?.name ?? id}.`) }),
+        onError: (e: Error) => toast.push({ tone: 'error', title: t('toast.dept.license_failed', 'No se pudo conceder la licencia'), description: e.message }),
       },
     );
   }
@@ -246,15 +252,15 @@ export default function DepartmentDetailPage() {
         className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
       >
         <HealthCard
-          title="Lifecycle"
-          subtitle={lifecycle}
+          title={t('health.lifecycle.title', 'Estado operativo')}
+          subtitle={t(`lifecycle.${lifecycle}`, lifecycle)}
           status={lifecycle === 'active' ? 'healthy' : lifecycle === 'error' ? 'unhealthy' : lifecycle === 'suspended' ? 'degraded' : 'unknown'}
           checkedAt={def.data?.installation?.activated_at ?? entry?.installation?.activated_at}
           durationMs={lastHealth?.duration_ms}
         />
         <HealthCard
-          title="Health"
-          subtitle={health}
+          title={t('health.health.title', 'Salud')}
+          subtitle={t(`health.status.${health}`, health)}
           status={health}
           checkedAt={lastHealth?.checked_at ?? entry?.last_health?.checked_at}
           durationMs={lastHealth?.duration_ms ?? entry?.last_health?.duration_ms}

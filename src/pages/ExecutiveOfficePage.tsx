@@ -767,6 +767,7 @@ function TaskRow({
   };
   showApproveButtons?: boolean;
 }) {
+  const { t } = useI18n();
   const pres = getDepartment(task.department_key);
   return (
     <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--surface-soft)]/30 p-3">
@@ -784,7 +785,7 @@ function TaskRow({
           {task.title}
         </div>
         <div className="truncate text-xs text-[color:var(--muted-foreground)]">
-          {pres?.name ?? task.department_key} · {task.status.replace(/[._]/g, ' ')}
+          {pres?.name ?? task.department_key} · {t(`task.status.${task.status}`, task.status.replace(/[._]/g, ' '))}
         </div>
       </div>
       <div className="text-right text-xs text-[color:var(--muted-foreground)]">
@@ -870,6 +871,7 @@ function TimelineRow({
     shortDescription: string;
   };
 }) {
+  const { t } = useI18n();
   const pres = presentation;
   return (
     <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[color:var(--border)] bg-[color:var(--background-elevated)] p-3 text-xs">
@@ -883,7 +885,7 @@ function TimelineRow({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[color:var(--foreground)]">{event.type.replace(/[._]/g, ' ')}</span>
+          <span className="font-medium text-[color:var(--foreground)]">{t(`event.type.${event.type}`, event.type.replace(/[._]/g, ' '))}</span>
           <span className="text-[color:var(--muted-foreground)]">·</span>
           <span className="text-[color:var(--muted-foreground)]">{event.source_department}</span>
         </div>

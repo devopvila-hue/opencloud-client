@@ -5,6 +5,7 @@ import { Badge } from './Badge';
 import type { Task, TaskStatus } from '@/api/schemas';
 import { getDepartment, departmentIcon } from '@/design-system/departments';
 import { formatRelativeTime, truncate } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const toneByStatus: Record<TaskStatus, 'cyan' | 'amber' | 'emerald' | 'rose' | 'violet' | 'neutral'> = {
   queued: 'neutral',
@@ -34,6 +35,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onClick }: TaskCardProps) {
+  const { t } = useI18n();
   const Icon = departmentIcon(task.department_key);
   const presentation = getDepartment(task.department_key);
   return (

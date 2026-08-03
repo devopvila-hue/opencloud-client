@@ -182,6 +182,7 @@ function MarketplaceCard({
   onInstall: () => void;
   installing: boolean;
 }) {
+  const { t } = useI18n();
   const presentation = getDepartment(entry.key);
   const Icon = iconFromManifest(entry.icon);
   const lifecycle = entry.installation?.lifecycle ?? 'available';
@@ -209,7 +210,7 @@ function MarketplaceCard({
             <Icon className="h-5 w-5" />
           </div>
           <Badge tone={lifecycleTone[lifecycle] ?? 'neutral'} size="xs">
-            {lifecycle.replace('_', ' ')}
+            {t(`lifecycle.${lifecycle}`, lifecycle.replace('_', ' '))}
           </Badge>
         </div>
 

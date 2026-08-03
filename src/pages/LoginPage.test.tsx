@@ -83,7 +83,7 @@ describe('LoginPage', () => {
 
   it('renders the sign-in screen with email and password fields', () => {
     renderLogin('/login');
-    expect(screen.getByText(/sign in to opencloud/i)).toBeInTheDocument();
+    expect(screen.getByText(/sign in to DEPARTIFY/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     // The submit button is inside the form — find it by its parent <form>.
@@ -155,6 +155,6 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
-    expect(screen.getByText(/create your opencloud account/i)).toBeInTheDocument();
+    expect(screen.getByText(/create your DEPARTIFY account/i)).toBeInTheDocument();
   });
 });

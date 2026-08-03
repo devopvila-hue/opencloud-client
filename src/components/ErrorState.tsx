@@ -12,8 +12,8 @@ interface ErrorStateProps {
 
 export function ErrorState({
   icon,
-  title = 'Something went wrong',
-  description = "We couldn't load this content. Try refreshing or check back later.",
+  title = 'No se pudo cargar este contenido',
+  description = 'Inténtalo de nuevo o vuelve más tarde.',
   action,
   retry,
   className,
@@ -46,7 +46,7 @@ export function ErrorState({
               onClick={retry}
               className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-sm font-medium text-[color:var(--foreground)] hover:bg-[color:var(--surface-soft)]"
             >
-              Retry
+              Reintentar
             </button>
           ) : undefined)}
         </div>

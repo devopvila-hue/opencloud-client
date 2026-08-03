@@ -355,7 +355,7 @@ export default function OnboardingPage() {
           Already part of an existing workspace? Ask your admin to invite you instead.
           <span className="mx-2 opacity-50">·</span>
           <Users className="mr-1 inline-block h-3 w-3" />
-          All data stays on the OPENCloud infrastructure.
+          All data stays on your private infrastructure.
           <span className="mx-2 opacity-50">·</span>
           <Target className="mr-1 inline-block h-3 w-3" />
           One minute. Five questions. Done.

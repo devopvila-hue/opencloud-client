@@ -1,8 +1,25 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { DepartmentCard } from '@/components/DepartmentCard';
 import type { DepartmentCatalogEntry } from '@/api/schemas';
+
+// Mock i18n so the component renders plain English keys (matches
+// what the tests assert). Without this, lifecycle.* keys would render
+// in Spanish.
+vi.mock('@/i18n/I18nProvider', () => ({
+  useI18n: () => ({
+    locale: 'en' as const,
+    setLocale: () => undefined,
+    t: (key: string, fallback?: string | Record<string, string | number>) => {
+      if (typeof fallback === 'string') return fallback;
+      // Strip the lifecycle./health.status. prefix for the tests' convenience.
+      const parts = key.split('.');
+      return parts[parts.length - 1] ?? key;
+    },
+  }),
+  I18nProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
 function renderCard(entry: DepartmentCatalogEntry, to?: string) {
   return render(

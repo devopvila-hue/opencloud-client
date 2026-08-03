@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 export type Theme = 'dark' | 'light';
-export type Branding = 'nexo' | 'moon' | 'opencloud';
+export type Branding = 'departify';
 
 const STORAGE_KEY = 'opc-theme';
+const BRANDING_STORAGE_KEY = 'opc-branding';
 
 interface ThemeContextValue {
   theme: Theme;
@@ -26,7 +27,7 @@ function readInitialTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
-  const [branding, setBrandingState] = useState<Branding>('opencloud');
+  const [branding, setBrandingState] = useState<Branding>('departify');
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -52,7 +53,7 @@ export function useTheme(): ThemeContextValue {
   return ctx;
 }
 
-// Brand configuration — adapts visual identity per product.
+// Brand configuration. Single brand — DEPARTIFY.
 export const brandConfig: Record<Branding, {
   name: string;
   tagline: string;
@@ -60,25 +61,11 @@ export const brandConfig: Record<Branding, {
   description: string;
   domain: string;
 }> = {
-  opencloud: {
-    name: 'OPENCloud',
-    tagline: 'Your Business Operating System.',
+  departify: {
+    name: 'DEPARTIFY',
+    tagline: 'Business Operating System',
     product: 'Business Operating System',
     description: 'Coordinated teams of AI departments that know your business, work with your tools, and execute under your control.',
-    domain: 'opencloud.io',
-  },
-  nexo: {
-    name: 'Nexo',
-    tagline: 'Tu sistema operativo empresarial.',
-    product: 'Sistema Operativo Empresarial',
-    description: 'Equipos coordinados de departamentos de IA que conocen tu empresa, trabajan con tus herramientas y ejecutan bajo tu control.',
-    domain: 'nexo.ai',
-  },
-  moon: {
-    name: ':moon',
-    tagline: 'Co-living con propósito.',
-    product: 'Moon Shared Living',
-    description: 'Matching por compatibilidad, verificación híbrida y comunidad conectada.',
-    domain: 'moonsharedliving.com',
+    domain: 'deptify.com',
   },
 };

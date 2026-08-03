@@ -32,7 +32,15 @@ import {
 export interface I18nContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string, vars?: Record<string, string | number>) => string;
+  /**
+   * `t(key)` returns the translation or the key.
+   * `t(key, fallback)` returns the translation or `fallback` if missing.
+   * `t(key, vars)` interpolates `{name}` placeholders.
+   */
+  t: (
+    key: string,
+    second?: string | Record<string, string | number>,
+  ) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -72,7 +80,12 @@ export function I18nProvider({ children }: I18nProviderProps) {
   // fine because `t` is pure and the cost is negligible — memoising
   // it would only complicate consumers.
   const t = useCallback(
-    (key: string, vars?: Record<string, string | number>) => translate(key, locale, vars),
+    (key: string, second?: string | Record<string, string | number>) => {
+      if (typeof second === 'string') {
+        return translate(key, locale, undefined, second);
+      }
+      return translate(key, locale, second);
+    },
     [locale],
   );
 
@@ -93,8 +106,12 @@ export function useI18n(): I18nContextValue {
     return {
       locale: DEFAULT_LOCALE,
       setLocale: () => undefined,
-      t: (key: string, vars?: Record<string, string | number>) =>
-        translate(key, DEFAULT_LOCALE, vars),
+      t: (key: string, second?: string | Record<string, string | number>) => {
+        if (typeof second === 'string') {
+          return translate(key, DEFAULT_LOCALE, undefined, second);
+        }
+        return translate(key, DEFAULT_LOCALE, second);
+      },
     };
   }
   return ctx;
@@ -108,7 +125,12 @@ export function useI18n(): I18nContextValue {
 export function makeT(): I18nContextValue['t'] {
   const stored = readStoredLocale();
   const locale: Locale = stored ?? (typeof window !== 'undefined' ? detectBrowserLocale() : DEFAULT_LOCALE);
-  return (key, vars) => translate(key, locale, vars);
+  return (key, second) => {
+    if (typeof second === 'string') {
+      return translate(key, locale, undefined, second);
+    }
+    return translate(key, locale, second);
+  };
 }
 
 /** Re-export the catalog for tests that need to assert presence of keys. */

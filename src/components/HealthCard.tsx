@@ -4,6 +4,7 @@ import { cn } from '@/design-system/cn';
 import { Badge, Dot } from './Badge';
 import type { DepartmentHealthApi } from '@/api/schemas';
 import { formatRelativeTime, formatDuration } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const toneByHealth: Record<DepartmentHealthApi, 'emerald' | 'amber' | 'rose' | 'neutral'> = {
   healthy: 'emerald',
@@ -38,7 +39,9 @@ export function HealthCard({
   durationMs,
   className,
 }: HealthCardProps) {
+  const { t } = useI18n();
   const tone = toneByHealth[status];
+  const statusLabel = t(`health.status.${status}`);
   return (
     <motion.div
       whileHover={{ y: -1 }}
@@ -58,7 +61,7 @@ export function HealthCard({
           )}
         </div>
         <Badge tone={tone} size="xs" icon={<Dot tone={tone} pulse={status === 'healthy'} />}>
-          {status}
+          {statusLabel}
         </Badge>
       </div>
       {meta && (

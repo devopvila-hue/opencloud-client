@@ -7,6 +7,7 @@ import { Badge, Dot } from './Badge';
 import type { DepartmentCatalogEntry } from '@/api/schemas';
 import { categoryLabel, departments, getDepartment, iconFromManifest } from '@/design-system/departments';
 import { formatRelativeTime } from '@/utils/format';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const lifecycleTone: Record<string, 'emerald' | 'amber' | 'rose' | 'neutral' | 'cyan' | 'violet'> = {
   active: 'emerald',
@@ -34,13 +35,14 @@ interface DepartmentCardProps {
 }
 
 export function DepartmentCard({ entry, to, onClick }: DepartmentCardProps) {
+  const { t } = useI18n();
   const presentation = departments[entry.key] ?? getDepartment(entry.key);
   const Icon: LucideIcon = iconFromManifest(entry.icon);
   const lifecycle = entry.installation?.lifecycle ?? 'available';
   const health = entry.installation?.health ?? 'unknown';
   const badge = {
     tone: lifecycleTone[lifecycle] ?? 'neutral',
-    label: lifecycle.replace('_', ' '),
+    label: t(`lifecycle.${lifecycle}`, lifecycle.replace('_', ' ')),
   };
 
   const body = (
@@ -74,7 +76,7 @@ export function DepartmentCard({ entry, to, onClick }: DepartmentCardProps) {
           </Badge>
           {lifecycle === 'active' && (
             <Badge tone={healthTone[health] ?? 'neutral'} size="xs" icon={<Dot tone={healthTone[health] ?? 'neutral'} pulse={health === 'healthy'} />}>
-              {health}
+              {t(`health.status.${health}`, health)}
             </Badge>
           )}
         </div>
