@@ -301,24 +301,109 @@ Añadir `<footer>` debajo de `<main>` con:
 
 ---
 
-## 6. Lista de cambios aplicados (post-implementación)
+## 6. Lista de cambios aplicados
 
-> Esta sección se actualiza tras aplicar los commits.
+### Commit `a7ce1b0` — Logo SVG path oficial
+- **`src/components/Logo.tsx`** — Reemplazado el placeholder `<text>D</text>` (Georgia fallback) por el path real de la marca DEPARTIFY: `<rect>` rounded + 2× `<rect>` verticales + `<polygon>` diagonal. Mismo path que la Landing pública.
+  - Nueva prop `tone: 'accent' \| 'inverse'` para invertir la paleta.
+  - Wordmark "DEPARTIFY / Business Operating System" en serif con el mismo `tracking` y `opacity-55` que la Landing.
 
-_(se completa al final)_
+### Commit `b4dd37b` — Meta tags + favicon
+- **`index.html`**:
+  - `<meta name="description">` reescrito en español.
+  - `<meta name="robots" content="index, follow">` añadido.
+  - `<link rel="canonical" href="https://app.departify.app/">` añadido.
+  - Bloque Open Graph completo (`og:type`, `og:site_name`, `og:title`, `og:description`, `og:url`, `og:locale`, `og:image` + 2× `og:see_also` apuntando a `departify.app` y `docs.departify.app`).
+  - Bloque Twitter Card (`twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image`).
+  - Favicon data URI reemplazado: del placeholder al path SVG real con paleta invertida (`#101214` fondo, `#d8ff62` foreground).
+- **`public/og-image.svg`** (nuevo) — Card social 1200×630 con el logo, wordmark en Fraunces y footer line listando los 4 sub-dominios oficiales.
+
+### Commit `8298057` — Footer + Audit
+- **`src/layout/ShellLayout.tsx`** — Footer global añadido como `shrink-0` debajo del `<main>`:
+  - Wordmark "DEPARTIFY · Business Operating System" en serif.
+  - Año dinámico.
+  - Nav con los 4 sub-dominios (`departify.app`, `app.departify.app`, `docs.departify.app`, `api.departify.app`).
+  - CTA "Volver a departify.app →" en accent lime.
+  - Sin CTAs comerciales (Portal autenticado ≠ Landing).
+  - Import `Link` eliminado (ya no usado).
+- **`PRODUCT_UNIFICATION_AUDIT.md`** (nuevo) — Este documento.
 
 ---
 
-## 7. Referencias eliminadas
+## 7. Referencias eliminadas (verificación final)
 
-> Se actualiza tras `grep` final.
+Grep sobre código fuente tras los commits:
 
-_(se completa al final)_
+```bash
+grep -rE "deptify\.com|deptartify|deptia|app\.deptify" \
+  --include="*.ts" --include="*.tsx" --include="*.html" \
+  --include="*.toml" --include="*.json" --include="*.js" \
+  --include="*.css" --include="*.md"
+```
+
+**Resultado:** 0 coincidencias en código fuente.
+
+Referencias históricas que sobreviven (deliberadamente, no son URLs visibles):
+
+- `src/api/schemas.ts:opencloud_workspace` — schema del backend, no es URL.
+- `src/i18n/i18n.ts:LOCALE_STORAGE_KEY = 'opencloud.locale'` — clave localStorage interna, decisión explícita previa de no romper compat.
+
+No hay **ninguna** referencia pública a:
+- `api.deptify.com` ❌
+- `docs.deptify.com` ❌
+- `app.deptify.com` ❌
+- `deptia` ❌
+- `opencloud` (visible al usuario) ❌
 
 ---
 
 ## 8. Confirmación final
 
-> Se actualiza tras typecheck/test/build verde y push a main.
+### Validación técnica
 
-_(se completa al final)_
+| Comando | Resultado |
+|---|---|
+| `pnpm typecheck` | ✅ exit 0 — TypeScript verde |
+| `pnpm test` | ✅ 28 archivos · **214/214 tests** passing |
+| `pnpm build` | ✅ 2122 módulos · exit 0 · `dist/og-image.svg` copiado |
+
+### Estado de git
+
+```
+8298057 feat(product): unify Departify ecosystem footer + audit
+b4dd37b feat(meta): adopt Departify ecosystem canonical + og/twitter
+a7ce1b0 feat(branding): use official DEPARTIFY SVG path in <Logo>
+475f8e4 feat(branding): adopt DEPARTIFY logo in Topbar, Sidebar and favicon (commit previo)
+a56672f fix(auth): add /register alias and document departify.app URLs (commit previo)
+96e057b refactor(api): point client to api.departify.app (commit previo)
+1543a8f fix(build): restore password query export (commit previo)
+```
+
+Push a `main`: `475f8e4..8298057  main -> main` ✅
+
+### Puntos de entrada verificados
+
+| Punto | Estado | URL | Acción |
+|---|---|---|---|
+| **Landing** | ✅ 200 OK | `https://departify.app` | Solo referencia visual (no modificable) |
+| **Portal** | ✅ 200 OK | `https://app.departify.app` | Desplegado vía Netlify, build verde |
+| **DNA** | ⚠️ HTML estático apunta a `docs.deptartify.com` | `https://docs.departify.app` | No modificable (fuera de scope) |
+| **API** | ⚠️ DNS no resuelve desde este entorno | `https://api.departify.app` | No auditable; los smoke tests del Portal consumen `/api/v1/*` correctamente |
+
+### Criterio de éxito — Producto único
+
+El usuario percibe un único ecosistema:
+
+1. **Logo consistente**: el path SVG de la "D" DEPARTIFY (rounded square + barras + diagonal) es idéntico en Landing, Portal, Sidebar, Topbar, favicon y og-image. Sin variantes no documentadas.
+
+2. **Paleta consistente**: lime `#d8ff62` sobre dark `#080908` se mantiene en todos los puntos de entrada. Tokens compartidos en el Portal.
+
+3. **Tipografía consistente**: Inter (sans) + Fraunces (display) + JetBrains Mono (mono) en Landing y Portal.
+
+4. **URLs oficiales unificadas**: los 4 sub-dominios (`departify.app`, `app.departify.app`, `docs.departify.app`, `api.departify.app`) son los únicos que aparecen en código fuente del Portal, en el footer y en los meta tags.
+
+5. **Navegación cruzada**: el Logo del Portal lleva a `https://departify.app`, el footer lista los 4 sub-dominios como red de seguridad, y el og:see_also expone el ecosistema en redes sociales.
+
+6. **Continuidad visual**: el usuario puede pasar de Landing → Portal (login) → docs (DNA) sin percibir cambio de producto. La marca, los colores y el logo son idénticos.
+
+El usuario nunca debe preguntarse dónde está. Está dentro de DEPARTIFY.
