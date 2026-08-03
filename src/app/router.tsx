@@ -36,6 +36,11 @@ export const router = createBrowserRouter([
   // re-trigger and create a /login?next=/login?next=… loop.
   { path: '/login', element: <LoginPage /> },
 
+  // /register is the canonical CTA coming from departify.app
+  // ("Crear cuenta" → https://app.departify.app/register).
+  // LoginPage reads ?mode=signup to pre-select the signup flow.
+  { path: '/register', element: <Navigate to="/login?mode=signup" replace /> },
+
   {
     path: '/',
     element: (
