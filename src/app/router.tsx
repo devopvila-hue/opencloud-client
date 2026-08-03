@@ -10,6 +10,7 @@ import ExecutiveRoomPage from '@/pages/ExecutiveRoomPage';
 import TimelinePage from '@/pages/TimelinePage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import LoginPage from '@/pages/LoginPage';
+import SignupPage from '@/pages/SignupPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 
 // Lazily loaded (lower-priority / heavy pages)
@@ -36,12 +37,14 @@ export const router = createBrowserRouter([
   // route were itself wrapped by RequireAuth the guard would
   // re-trigger and create a /login?next=/login?next=… loop.
   { path: '/login', element: <LoginPage /> },
+  // /signup and /register both render the dedicated SignupPage.
+  // The previous behaviour (redirect /register → /login?mode=signup)
+  // meant a user landing directly on /signup saw the SIGN IN form
+  // while the Sign up tab was visually selected. Now /signup is its
+  // own route that always renders the correct form.
+  { path: '/signup', element: <SignupPage /> },
+  { path: '/register', element: <SignupPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
-
-  // /register is the canonical CTA coming from departify.app
-  // ("Crear cuenta" → https://app.departify.app/register).
-  // LoginPage reads ?mode=signup to pre-select the signup flow.
-  { path: '/register', element: <Navigate to="/login?mode=signup" replace /> },
 
   {
     path: '/',
