@@ -7,7 +7,7 @@ import {
   type LucideIcon,
   Search,
   Shield,
-  Sparkles,
+  SearchX,
   Star,
   Store,
 } from 'lucide-react';
@@ -130,10 +130,10 @@ export default function MarketplacePage() {
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon={<Sparkles className="h-5 w-5" />}
-          title="No apps match"
-          description="Try a different search or remove filters."
-          action={<Button onClick={() => { setQuery(''); setCategory('all'); }}>Reset filters</Button>}
+          icon={<SearchX className="h-5 w-5" />}
+          title="Sin resultados"
+          description="Prueba con otra búsqueda o quita filtros."
+          action={<Button onClick={() => { setQuery(''); setCategory('all'); }}>Limpiar filtros</Button>}
         />
       ) : (
         <motion.div
@@ -156,16 +156,16 @@ export default function MarketplacePage() {
       <Card padding="md">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Hint
-            title="What is a department app?"
-            description="A bundle of agent capabilities, prompts and policies ready to work for your company."
+            title="¿Qué es una app de departamento?"
+            description="Un paquete de capacidades y políticas listo para trabajar en tu empresa."
           />
           <Hint
-            title="How do I install one?"
-            description="Click Install. We provision the workspace, register the manager agent and run the first health check."
+            title="¿Cómo instalo una?"
+            description="Pulsa Instalar. Aprovisionamos el espacio, registramos al responsable y lanzamos la primera comprobación."
           />
           <Hint
-            title="Can I remove apps?"
-            description="Yes. Open any department page and press Deactivate. Data is preserved."
+            title="¿Puedo eliminar apps?"
+            description="Sí. Abre la página del departamento y desactívalo. Los datos se conservan."
           />
         </div>
       </Card>

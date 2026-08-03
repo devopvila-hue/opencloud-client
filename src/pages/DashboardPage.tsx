@@ -4,6 +4,7 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  Briefcase,
   Calendar,
   CheckCircle2,
   Clock,
@@ -15,7 +16,6 @@ import {
   Megaphone,
   MessageSquare,
   Plug,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 import { Card, CardHeader } from '@/components/Card';
@@ -172,7 +172,7 @@ export default function DashboardPage() {
         {activeDepartments.length === 0 ? (
           <Card>
             <EmptyState
-              icon={<Sparkles className="h-5 w-5" />}
+              icon={<Briefcase className="h-5 w-5" />}
               title="Activa tu primer equipo"
               description="Elige un departamento y empezaremos a trabajar para tu empresa."
               action={<Button onClick={() => (window.location.href = '/marketplace')}>Ver departamentos</Button>}
@@ -238,19 +238,19 @@ export default function DashboardPage() {
           <motion.section variants={fadeUp}>
             <Card>
               <CardHeader
-                title="What needs your attention"
-                subtitle={attentionTasks.length === 0 ? 'Nothing urgent. Nice work.' : `${attentionTasks.length} items need action`}
+                title="Lo que necesita tu atención"
+                subtitle={attentionTasks.length === 0 ? 'Nada urgente. Buen trabajo.' : `${attentionTasks.length} pendientes de acción`}
                 action={
                   <Button variant="ghost" size="sm" iconRight={<ArrowRight className="h-4 w-4" />} onClick={() => (window.location.href = '/tasks')}>
-                    Open queue
+                    Ver cola
                   </Button>
                 }
               />
               {attentionTasks.length === 0 ? (
                 <EmptyState
-                  icon={<Sparkles className="h-5 w-5" />}
-                  title="Nothing needs your attention"
-                  description="Approvals, failures and expirations will surface here in real time."
+                  icon={<CheckCircle2 className="h-5 w-5" />}
+                  title="Nada necesita tu atención"
+                  description="Las aprobaciones, errores y vencimientos aparecerán aquí en tiempo real."
                 />
               ) : (
                 <div className="space-y-2">
@@ -266,8 +266,8 @@ export default function DashboardPage() {
           <motion.section variants={fadeUp}>
             <Card>
               <CardHeader
-                title="Recent activity"
-                subtitle="Tasks and internal messages across every department"
+                title="Actividad reciente"
+                subtitle="Tareas y mensajes de todos los departamentos"
               />
               <ActivityFeed tasks={tasks.data ?? []} messages={messages.data ?? []} limit={10} />
             </Card>
@@ -277,20 +277,20 @@ export default function DashboardPage() {
           <motion.section variants={fadeUp}>
             <Card>
               <CardHeader
-                title="Department health"
-                subtitle="Live status from each active department"
+                title="Salud de los departamentos"
+                subtitle="Estado en tiempo real de cada equipo activo"
                 action={
                   <Button variant="ghost" size="sm" iconRight={<ArrowRight className="h-4 w-4" />} onClick={() => (window.location.href = '/departments')}>
-                    All departments
+                    Ver todos
                   </Button>
                 }
               />
               {activeDepartments.length === 0 ? (
                 <EmptyState
                   icon={<Crown className="h-5 w-5" />}
-                  title="No departments activated yet"
-                  description="Activate a department from the catalog to see live health here."
-                  action={<Button onClick={() => (window.location.href = '/departments')}>Open catalog</Button>}
+                  title="Aún no hay departamentos activos"
+                  description="Activa uno desde el catálogo para ver su estado en vivo."
+                  action={<Button onClick={() => (window.location.href = '/departments')}>Ver catálogo</Button>}
                 />
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -413,7 +413,7 @@ export default function DashboardPage() {
                     showLabel
                     size="sm"
                   />
-                  <div className="mt-1 text-xs text-[color:var(--color-fg-3)]">Department activation</div>
+                  <div className="mt-1 text-xs text-[color:var(--color-fg-3)]">Equipos activos</div>
                 </li>
               </ul>
               <div className="mt-4">

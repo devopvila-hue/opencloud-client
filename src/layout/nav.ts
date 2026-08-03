@@ -15,7 +15,7 @@ import {
   Megaphone,
   ShoppingCart,
   Clock,
-  Sparkles,
+  Compass,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -38,7 +38,7 @@ export const navItems: NavItem[] = [
   { labelKey: 'nav.chat',              descriptionKey: 'common.search',        to: '/chat',            icon: MessageSquare,  group: 'primary',   shortcut: 'g c' },
   { labelKey: 'nav.departments',       descriptionKey: 'departments.header.subtitle', to: '/departments',  icon: LayoutGrid,    group: 'primary',   shortcut: 'g d' },
   { labelKey: 'nav.marketplace',       descriptionKey: 'marketplace.header.subtitle', to: '/marketplace',  icon: ShoppingCart,  group: 'primary',   shortcut: 'g m' },
-  { labelKey: 'nav.onboarding',        descriptionKey: 'onboarding.title',    to: '/onboarding',      icon: Sparkles,       group: 'secondary', shortcut: 'g o' },
+  { labelKey: 'nav.onboarding',        descriptionKey: 'onboarding.title',    to: '/onboarding',      icon: Compass,        group: 'secondary', shortcut: 'g o' },
   { labelKey: 'nav.agents',            descriptionKey: 'common.search',        to: '/agents',          icon: Bot,            group: 'primary',   shortcut: 'g a' },
   { labelKey: 'nav.tasks',             descriptionKey: 'tasks.header.subtitle', to: '/tasks',         icon: ClipboardList,  group: 'primary',   shortcut: 'g t' },
   { labelKey: 'nav.timeline',          descriptionKey: 'office.header.subtitle', to: '/timeline',      icon: Clock,          group: 'secondary', shortcut: 'g t' },

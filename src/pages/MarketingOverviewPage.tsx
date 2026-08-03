@@ -8,12 +8,13 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  Compass,
   Crown,
   FileText,
   Megaphone,
   MessageSquare,
   Settings as SettingsIcon,
-  Sparkles,
+  Target,
 } from 'lucide-react';
 import { Card, CardHeader, CardSection } from '@/components/Card';
 import { Badge, Dot } from '@/components/Badge';
@@ -56,7 +57,7 @@ const MARKETING_SPECIALISTS: SpecialistView[] = [
 
 const WORKFLOWS = [
   { id: 'investigation', name: 'Investigación', description: 'Mercado → competencia → marca', icon: BarChart3, specialists: ['market-research', 'brand-manager'] },
-  { id: 'strategy', name: 'Estrategia', description: 'Posicionamiento → contenido → roadmap', icon: Sparkles, specialists: ['brand-manager', 'content-strategist'] },
+  { id: 'strategy', name: 'Estrategia', description: 'Posicionamiento → contenido → roadmap', icon: Compass, specialists: ['brand-manager', 'content-strategist'] },
   { id: 'editorial_plan', name: 'Plan editorial', description: 'Pilares → calendario → canales', icon: Calendar, specialists: ['content-strategist', 'social-media'] },
   { id: 'production', name: 'Producción', description: 'Copy → email → social', icon: FileText, specialists: ['copywriter', 'email-marketing', 'social-media'] },
   { id: 'review', name: 'Revisión', description: 'Validación de marca', icon: CheckCircle2, specialists: ['brand-manager'] },
@@ -353,10 +354,10 @@ export default function MarketingOverviewPage() {
                 onClick={() => (window.location.href = '/chat/new?department=marketing')}
               />
               <QuickAction
-                icon={<Sparkles className="h-4 w-4" />}
+                icon={<Target className="h-4 w-4" />}
                 label={t('marketing.quick.campaign.label')}
                 hint={t('marketing.quick.campaign.hint')}
-                onClick={() => (window.location.href = '/chat/new?department=marketing&prompt=campaign')}
+                onClick={() => (window.location.href = '/chat/new?department=marketing&campaign=1')}
               />
               <QuickAction
                 icon={<SettingsIcon className="h-4 w-4" />}

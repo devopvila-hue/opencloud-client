@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Compass,
   Crown,
-  Sparkles,
   Rocket,
   Megaphone,
   Calculator,
@@ -109,7 +109,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-governance)]/15',
     cssVar: '--color-dept-governance',
     color: '#a855f7',
-    shortDescription: 'Strategic coordination and inter-department orchestration.',
+    shortDescription: 'Coordinación estratégica entre departamentos.',
     outcomes: {
       es: 'Coordina tu empresa como un solo equipo.',
       en: 'Coordinates your company as a single team.',
@@ -128,13 +128,13 @@ export const departments: Record<string, DepartmentPresentation> = {
     name: 'Platform Assistant',
     shortName: 'Platform',
     category: 'internal',
-    icon: Sparkles,
+    icon: Compass,
     accentText: 'text-[color:var(--color-dept-internal)]',
     accentBg: 'bg-[color:var(--color-dept-internal)]',
     accentSoft: 'bg-[color:var(--color-dept-internal)]/15',
     cssVar: '--color-dept-internal',
     color: '#c7c8d4',
-    shortDescription: 'System-level validation and internal coordination.',
+    shortDescription: 'Validación del sistema y coordinación interna.',
     outcomes: {
       es: 'Te ayuda a configurar la plataforma sin esperar.',
       en: 'Helps you set up the platform without waiting.',
@@ -159,7 +159,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
     cssVar: '--color-dept-revenue',
     color: '#f472b6',
-    shortDescription: 'Growth strategy, audience development, demand generation.',
+    shortDescription: 'Estrategia de crecimiento, desarrollo de audiencia y generación de demanda.',
     outcomes: {
       es: 'Consigue más clientes cada semana.',
       en: 'Get more customers every week.',
@@ -184,7 +184,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
     cssVar: '--color-dept-revenue',
     color: '#f472b6',
-    shortDescription: 'Pipeline, qualification and commercial closing.',
+    shortDescription: 'Pipeline, cualificación y cierre comercial.',
     outcomes: {
       es: 'Cierra más tratos sin perder el control.',
       en: 'Close more deals without losing control.',
@@ -209,7 +209,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
     cssVar: '--color-dept-revenue',
     color: '#f472b6',
-    shortDescription: 'Brand campaigns, positioning and performance.',
+    shortDescription: 'Campañas de marca, posicionamiento y resultados.',
     outcomes: {
       es: 'Consigue más clientes con tu marca.',
       en: 'Get more customers with your brand.',
@@ -234,7 +234,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
     cssVar: '--color-dept-operations',
     color: '#38bdf8',
-    shortDescription: 'Financial planning, budgeting and reporting.',
+    shortDescription: 'Planificación financiera, presupuestos y reporting.',
     outcomes: {
       es: 'Lleva tus números al día sin esfuerzo.',
       en: 'Keeps your books current without effort.',
@@ -259,7 +259,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
     cssVar: '--color-dept-operations',
     color: '#38bdf8',
-    shortDescription: 'Internal automation and operational orchestration.',
+    shortDescription: 'Automatización interna y coordinación operativa.',
     outcomes: {
       es: 'Automatiza lo repetitivo de tu negocio.',
       en: 'Automates the repetitive work in your business.',
@@ -284,7 +284,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-people)]/15',
     cssVar: '--color-dept-people',
     color: '#a78bfa',
-    shortDescription: 'People operations, hiring and culture.',
+    shortDescription: 'Operaciones de personas, contratación y cultura.',
     outcomes: {
       es: 'Encuentra y cuida a tu equipo.',
       en: 'Finds and takes care of your team.',
@@ -309,7 +309,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-customer)]/15',
     cssVar: '--color-dept-customer',
     color: '#34d399',
-    shortDescription: 'Customer support and success operations.',
+    shortDescription: 'Atención al cliente y operaciones de éxito.',
     outcomes: {
       es: 'Atiende a tus clientes sin perder calidad.',
       en: 'Serves your customers without losing quality.',
@@ -334,7 +334,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-compliance)]/15',
     cssVar: '--color-dept-compliance',
     color: '#fbbf24',
-    shortDescription: 'Contracts, compliance and legal review.',
+    shortDescription: 'Contratos, cumplimiento y revisión legal.',
     outcomes: {
       es: 'Tu empresa cumple sin complicarte.',
       en: 'Keeps your company compliant, hassle-free.',
@@ -359,7 +359,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
     cssVar: '--color-dept-operations',
     color: '#38bdf8',
-    shortDescription: 'Operational analytics and business intelligence.',
+    shortDescription: 'Analítica operativa e inteligencia de negocio.',
     outcomes: {
       es: 'Convierte datos en decisiones claras.',
       en: 'Turns data into clear decisions.',
@@ -384,7 +384,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
     cssVar: '--color-dept-revenue',
     color: '#f472b6',
-    shortDescription: 'Editorial calendar, copywriting and content production.',
+    shortDescription: 'Calendario editorial, redacción y producción de contenido.',
     outcomes: {
       es: 'Publica contenido que conecta y convierte.',
       en: 'Publishes content that connects and converts.',
@@ -409,7 +409,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
     cssVar: '--color-dept-revenue',
     color: '#f472b6',
-    shortDescription: 'Search visibility, technical SEO and content ranking.',
+    shortDescription: 'Visibilidad en buscadores, SEO técnico y posicionamiento.',
     outcomes: {
       es: 'Posiciona tu marca donde te buscan.',
       en: 'Ranks your brand where customers look.',
@@ -434,7 +434,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-governance)]/15',
     cssVar: '--color-dept-governance',
     color: '#a855f7',
-    shortDescription: 'Risk management, internal controls and decision governance.',
+    shortDescription: 'Gestión de riesgos, controles internos y gobierno de decisiones.',
     outcomes: {
       es: 'Reduce el riesgo sin frenar el negocio.',
       en: 'Lowers risk without slowing the business down.',
@@ -459,7 +459,7 @@ export const departments: Record<string, DepartmentPresentation> = {
     accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
     cssVar: '--color-dept-operations',
     color: '#38bdf8',
-    shortDescription: 'Supply chain, fulfilment and operational logistics.',
+    shortDescription: 'Cadena de suministro, fulfilment y logística operativa.',
     outcomes: {
       es: 'Tu operativa fluye sin sobresaltos.',
       en: 'Your operations run without surprises.',
@@ -498,7 +498,6 @@ export const categoryLabel: Record<DepartmentCategory, string> = {
 export function iconFromManifest(name: string): LucideIcon {
   const map: Record<string, LucideIcon> = {
     crown: Crown,
-    sparkles: Sparkles,
     rocket: Rocket,
     megaphone: Megaphone,
     calculator: Calculator,

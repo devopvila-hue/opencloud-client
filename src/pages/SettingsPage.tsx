@@ -81,7 +81,7 @@ export default function SettingsPage() {
       </header>
 
       <Card>
-        <CardHeader title={t('settings.profile.title')} subtitle="Information tied to your account" />
+        <CardHeader title={t('settings.profile.title')} subtitle="Información asociada a tu cuenta" />
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-accent-soft)] text-[color:var(--color-accent)]">
             <User2 className="h-6 w-6" />
@@ -143,7 +143,7 @@ export default function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader title={t('settings.notifications.title')} subtitle="Choose how the portal reaches you" />
+        <CardHeader title={t('settings.notifications.title')} subtitle="Cómo prefieres que el portal te avise" />
         <div className="space-y-2 text-sm">
           <Toggle
             icon={<Bell className="h-4 w-4" />}

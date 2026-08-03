@@ -65,7 +65,7 @@ export default function ExecutiveRoomPage() {
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
         <div className="flex items-center gap-3 text-text-muted">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Cargando Executive Room...</span>
+          <span>Cargando Sala Ejecutiva...</span>
         </div>
       </div>
     );
@@ -75,7 +75,7 @@ export default function ExecutiveRoomPage() {
     return (
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
         <EmptyState
-          title="Sin datos del Executive Room"
+          title="Sin datos de la Sala Ejecutiva"
           description="La sala del Executive Director no tiene datos todavía."
         />
       </div>
@@ -96,7 +96,7 @@ export default function ExecutiveRoomPage() {
             <Crown className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold">Executive Room</h1>
+            <h1 className="text-2xl font-semibold">Sala Ejecutiva</h1>
             <p className="text-sm text-text-muted">
               Vista en vivo de la empresa: departamentos, orquestaciones activas, mensajes del
               Department Bus y KPIs operativos.
@@ -107,7 +107,7 @@ export default function ExecutiveRoomPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="accent">Phase 6</Badge>
+          <Badge tone="accent">Fase beta</Badge>
           <Link to="/timeline">
             <Button variant="ghost" size="sm">
               <Activity className="mr-1 h-4 w-4" />
@@ -162,13 +162,13 @@ export default function ExecutiveRoomPage() {
         <Card className="lg:col-span-2">
           <CardHeader
             title="Departamentos"
-            subtitle="Estado live del runtime por departamento. Cada departamento refleja su integración en el Department Bus."
+            subtitle="Estado en tiempo real del runtime por departamento. Cada departamento refleja su integración en el bus."
           />
           <CardSection>
             {roomData.departments.length === 0 ? (
               <EmptyState
                 title="Sin departamentos"
-                description="Activa algún departamento para ver el estado en vivo."
+                description="Activa algún departamento para ver su estado en vivo."
               />
             ) : (
               <div className="space-y-3">
@@ -218,7 +218,7 @@ export default function ExecutiveRoomPage() {
                           <Timer className="mr-1 inline h-3 w-3" />
                           {d.pending_tasks} pendientes
                         </span>
-                        <span title="Completadas hoy">
+                        <span title="Terminadas hoy">
                           <CheckCircle2 className="mr-1 inline h-3 w-3" />
                           {d.completed_today} hoy
                         </span>

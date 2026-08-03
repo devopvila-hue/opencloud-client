@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronRight,
   ClipboardList,
+  Compass,
   History,
   Loader2,
   Pause,
@@ -15,7 +16,6 @@ import {
   RefreshCw,
   Settings as SettingsIcon,
   ShieldCheck,
-  Sparkles,
   Wrench,
 } from 'lucide-react';
 import { Card, CardHeader, CardSection } from '@/components/Card';
@@ -81,7 +81,10 @@ export default function DepartmentDetailPage() {
 
   const entry: DepartmentCatalogEntry | undefined = (catalog.data ?? []).find((c) => c.key === id);
   const presentation = getDepartment(id);
-  const Icon = iconFromManifest(def.data?.manifest.icon ?? entry?.icon ?? 'sparkles');
+  const Icon =
+    iconFromManifest(def.data?.manifest.icon ?? entry?.icon ?? '') ??
+    presentation?.icon ??
+    Compass;
 
   const lifecycle = def.data?.installation?.lifecycle ?? entry?.installation?.lifecycle ?? 'available';
   const health = def.data?.installation?.health ?? entry?.installation?.health ?? 'unknown';
@@ -271,7 +274,7 @@ export default function DepartmentDetailPage() {
             {def.data?.manager?.agent_id ?? entry?.manager?.agent_id ?? '—'}
           </div>
           <div className="mt-1 text-xs text-[color:var(--color-fg-3)]">
-            {entry?.manager ? `Last seen ${formatRelativeTime(entry.manager.last_seen_at)}` : 'Not registered'}
+            {entry?.manager ? `Visto por última vez ${formatRelativeTime(entry.manager.last_seen_at)}` : 'Sin registrar'}
           </div>
         </Card>
         <Card>
@@ -294,7 +297,7 @@ export default function DepartmentDetailPage() {
         <div className="space-y-6 lg:col-span-2">
           {/* Capabilities */}
           <Card>
-            <CardHeader title="Capabilities" subtitle="What this department can do" />
+            <CardHeader title="Qué puede hacer" subtitle="Capacidades reales de este equipo" />
             <div className="flex flex-wrap gap-2">
               {(def.data?.manifest.capabilities ?? entry?.capabilities ?? []).map((c) => (
                 <span
@@ -310,19 +313,19 @@ export default function DepartmentDetailPage() {
           {/* Tasks */}
           <Card>
             <CardHeader
-              title="Recent tasks"
-              subtitle={`${(tasks.data ?? []).length} total for ${entry?.name ?? id}`}
+              title="Tareas recientes"
+              subtitle={`${(tasks.data ?? []).length} en ${entry?.name ?? id}`}
               action={
                 <Link to="/tasks" className="text-xs text-[color:var(--color-fg-3)] hover:text-[color:var(--color-fg-1)]">
-                  Open queue →
+                  Ver cola completa →
                 </Link>
               }
             />
             {(tasks.data ?? []).length === 0 ? (
               <EmptyState
-                icon={<Sparkles className="h-5 w-5" />}
-                title="No tasks yet"
-                description="Once the department is activated and the Executive Director delegates work, tasks will appear here."
+                icon={<ClipboardList className="h-5 w-5" />}
+                title="Aún no hay tareas"
+                description="Cuando el equipo empiece a trabajar, las tareas aparecerán aquí."
               />
             ) : (
               <ul className="space-y-2">
@@ -337,13 +340,13 @@ export default function DepartmentDetailPage() {
 
           {/* Activity */}
           <Card>
-            <CardHeader title="Internal activity" subtitle="Live stream of internal messages for this department" />
+            <CardHeader title="Actividad del equipo" subtitle="Últimos mensajes y tareas del departamento" />
             <ActivityFeed tasks={tasks.data ?? []} messages={messages.data ?? []} limit={15} />
           </Card>
 
           {/* Audit / last health detail */}
           <Card>
-            <CardHeader title="Last health check" subtitle="Detailed checks performed during the most recent health run" />
+            <CardHeader title="Última comprobación" subtitle="Detalle del último chequeo de salud" />
             {lastHealth ? (
               <div className="space-y-2">
                 <div className="text-xs text-[color:var(--color-fg-3)]">
@@ -373,9 +376,9 @@ export default function DepartmentDetailPage() {
             ) : (
               <EmptyState
                 icon={<History className="h-5 w-5" />}
-                title="No health check run yet"
-                description="Run a health check from the toolbar above to populate this card."
-                action={<Button onClick={onHealth} loading={healthCheck.isPending}>Run health check</Button>}
+                title="Aún no hay comprobaciones"
+                description="Lanza una desde la barra superior para ver el detalle."
+                action={<Button onClick={onHealth} loading={healthCheck.isPending}>Comprobar ahora</Button>}
               />
             )}
           </Card>
@@ -384,7 +387,7 @@ export default function DepartmentDetailPage() {
         <div className="space-y-6">
           {/* Manager */}
           <Card>
-            <CardHeader title="Manager" subtitle="Lead agent coordinating this department" />
+            <CardHeader title="Dirección del equipo" subtitle="Persona responsable de coordinar este departamento" />
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[color:var(--color-bg-3)]">
                 <Bot className="h-5 w-5 text-[color:var(--color-fg-2)]" />
@@ -394,7 +397,7 @@ export default function DepartmentDetailPage() {
                   {def.data?.manager?.agent_id ?? entry?.manager?.agent_id ?? `${id}-manager`}
                 </div>
                 <div className="text-xs text-[color:var(--color-fg-3)]">
-                  Role: {def.data?.manager?.role ?? 'manager'}
+                  Cargo: {def.data?.manager?.role ?? 'Dirección'}
                 </div>
                 <div className="mt-2">
                   <Badge tone={entry?.manager?.status === 'active' ? 'emerald' : 'neutral'} size="xs" icon={<Dot tone={entry?.manager?.status === 'active' ? 'emerald' : 'neutral'} pulse={entry?.manager?.status === 'active'} />}>
@@ -407,7 +410,7 @@ export default function DepartmentDetailPage() {
 
           {/* Specialists (inferred from capabilities) */}
           <Card>
-            <CardHeader title="Capabilities & specialists" subtitle="Specialists are auto-derived from the manifest" />
+            <CardHeader title="Capacidades y especialistas" subtitle="Cada capacidad se asigna a un especialista" />
             <ul className="space-y-2 text-sm">
               {(def.data?.manifest.capabilities ?? entry?.capabilities ?? []).map((cap) => (
                 <li
@@ -415,7 +418,7 @@ export default function DepartmentDetailPage() {
                   className="flex items-center justify-between rounded-md border border-[color:var(--color-line)] px-3 py-2"
                 >
                   <span className="text-[color:var(--color-fg-2)]">{cap}</span>
-                  <Badge tone="cyan" size="xs">specialist</Badge>
+                  <Badge tone="cyan" size="xs">especialista</Badge>
                 </li>
               ))}
             </ul>
@@ -424,7 +427,7 @@ export default function DepartmentDetailPage() {
           {/* Dependencies */}
           {(def.data?.manifest.dependencies ?? entry?.dependencies ?? []).length > 0 && (
             <Card>
-              <CardHeader title="Dependencies" />
+              <CardHeader title="Dependencias" />
               <ul className="space-y-1 text-sm">
                 {(def.data?.manifest.dependencies ?? entry?.dependencies ?? []).map((d) => (
                   <li key={d} className="flex items-center gap-2 text-[color:var(--color-fg-2)]">
@@ -439,7 +442,7 @@ export default function DepartmentDetailPage() {
           {/* Workspace */}
           {def.data?.installation?.workspace_path && (
             <Card>
-              <CardHeader title="Workspace" subtitle="On-disk path where this department runs" />
+              <CardHeader title="Espacio de trabajo" subtitle="Ruta donde corre este departamento" />
               <code className="block break-all rounded-md bg-[color:var(--color-bg-3)] px-3 py-2 font-mono text-xs text-[color:var(--color-fg-2)]">
                 {def.data.installation.workspace_path}
               </code>
@@ -449,22 +452,22 @@ export default function DepartmentDetailPage() {
           {/* Errors */}
           {def.data?.installation?.last_error && (
             <Card>
-              <CardHeader title="Last error" />
+              <CardHeader title="Último error" />
               <Textarea defaultValue={truncate(def.data.installation.last_error, 240)} readOnly rows={3} />
             </Card>
           )}
 
           {/* Audit hint */}
           <Card>
-            <CardHeader title="Audit trail" subtitle="Lifecycle changes are recorded automatically" />
+            <CardHeader title="Historial" subtitle="Cada cambio de estado queda registrado" />
             <p className="text-xs text-[color:var(--color-fg-3)]">
-              Every activate / suspend / deactivate event is appended to the corporate audit log. Use the Analytics page for system-wide visibility.
+              Cada activación, suspensión o desactivación se añade al historial corporativo. Consulta la página de Analítica para una visión global.
             </p>
             <div className="mt-3 flex items-center gap-2 text-xs text-[color:var(--color-fg-3)]">
               <ClipboardList className="h-3.5 w-3.5" />
               {def.data?.installation?.activated_at
-                ? `Activated ${formatRelativeTime(def.data.installation.activated_at)}`
-                : 'Never activated'}
+                ? `Activado ${formatRelativeTime(def.data.installation.activated_at)}`
+                : 'Nunca activado'}
             </div>
           </Card>
         </div>
@@ -491,8 +494,8 @@ export default function DepartmentDetailPage() {
             These settings are validated against the manifest's <code>configurationSchema</code>.
           </p>
           <Field
-            label="Approval mode"
-            hint="Hybrid = auto-approve low risk, manual for high risk"
+            label="Modo de aprobación"
+            hint="Híbrido = aprobación automática para bajo riesgo, manual para alto riesgo"
             value={(configDraft.approval_mode as string) ?? 'hybrid'}
             onChange={(e) => setConfigDraft((p) => ({ ...p, approval_mode: e.target.value }))}
           />

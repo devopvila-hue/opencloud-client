@@ -104,10 +104,10 @@ describe('TimelinePage', () => {
     });
   });
 
-  it('shows Phase 6 badge', async () => {
+  it('shows the Fase beta badge', async () => {
     renderWithProviders(React.createElement(TimelinePage));
     await waitFor(() => {
-      expect(screen.getByText('Phase 6')).toBeInTheDocument();
+      expect(screen.getByText('Fase beta')).toBeInTheDocument();
     });
   });
 

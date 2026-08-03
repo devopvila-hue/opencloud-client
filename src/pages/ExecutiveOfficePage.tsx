@@ -18,7 +18,6 @@ import {
   Pause,
   Play,
   Plus,
-  Sparkles,
   Target,
   TrendingUp,
   Users,
@@ -314,13 +313,13 @@ export default function ExecutiveOfficePage() {
             <Card>
               <CardHeader
                 title="Today's priorities"
-                subtitle="What the Executive Director plans to delegate next"
+                subtitle="Lo que el Director Ejecutivo va a delegar próximamente"
               />
               <CardSection>
                 {todaysPriorities.length === 0 ? (
                   <EmptyState
-                    icon={<Sparkles className="h-4 w-4" />}
-                    title="Nothing scheduled for today"
+                    icon={<Calendar className="h-4 w-4" />}
+                    title="Nada previsto para hoy"
                     description="New tasks will appear here as the Executive Director identifies work."
                     action={
                       <Button size="sm" iconLeft={<Plus className="h-3.5 w-3.5" />} onClick={() => (window.location.href = '/tasks')}>
@@ -343,15 +342,15 @@ export default function ExecutiveOfficePage() {
           <motion.section variants={staggerItem}>
             <Card>
               <CardHeader
-                title="Pending your decision"
-                subtitle={pendingDecisions.length === 0 ? 'No approvals needed' : `${pendingDecisions.length} items need your sign-off`}
+                title="Pendientes de tu decisión"
+                subtitle={pendingDecisions.length === 0 ? 'Sin aprobaciones pendientes' : `${pendingDecisions.length} necesitan tu OK`}
               />
               <CardSection>
                 {pendingDecisions.length === 0 ? (
                   <EmptyState
                     icon={<CheckCircle2 className="h-4 w-4" />}
-                    title="No pending decisions"
-                    description="Approvals will surface here as departments submit results."
+                    title="Sin decisiones pendientes"
+                    description="Las aprobaciones aparecerán aquí cuando los equipos entreguen resultados."
                   />
                 ) : (
                   <ul className="space-y-2">
@@ -368,15 +367,15 @@ export default function ExecutiveOfficePage() {
           <motion.section variants={staggerItem}>
             <Card>
               <CardHeader
-                title="Risks & issues"
-                subtitle={risks.length === 0 ? 'No risks detected' : `${risks.length} items need attention`}
+                title="Riesgos e incidencias"
+                subtitle={risks.length === 0 ? 'Sin riesgos detectados' : `${risks.length} necesitan atención`}
               />
               <CardSection>
                 {risks.length === 0 ? (
                   <EmptyState
                     icon={<AlertTriangle className="h-4 w-4" />}
-                    title="All systems nominal"
-                    description="No unhealthy departments or failed tasks detected."
+                    title="Todo en orden"
+                    description="No hay equipos con incidencias ni tareas fallidas."
                   />
                 ) : (
                   <ul className="space-y-2">
@@ -393,15 +392,15 @@ export default function ExecutiveOfficePage() {
           <motion.section variants={staggerItem}>
             <Card>
               <CardHeader
-                title="Opportunities"
-                subtitle="Departments you could activate right now"
+                title="Oportunidades"
+                subtitle="Departamentos que puedes activar ahora mismo"
               />
               <CardSection>
                 {opportunities.length === 0 ? (
                   <EmptyState
                     icon={<TrendingUp className="h-4 w-4" />}
-                    title="All departments activated"
-                    description="You're running the full Business Operating System."
+                    title="Todos los departamentos activos"
+                    description="Tienes el Business Operating System completo en marcha."
                   />
                 ) : (
                   <ul className="space-y-2">
@@ -417,7 +416,7 @@ export default function ExecutiveOfficePage() {
           {/* Executive Timeline */}
           <motion.section variants={staggerItem}>
             <Card>
-              <CardHeader title="Executive timeline" subtitle="Recent company events across departments" />
+              <CardHeader title="Cronología ejecutiva" subtitle="Eventos recientes en todos los departamentos" />
               <CardSection>
                 {timeline.isLoading ? (
                   <div className="space-y-3">

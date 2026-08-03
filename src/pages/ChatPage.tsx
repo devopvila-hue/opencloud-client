@@ -330,15 +330,15 @@ export default function ChatPage() {
             <div className="mx-auto max-w-2xl">
               <EmptyState
                 icon={<PenLine className="h-5 w-5" />}
-                title="Start a conversation"
-                description={`Talk to the ${department?.name ?? 'Executive Director'} about goals, plans, reports and approvals.`}
+                title="Empieza una conversación"
+                description={`Habla con ${department?.name ?? 'el Director Ejecutivo'} sobre objetivos, planes, informes y aprobaciones.`}
               />
               <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {[
-                  'Summarise what my departments did this week',
-                  'Draft a plan to launch the new pricing page',
-                  'Approve the open tasks waiting for me',
-                  'Show me the latest corporate memory files',
+                  'Resúmeme qué han hecho mis equipos esta semana',
+                  'Prepara un plan para lanzar la nueva página de precios',
+                  'Aprueba las tareas pendientes que me esperan',
+                  'Muéstrame los últimos archivos de memoria corporativa',
                 ].map((s) => (
                   <button
                     key={s}

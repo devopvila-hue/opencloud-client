@@ -126,13 +126,13 @@ export default function TaskDetailPage() {
 
           {taskData.result && (
             <Card>
-              <CardHeader title="Result" subtitle="Returned by the manager agent" />
+              <CardHeader title="Resultado" subtitle="Devuelto por el equipo al terminar" />
               <JsonBlock value={taskData.result} />
             </Card>
           )}
 
           <Card>
-            <CardHeader title="Payload" subtitle="Input sent to the agent" />
+            <CardHeader title="Datos de entrada" subtitle="Lo que se envió al equipo" />
             <JsonBlock value={taskData.payload} />
           </Card>
         </div>
@@ -144,9 +144,9 @@ export default function TaskDetailPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Internal messages" subtitle={`${(messages.data ?? []).length} events`} />
+            <CardHeader title="Mensajes internos" subtitle={`${(messages.data ?? []).length} eventos`} />
             {(messages.data ?? []).length === 0 ? (
-              <EmptyState icon={<Bot className="h-5 w-5" />} title="No messages yet" />
+              <EmptyState icon={<Bot className="h-5 w-5" />} title="Sin mensajes todavía" />
             ) : (
               <ul className="space-y-2">
                 {(messages.data ?? []).slice(0, 8).map((m) => (

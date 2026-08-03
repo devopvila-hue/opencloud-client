@@ -64,7 +64,7 @@ export default function TimelinePage() {
             </p>
           </div>
         </div>
-        <Badge tone="accent">Phase 6</Badge>
+        <Badge tone="accent">Fase beta</Badge>
       </header>
 
       <Card>

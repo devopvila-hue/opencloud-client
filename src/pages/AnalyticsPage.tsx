@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Activity, BarChart3, Cpu, Layers, Sparkles, Timer } from 'lucide-react';
+import { Activity, BarChart3, CheckCircle2, Cpu, Layers, Timer } from 'lucide-react';
 import { Card, CardHeader } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { MetricTile } from '@/components/MetricTile';
@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricTile label={t('analytics.kpi.total')} value={(tasks.data ?? []).length} icon={<Layers className="h-4 w-4" />} accent="--color-dept-governance" />
-        <MetricTile label={t('analytics.kpi.completion')} value={`${completion}%`} icon={<Sparkles className="h-4 w-4" />} accent="--color-emerald" />
+        <MetricTile label={t('analytics.kpi.completion')} value={`${completion}%`} icon={<CheckCircle2 className="h-4 w-4" />} accent="--color-emerald" />
         <MetricTile label={t('analytics.kpi.messages')} value={(messages.data ?? []).length} icon={<Activity className="h-4 w-4" />} accent="--color-cyan" />
         <MetricTile label={t('analytics.kpi.latency')} value={formatDuration(avgLatency)} icon={<Timer className="h-4 w-4" />} accent="--color-amber" />
       </section>

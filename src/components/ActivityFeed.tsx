@@ -49,7 +49,10 @@ export function ActivityFeed({ tasks = [], messages = [], limit = 20, className 
         at: m.created_at,
         kind: 'message',
         title: m.type.replace('task.', '').replace(/[._]/g, ' '),
-        subtitle: `${m.source_agent} → ${m.target_agent}`,
+        subtitle:
+          m.source_agent && m.target_agent && m.source_agent !== m.target_agent
+            ? `${m.source_agent} → ${m.target_agent}`
+            : (m.target_agent || m.source_agent || ''),
         departmentKey: m.department_key,
         status: m.type,
         href: `/tasks`,

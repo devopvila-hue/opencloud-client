@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Compass, Hash, Search, Sparkles, Plus, MessageSquare } from 'lucide-react';
+import { ArrowRight, Compass, Hash, Search, Layers, Plus, MessageSquare } from 'lucide-react';
 import { cn } from '@/design-system/cn';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useHotkey } from '@/hooks/useHotkey';
@@ -100,7 +100,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           group: t('palette.group.departments'),
           title: d.name,
           subtitle: d.description,
-          icon: pres?.icon ?? Sparkles,
+          icon: pres?.icon ?? Layers,
           keywords: ['department', d.key, d.name.toLowerCase()],
           perform: () => {
             navigate(`/departments/${d.key}`);

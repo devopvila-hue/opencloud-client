@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ClipboardList, FileOutput, FileText, Search, Sparkles } from 'lucide-react';
+import { ClipboardList, FileOutput, FileText, FileX, Search } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Card, CardHeader } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
@@ -98,7 +98,7 @@ function MemoryTab({ query }: { query: string }) {
   if (filtered.length === 0) {
     return (
       <EmptyState
-        icon={<Sparkles className="h-5 w-5" />}
+        icon={<FileX className="h-5 w-5" />}
         title={t('results.memory.empty.title')}
         description={t('results.memory.empty.desc')}
         action={<Link to="/company"><Button>{t('results.memory.empty.action')}</Button></Link>}

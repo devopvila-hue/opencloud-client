@@ -121,16 +121,16 @@ export default function DepartmentsPage() {
       <Card padding="md">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Hint
-            title="What is a department?"
-            description="A bundle of agent capabilities, prompts and policies ready to work for your company."
+            title="¿Qué es un departamento?"
+            description="Un paquete de capacidades y políticas listo para trabajar en tu empresa."
           />
           <Hint
-            title="How do I activate one?"
-            description="Open a department and press Activate. We provision its workspace, register the manager agent and run the first health check."
+            title="¿Cómo activo uno?"
+            description="Abre un departamento y pulsa Activar. Aprovisionamos su espacio, registramos al responsable y lanzamos la primera comprobación."
           />
           <Hint
-            title="Where do conversations live?"
-            description="Use Chat to talk to the Executive Director. It delegates to the right department automatically."
+            title="¿Dónde viven las conversaciones?"
+            description="Usa el Chat para hablar con el Director Ejecutivo. Él delega automáticamente en el departamento adecuado."
           />
         </div>
       </Card>

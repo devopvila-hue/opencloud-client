@@ -178,17 +178,17 @@ function renderWithProviders(node: React.ReactNode) {
 }
 
 describe('ExecutiveRoomPage', () => {
-  it('renders the Executive Room heading', async () => {
+  it('renders the Sala Ejecutiva heading', async () => {
     renderWithProviders(React.createElement(ExecutiveRoomPage));
     await waitFor(() => {
-      expect(screen.getByText(/Executive Room/i)).toBeInTheDocument();
+      expect(screen.getByText(/Sala Ejecutiva/i)).toBeInTheDocument();
     });
   });
 
-  it('shows the Phase 6 badge', async () => {
+  it('shows the Fase beta badge', async () => {
     renderWithProviders(React.createElement(ExecutiveRoomPage));
     await waitFor(() => {
-      expect(screen.getByText('Phase 6')).toBeInTheDocument();
+      expect(screen.getByText('Fase beta')).toBeInTheDocument();
     });
   });
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ArrowUpRight, Sparkles, type LucideIcon } from 'lucide-react';
+import { ChevronDown, ArrowUpRight, Crown, type LucideIcon } from 'lucide-react';
 import { cn } from '@/design-system/cn';
 import { Logo } from '@/components/Logo';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -139,7 +139,7 @@ export function MegaMenu({ items, triggerLabel, className }: MegaMenuProps) {
 
                 {/* Featured slot: Founder Edition */}
                 <MegaMenuCallout
-                  icon={<Sparkles className="h-5 w-5" />}
+                  icon={<Crown className="h-5 w-5" />}
                   title={{ es: 'Founder Edition', en: 'Founder Edition' }}
                   description={{
                     es: 'Acompañamiento directo del equipo DEPARTIFY durante los primeros 30 días.',
