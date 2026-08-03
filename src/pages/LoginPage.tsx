@@ -15,6 +15,8 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { Logo } from '@/components/Logo';
+import { Footer } from '@/components/Footer';
+import { DEPARTIFY_LANDING_URL } from '@/components/Footer';
 import { useToast } from '@/components/Toaster';
 import { useGoogleStart, useLogin, useMe, useSignup } from '@/api/queries';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -118,16 +120,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[color:var(--background)] p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[color:var(--background)] p-4 relative overflow-hidden">
+      {/* Background accents matching Landing */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/3 -left-1/4 w-96 h-96 bg-accent/3 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-1/4 w-80 h-80 bg-accent/2 rounded-full filter blur-3xl"></div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.24, ease: [0.32, 0.72, 0, 1] }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
+        {/* DEPARTIFY wordmark header */}
+        <div className="mb-8 flex justify-center">
+          <Logo variant="full" size={40} />
+        </div>
+
         <Card variant="elevated" padding="lg">
           <div className="mb-6 flex flex-col items-center gap-3 text-center">
-            <Logo size={48} />
             <div>
               <h1 className="font-display text-[1.25rem] tracking-[-0.02em] text-[color:var(--foreground)]">
                 {mode === 'login' ? t('app.signin.title') : t('app.signup.title')}
@@ -294,13 +306,20 @@ export default function LoginPage() {
               </p>
             )}
           </div>
+        </Card>
 
-          <p className="mt-6 text-center text-xs text-[color:var(--muted-foreground)]">
+        <div className="mt-6">
+          <p className="text-center text-xs text-[color:var(--muted-foreground)]">
             <Link to="/" className="underline-offset-2 hover:text-[color:var(--foreground)] hover:underline">
               {t('common.return_home')}
             </Link>
           </p>
-        </Card>
+        </div>
+
+        {/* Footer: simplified ecosystem footer */}
+        <div className="mt-8 border-t border-[color:var(--border)] pt-6">
+          <Footer />
+        </div>
       </motion.div>
     </div>
   );

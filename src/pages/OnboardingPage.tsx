@@ -14,6 +14,7 @@ import { Card, CardSection } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { ErrorState } from '@/components/ErrorState';
 import { Logo } from '@/components/Logo';
+import { Footer } from '@/components/Footer';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useToast } from '@/components/Toaster';
 import { useCompany, useCompanyWithRefetch, useCreateCompany, useMe, usePatchCompany } from '@/api/queries';
@@ -184,16 +185,26 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[color:var(--background)] p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[color:var(--background)] p-4 relative overflow-hidden">
+      {/* Background accents matching Landing */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-accent/3 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-1/4 w-80 h-80 bg-accent/2 rounded-full filter blur-3xl"></div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-        className="w-full max-w-2xl"
+        className="w-full max-w-2xl relative z-10"
       >
+        {/* DEPARTIFY wordmark header */}
+        <div className="mb-8 flex justify-center">
+          <Logo variant="full" size={40} />
+        </div>
+
         <Card variant="elevated" padding="lg">
           <header className="mb-6 flex flex-col items-center gap-3 text-center">
-            <Logo size={48} />
             <div className="flex-1">
               <h1 className="font-display text-[1.25rem] tracking-[-0.02em] text-[color:var(--foreground)]">
                 {t('onboarding.title')}
@@ -352,16 +363,10 @@ export default function OnboardingPage() {
           </form>
         </Card>
 
-        <p className="mt-6 text-center text-[11px] text-[color:var(--muted-foreground)]">
-          <Globe className="mr-1 inline-block h-3 w-3" />
-          {t('onboarding.footer.invite')}
-          <span className="mx-2 opacity-50">·</span>
-          <Users className="mr-1 inline-block h-3 w-3" />
-          {t('onboarding.footer.data')}
-          <span className="mx-2 opacity-50">·</span>
-          <Target className="mr-1 inline-block h-3 w-3" />
-          {t('onboarding.footer.cta')}
-        </p>
+        {/* Footer: simplified ecosystem footer */}
+        <div className="mt-8 border-t border-[color:var(--border)] pt-6">
+          <Footer />
+        </div>
       </motion.div>
     </div>
   );
