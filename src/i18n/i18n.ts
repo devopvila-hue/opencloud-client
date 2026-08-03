@@ -199,6 +199,7 @@ export const catalog: Catalog = {
   // ── Login page ───────────────────────────────────────────────
   'login.mode.signin':          ['Sign in', 'Iniciar sesión'],
   'login.mode.signup':          ['Sign up', 'Crear cuenta'],
+  'login.have_account':         ['Already have an account?', '¿Ya tienes cuenta?'],
   'login.field.email':          ['Email', 'Email'],
   'login.field.password':       ['Password', 'Contraseña'],
   'login.field.full_name':      ['Full name', 'Nombre completo'],
