@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="DEPARTIFY — Business Operating System">
+  <title>DEPARTIFY — Business Operating System</title>
+
+  <!-- Background — dark-first brand surface with subtle radial glow -->
+  <defs>
+    <radialGradient id="bg-glow" cx="80%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#d8ff62" stop-opacity="0.08"/>
+      <stop offset="60%" stop-color="#d8ff62" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bg-glow-2" cx="0%" cy="100%" r="70%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.05"/>
+      <stop offset="60%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#f2f0e9" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="#080908"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#bg-glow)"/>
+  <rect width="1200" height="630" fill="url(#bg-glow-2)"/>
+
+  <!-- Logo mark -->
+  <g transform="translate(140, 230)">
+    <rect width="170" height="170" rx="37" fill="#d8ff62"/>
+    <g fill="#0a0c08">
+      <rect x="40" y="37" width="16" height="96"/>
+      <rect x="114" y="37" width="16" height="96"/>
+      <polygon points="40,37 56,37 130,133 114,133"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="350" y="320"
+        font-family="Fraunces, Georgia, serif"
+        font-size="78"
+        font-weight="600"
+        letter-spacing="-1.8"
+        fill="#f2f0e9">DEPARTIFY</text>
+  <text x="354" y="370"
+        font-family="Inter, system-ui, sans-serif"
+        font-size="22"
+        font-weight="500"
+        letter-spacing="5.5"
+        fill="#c2c4bc"
+        opacity="0.7">BUSINESS OPERATING SYSTEM</text>
+
+  <!-- Tagline -->
+  <text x="140" y="500"
+        font-family="Fraunces, Georgia, serif"
+        font-size="32"
+        font-weight="400"
+        letter-spacing="-0.5"
+        fill="#f2f0e9">Equipos de IA que ejecutan,</text>
+  <text x="140" y="540"
+        font-family="Fraunces, Georgia, serif"
+        font-size="32"
+        font-weight="400"
+        letter-spacing="-0.5"
+        fill="#f2f0e9">no que solo responden.</text>
+
+  <!-- Footer line -->
+  <line x1="140" y1="580" x2="1060" y2="580" stroke="#f2f0e9" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="140" y="605"
+        font-family="Inter, system-ui, sans-serif"
+        font-size="16"
+        font-weight="500"
+        letter-spacing="0.6"
+        fill="#989b94">departify.app · app.departify.app · docs.departify.app · api.departify.app</text>
+</svg>
