@@ -1,10 +1,17 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 import { navItems } from './nav';
 import { cn } from '@/design-system/cn';
+import { Logo } from '@/components/Logo';
 import { useTheme, brandConfig } from '@/design-system/theme';
 import { useI18n } from '@/i18n/I18nProvider';
+
+/**
+ * Public landing URL — the Sidebar logo (when visible) returns
+ * the user to the marketing site. Same constant as in Topbar so
+ * the two surfaces stay in sync.
+ */
+const DEPARTIFY_LANDING_URL = 'https://departify.app';
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -27,14 +34,15 @@ export function Sidebar({ collapsed = false, onNavigate }: SidebarProps) {
       aria-label={t('sidebar.collapse')}
     >
       <div className="flex items-center gap-2 px-4 py-4">
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)]"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-dept-operations) 100%)',
-          }}
-        >
-          <Sparkles className="h-4 w-4 text-[color:var(--color-accent-foreground)]" />
-        </div>
+        {/* Sidebar logo — clicking it returns the user to the
+            public landing site (departify.app). Hidden when the
+            sidebar is collapsed (the Topbar logo is always visible). */}
+        <Logo
+          size={28}
+          href={DEPARTIFY_LANDING_URL}
+          external
+          ariaLabel={t('app.name')}
+        />
         {!collapsed && (
           <motion.div
             initial={{ opacity: 0 }}

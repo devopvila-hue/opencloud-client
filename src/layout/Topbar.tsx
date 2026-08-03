@@ -3,11 +3,21 @@ import { Link } from 'react-router-dom';
 import { Bell, Command, Menu, Moon, Search, Sun } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Avatar } from '@/components/Avatar';
+import { Logo } from '@/components/Logo';
 import { useTheme, brandConfig } from '@/design-system/theme';
 import { useLogout, useMe } from '@/api/queries';
 import { cn } from '@/design-system/cn';
 import { redirectToLogin } from '@/utils/authRedirect';
 import { useI18n } from '@/i18n/I18nProvider';
+
+/**
+ * Public landing URL — single source of truth for the "click the
+ * logo → back to the website" behaviour. The portal is a SaaS
+ * product inside the DEPARTIFY ecosystem; the logo must always
+ * return the user to the marketing site (departify.app), never to
+ * a dashboard URL.
+ */
+const DEPARTIFY_LANDING_URL = 'https://departify.app';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -39,6 +49,15 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
         >
           <Menu className="h-4 w-4" />
         </Button>
+        {/* DEPARTIFY logo — clicking it returns the user to the
+            public landing site (departify.app). Opens in a new tab
+            so the portal session is preserved. */}
+        <Logo
+          size={28}
+          href={DEPARTIFY_LANDING_URL}
+          external
+          ariaLabel={t('app.name')}
+        />
         <button
           type="button"
           onClick={onSearchClick}
