@@ -65,6 +65,22 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-2xl: 28px;
+
+  /* ---- Shared shell contract (Topbar / Footer / Sidebar) ----
+   * The Landing (departia) and the Portal must agree on these
+   * values. The Landing exposes the same tokens in its own
+   * `tailwind.config.ts` and `globals.css`; any change here is
+   * mirrored there by the design system release process.
+   */
+  --shell-header-height: 64px;
+  --shell-header-height-mobile: 56px;
+  --shell-header-padding-x: 1.25rem;        /* 20px */
+  --shell-header-padding-x-md: 1.5rem;      /* 24px */
+  --shell-header-blur: 12px;
+  --shell-header-bg-opacity: 0.6;           /* over --color-bg-0 */
+  --shell-header-border: var(--color-line);
+  --shell-z-header: 40;
+  --shell-z-overlay: 50;
 }
 
 @layer base {

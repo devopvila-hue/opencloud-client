@@ -12,6 +12,11 @@ import {
   Settings,
   Globe,
   Palette,
+  BarChart3,
+  FileText,
+  Search,
+  ShieldCheck,
+  Truck,
   type LucideProps,
 } from 'lucide-react';
 
@@ -21,6 +26,27 @@ import {
  *
  * Mirrors the OPENCloud Department Core catalog but adds presentation
  * metadata (icons, colors) that the API does not carry.
+ *
+ * The 15 official DEPARTIFY departments are:
+ *   1.  Executive Office  (governance) — strategic coordination
+ *   2.  Platform Assistant (internal)   — system-level helper
+ *   3.  Growth             (revenue)   — acquisition & demand
+ *   4.  Sales              (revenue)   — pipeline & closing
+ *   5.  Marketing          (revenue)   — brand & performance
+ *   6.  Content            (revenue)   — editorial & production
+ *   7.  SEO                (revenue)   — search visibility
+ *   8.  Analytics          (operations)— operational intelligence
+ *   9.  Finance            (operations)— planning & reporting
+ *  10.  Operations         (operations)— automation & orchestration
+ *  11.  Logistics          (operations)— supply chain & fulfilment
+ *  12.  Support            (customer)  — customer success
+ *  13.  People             (people)    — hiring, culture, HR
+ *  14.  Legal              (compliance)— contracts & compliance
+ *  15.  Governance & Risk  (governance)— risk & decision control
+ *
+ * The Landing (departia), the Marketplace, the Mega menu, the
+ * Departments page, the Pricing and the video scripts all consume
+ * this list. Keep it as the only definition.
  */
 
 export type DepartmentCategory =
@@ -322,6 +348,131 @@ export const departments: Record<string, DepartmentPresentation> = {
     priority: 9,
     featured: false,
   },
+  analytics: {
+    key: 'analytics',
+    name: 'Analytics',
+    shortName: 'Analytics',
+    category: 'operations',
+    icon: BarChart3,
+    accentText: 'text-[color:var(--color-dept-operations)]',
+    accentBg: 'bg-[color:var(--color-dept-operations)]',
+    accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
+    cssVar: '--color-dept-operations',
+    color: '#38bdf8',
+    shortDescription: 'Operational analytics and business intelligence.',
+    outcomes: {
+      es: 'Convierte datos en decisiones claras.',
+      en: 'Turns data into clear decisions.',
+    },
+    examples: [
+      { es: 'Genera dashboards automáticos', en: 'Generates automatic dashboards' },
+      { es: 'Detecta anomalías antes que nadie', en: 'Spots anomalies before anyone does' },
+      { es: 'Resume el rendimiento de cada equipo', en: 'Summarises every team\u2019s performance' },
+    ],
+    estimatedTime: { es: '4 min de media', en: '4 min on average' },
+    priority: 10,
+    featured: false,
+  },
+  content: {
+    key: 'content',
+    name: 'Content',
+    shortName: 'Content',
+    category: 'revenue',
+    icon: FileText,
+    accentText: 'text-[color:var(--color-dept-revenue)]',
+    accentBg: 'bg-[color:var(--color-dept-revenue)]',
+    accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
+    cssVar: '--color-dept-revenue',
+    color: '#f472b6',
+    shortDescription: 'Editorial calendar, copywriting and content production.',
+    outcomes: {
+      es: 'Publica contenido que conecta y convierte.',
+      en: 'Publishes content that connects and converts.',
+    },
+    examples: [
+      { es: 'Planifica el calendario editorial', en: 'Plans the editorial calendar' },
+      { es: 'Escribe art\u00edculos listos para publicar', en: 'Writes articles ready to publish' },
+      { es: 'Mantiene la voz de marca consistente', en: 'Keeps brand voice consistent' },
+    ],
+    estimatedTime: { es: '6 min de media', en: '6 min on average' },
+    priority: 11,
+    featured: false,
+  },
+  seo: {
+    key: 'seo',
+    name: 'SEO',
+    shortName: 'SEO',
+    category: 'revenue',
+    icon: Search,
+    accentText: 'text-[color:var(--color-dept-revenue)]',
+    accentBg: 'bg-[color:var(--color-dept-revenue)]',
+    accentSoft: 'bg-[color:var(--color-dept-revenue)]/15',
+    cssVar: '--color-dept-revenue',
+    color: '#f472b6',
+    shortDescription: 'Search visibility, technical SEO and content ranking.',
+    outcomes: {
+      es: 'Posiciona tu marca donde te buscan.',
+      en: 'Ranks your brand where customers look.',
+    },
+    examples: [
+      { es: 'Audita tu sitio cada semana', en: 'Audits your site every week' },
+      { es: 'Encuentra palabras clave ganadoras', en: 'Finds winning keywords' },
+      { es: 'Sugiere mejoras t\u00e9cnicas accionables', en: 'Suggests actionable technical fixes' },
+    ],
+    estimatedTime: { es: '5 min de media', en: '5 min on average' },
+    priority: 12,
+    featured: false,
+  },
+  governance: {
+    key: 'governance',
+    name: 'Governance & Risk',
+    shortName: 'Governance',
+    category: 'governance',
+    icon: ShieldCheck,
+    accentText: 'text-[color:var(--color-dept-governance)]',
+    accentBg: 'bg-[color:var(--color-dept-governance)]',
+    accentSoft: 'bg-[color:var(--color-dept-governance)]/15',
+    cssVar: '--color-dept-governance',
+    color: '#a855f7',
+    shortDescription: 'Risk management, internal controls and decision governance.',
+    outcomes: {
+      es: 'Reduce el riesgo sin frenar el negocio.',
+      en: 'Lowers risk without slowing the business down.',
+    },
+    examples: [
+      { es: 'Identifica riesgos operativos', en: 'Identifies operational risks' },
+      { es: 'Asegura que las decisiones quedan registradas', en: 'Ensures decisions are recorded' },
+      { es: 'Propone controles preventivos', en: 'Proposes preventive controls' },
+    ],
+    estimatedTime: { es: '7 min de media', en: '7 min on average' },
+    priority: 13,
+    featured: false,
+  },
+  logistics: {
+    key: 'logistics',
+    name: 'Logistics',
+    shortName: 'Logistics',
+    category: 'operations',
+    icon: Truck,
+    accentText: 'text-[color:var(--color-dept-operations)]',
+    accentBg: 'bg-[color:var(--color-dept-operations)]',
+    accentSoft: 'bg-[color:var(--color-dept-operations)]/15',
+    cssVar: '--color-dept-operations',
+    color: '#38bdf8',
+    shortDescription: 'Supply chain, fulfilment and operational logistics.',
+    outcomes: {
+      es: 'Tu operativa fluye sin sobresaltos.',
+      en: 'Your operations run without surprises.',
+    },
+    examples: [
+      { es: 'Coordina proveedores y env\u00edos', en: 'Coordinates suppliers and shipments' },
+      { es: 'Predice picos de demanda', en: 'Forecasts demand spikes' },
+      { es: 'Detecta cuellos de botella log\u00edsticos', en: 'Detects logistics bottlenecks' },
+    ],
+    estimatedTime: { es: '6 min de media', en: '6 min on average' },
+    priority: 14,
+    featured: false,
+  },
 };
 
 export const departmentList = Object.values(departments);
@@ -358,6 +509,11 @@ export function iconFromManifest(name: string): LucideIcon {
     settings: Settings,
     globe: Globe,
     palette: Palette,
+    'bar-chart-3': BarChart3,
+    'file-text': FileText,
+    search: Search,
+    'shield-check': ShieldCheck,
+    truck: Truck,
   };
   return map[name] ?? Globe;
 }

@@ -86,6 +86,36 @@ export const authApi = {
   logout: () => api<{ ok: true }>('/auth/logout', { method: 'POST' }),
 
   /**
+   * POST /api/v1/auth/google/start — initiates the Google OAuth
+   * flow. The middleware (Supabase Auth under the hood) returns
+   * the consent URL the Portal must redirect the user to. After
+   * the handshake, the middleware redirects back to the Portal
+   * with a fresh `opc_session` cookie.
+   */
+  googleStart: async (input: { next: string }): Promise<{ url: string }> => {
+    const r = await api<{ url: string }>('/auth/google/start', {
+      method: 'POST',
+      body: input,
+    });
+    return r.data;
+  },
+
+  /**
+   * POST /api/v1/auth/password-reset/request — starts a password
+   * recovery flow. The backend emails the user a one-time link.
+   * The endpoint is intentionally fire-and-forget: the user is
+   * always shown the same confirmation regardless of whether the
+   * address exists (no email enumeration).
+   */
+  passwordResetRequest: async (input: { email: string }): Promise<{ ok: true }> => {
+    const r = await api<{ ok: true }>('/auth/password-reset/request', {
+      method: 'POST',
+      body: input,
+    });
+    return r.data;
+  },
+
+  /**
    * POST /api/v1/auth/password-change — V1 BLOCKER 3.
    * Verifies the current password against Supabase Auth (via the
    * middleware's ANON client) and then updates the user record via

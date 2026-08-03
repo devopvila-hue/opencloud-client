@@ -54,7 +54,7 @@ export function Topbar({ onMenuClick, onSearchClick, onNotificationsClick }: Top
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-[color:var(--color-line)] bg-[color:var(--color-bg-0)]/40 px-3 backdrop-blur-md transition-colors md:px-5',
+        'sticky top-0 z-[var(--shell-z-header)] flex h-[var(--shell-header-height-mobile)] items-center justify-between gap-3 border-b border-[color:var(--shell-header-border)] bg-[color:var(--color-bg-0)]/60 px-[var(--shell-header-padding-x)] backdrop-blur-[var(--shell-header-blur)] transition-colors md:h-[var(--shell-header-height)] md:px-[var(--shell-header-padding-x-md)]',
       )}
     >
       <div className="flex items-center gap-2">

@@ -8,21 +8,26 @@ import {
 } from '@/design-system/departments';
 
 describe('departments registry', () => {
-  it('contains all 10 known departments', () => {
-    expect(departmentList).toHaveLength(10);
-    expect(departmentList.map((d) => d.key)).toEqual(
-      expect.arrayContaining([
+  it('contains all 15 official DEPARTIFY departments', () => {
+    expect(departmentList).toHaveLength(15);
+    expect(departmentList.map((d) => d.key).sort()).toEqual(
+      [
+        'analytics',
+        'content',
         'executive-office',
-        'platform-assistant',
-        'growth',
-        'sales',
-        'marketing',
         'finance',
-        'operations',
+        'governance',
+        'growth',
         'hr',
-        'support',
         'legal',
-      ]),
+        'logistics',
+        'marketing',
+        'operations',
+        'platform-assistant',
+        'sales',
+        'seo',
+        'support',
+      ].sort(),
     );
   });
 

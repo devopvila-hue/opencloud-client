@@ -10,6 +10,7 @@ import ExecutiveRoomPage from '@/pages/ExecutiveRoomPage';
 import TimelinePage from '@/pages/TimelinePage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import LoginPage from '@/pages/LoginPage';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 
 // Lazily loaded (lower-priority / heavy pages)
 const OrchestrationDetailPage = lazyPage(() => import('@/pages/OrchestrationDetailPage'));
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
   // route were itself wrapped by RequireAuth the guard would
   // re-trigger and create a /login?next=/login?next=… loop.
   { path: '/login', element: <LoginPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
 
   // /register is the canonical CTA coming from departify.app
   // ("Crear cuenta" → https://app.departify.app/register).

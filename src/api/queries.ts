@@ -113,6 +113,30 @@ export function useLogout() {
 }
 
 /**
+ * POST /api/v1/auth/google/start — fetches the Google OAuth URL
+ * the user must be redirected to. The Portal does a hard
+ * navigation (`window.location.href = url`) so the middleware's
+ * redirect chain works as designed.
+ */
+export function useGoogleStart() {
+  return useMutation({
+    mutationFn: (input: { next: string }) => authApi.googleStart(input),
+  });
+}
+
+/**
+ * POST /api/v1/auth/password-reset/request — fires the recovery
+ * email. The hook is fire-and-forget: success / failure are
+ * surfaced via the `data` and `error` of the mutation; the
+ * ForgotPasswordPage normalises them through humanizeAuthError.
+ */
+export function usePasswordResetRequest() {
+  return useMutation({
+    mutationFn: (input: { email: string }) => authApi.passwordResetRequest(input),
+  });
+}
+
+/**
  * POST /api/v1/auth/password-change — V1 BLOCKER 3.
  * Wires `authApi.passwordChange` to a mutation hook. On success the
  * session cookie remains valid; the user does not need to sign in

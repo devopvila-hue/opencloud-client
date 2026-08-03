@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
+  KeyRound,
   Loader2,
   LogIn,
   ShieldCheck,
@@ -15,27 +16,28 @@ import { Card } from '@/components/Card';
 import { Field } from '@/components/Field';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/components/Toaster';
-import { useLogin, useMe, useSignup } from '@/api/queries';
+import { useGoogleStart, useLogin, useMe, useSignup } from '@/api/queries';
 import { useI18n } from '@/i18n/I18nProvider';
 import { sanitizeNext, isLoginPath, containsLoginPath } from '@/utils/sanitizeNext';
+import { humanizeAuthError } from '@/utils/humanizeAuthError';
 import { cn } from '@/design-system/cn';
-import { ApiClientError } from '@/api/client';
 
 /**
- * LoginPage — real email + password authentication.
+ * LoginPage — DEPARTIFY Client Portal authentication.
  *
- * Flow:
- *   1. User lands on /login (typically with ?next=/dashboard).
- *   2. If they already have a session cookie, useMe() resolves and we
- *      bounce them to the sanitized `next` immediately.
- *   3. Otherwise they fill in the form and submit.
- *   4. We POST to /api/v1/auth/login (or /auth/signup). The
- *      middleware sets the HttpOnly `opc_session` cookie.
- *   5. We invalidate `useMe` so the rest of the app re-reads the user.
- *   6. Once useMe resolves, we navigate to the sanitized `next`.
+ * Modes:
+ *   - login  → existing user, email + password.
+ *   - signup → new account, email + password + name.
  *
- * The `next` query parameter is sanitized via `sanitizeNext()` to
- * prevent the redirect-loop class of bugs that hit us earlier.
+ * Alternate path:
+ *   - Google OAuth  → /api/v1/auth/google/start (backend driven).
+ *                     The user is bounced to Google's consent screen
+ *                     and the middleware completes the handshake.
+ *   - Forgot password → /forgot-password.
+ *
+ * Errors are normalised through `humanizeAuthError` so the user
+ * never sees raw network or backend strings. The technical message
+ * stays in the console for debugging.
  */
 type Mode = 'login' | 'signup';
 
@@ -46,6 +48,7 @@ export default function LoginPage() {
   const me = useMe();
   const login = useLogin();
   const signup = useSignup();
+  const googleStart = useGoogleStart();
   const { t } = useI18n();
 
   // ----- next sanitisation ------------------------------------
@@ -62,7 +65,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState('');
 
   const mutation = mode === 'login' ? login : signup;
-  const busy = mutation.isPending;
+  const busy = mutation.isPending || googleStart.isPending;
   const [error, setError] = useState<string | null>(null);
 
   // ----- bounce out if already signed in -----------------------
@@ -96,8 +99,21 @@ export default function LoginPage() {
         description: t('login.success.signin_desc'),
       });
     } catch (err) {
-      const message = err instanceof ApiClientError ? err.message : t('login.error.invalid');
-      setError(message);
+      setError(humanizeAuthError(err, mode, t));
+    }
+  }
+
+  // ----- google ------------------------------------------------
+  async function onGoogle() {
+    setError(null);
+    try {
+      const { url } = await googleStart.mutateAsync({ next });
+      // Hard navigation — the backend (Supabase) completes the
+      // OAuth handshake and returns the user to `next` with a
+      // valid `opc_session` cookie.
+      window.location.href = url;
+    } catch (err) {
+      setError(humanizeAuthError(err, 'google', t));
     }
   }
 
@@ -164,6 +180,26 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Google — shown on both modes */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={onGoogle}
+            disabled={busy}
+            iconLeft={
+              <GoogleMark className="h-4 w-4" />
+            }
+          >
+            {t('login.google.cta')}
+          </Button>
+
+          <div className="my-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]/70">
+            <div className="h-px flex-1 bg-[color:var(--color-line)]" />
+            <span>{t('login.divider')}</span>
+            <div className="h-px flex-1 bg-[color:var(--color-line)]" />
+          </div>
+
           <form onSubmit={onSubmit} className="space-y-3" noValidate>
             {mode === 'signup' && (
               <Field
@@ -197,6 +233,17 @@ export default function LoginPage() {
               minLength={8}
               disabled={busy}
             />
+
+            {mode === 'login' && (
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-[color:var(--muted-foreground)] underline-offset-2 hover:text-[color:var(--foreground)] hover:underline"
+                >
+                  {t('login.forgot.link')}
+                </Link>
+              </div>
+            )}
 
             <Button
               type="submit"
@@ -256,5 +303,26 @@ export default function LoginPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+/**
+ * Google "G" mark — single source of truth for the official 4-color
+ * glyph. The rest of the icon set comes from lucide-react but the
+ * Google "G" is a multi-colour brand mark we render inline.
+ */
+function GoogleMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      className={className}
+      aria-hidden
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+      <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+      <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+    </svg>
   );
 }

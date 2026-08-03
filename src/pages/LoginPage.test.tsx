@@ -36,6 +36,8 @@ vi.mock('@/api/queries', () => {
     useMe: () => ({ data: undefined, isLoading: false, isError: false }),
     useLogin: () => ({ ...mutationResult, mutateAsync }),
     useSignup: () => ({ ...mutationResult, mutateAsync }),
+    useGoogleStart: () => ({ ...mutationResult, mutateAsync }),
+    usePasswordResetRequest: () => ({ ...mutationResult, mutateAsync }),
   };
 });
 
