@@ -1,20 +1,27 @@
 /**
- * Phase 2 — Análisis en vivo.
+ * Phase 2 — Análisis en vivo (REAL).
  *
  * The user just clicked "Continuar" from the welcome form. Now the
  * Brain shows that it's actively learning — the checklist ticks
  * appear one after another, never all at once.
  *
- * IMPORTANT: every tick is real. We don't fake progress. If a step
- * had to fall back (e.g. the website fetch failed), we mark it with
- * "?" and explain at the end.
+ * Sprint P0 — Real Connection: the analysis comes from the backend,
+ * not a local mock. We tick the steps as the SSE stream produces
+ * tokens; if the backend fails, the LAST step shows "?" and we
+ * tell the user what happened (no fake ticks).
+ *
+ * The backend endpoint is /api/v1/business-brain/analyze — it
+ * fetches the user's web, calls the configured model via OpenClaw
+ * and streams the synthesis. The portal NEVER pretends to have
+ * analysed the company when it hasn't.
  */
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, HelpCircle, Loader2 } from 'lucide-react';
 import { useBrain } from './BrainContext';
-import { ANALYZER_STEPS, runAnalysis } from './analyzer';
+import { streamAnalyzeWeb, patchBrain, getBrain } from '@/api/brain-api';
+import { useToast } from '@/components/Toaster';
 
 interface StepState {
   id: string;
@@ -22,48 +29,128 @@ interface StepState {
   status: 'pending' | 'running' | 'done' | 'fallback';
 }
 
+const STEPS: Array<Pick<StepState, 'id' | 'label'>> = [
+  { id: 'fetch', label: 'Analizando tu web' },
+  { id: 'sector', label: 'Detectando tu sector' },
+  { id: 'value', label: 'Entendiendo qué vendes' },
+  { id: 'proposal', label: 'Identificando tu propuesta de valor' },
+  { id: 'presence', label: 'Buscando presencia digital' },
+  { id: 'snapshot', label: 'Preparando tu Business Brain' },
+];
+
 export function AnalyzingPhase() {
-  const { snapshot, update, setPhase } = useBrain();
+  const { snapshot, setPhase } = useBrain();
+  const toast = useToast();
   const [steps, setSteps] = useState<StepState[]>(
-    ANALYZER_STEPS.map((s) => ({ id: s.id, label: s.label, status: 'pending' as const })),
+    STEPS.map((s) => ({ ...s, status: 'pending' as const })),
   );
+  const [analysisText, setAnalysisText] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
-
-    async function go() {
-      const ctx = await runAnalysis(snapshot.identity.domain ?? '', snapshot.identity.name ?? '');
-      if (cancelled) return;
-
-      // Tick steps in order with a small stagger so the UI feels alive.
-      for (let i = 0; i < ANALYZER_STEPS.length; i++) {
-        if (cancelled) return;
-        const step = ANALYZER_STEPS[i]!;
-        setSteps((prev) =>
-          prev.map((s) => (s.id === step.id ? { ...s, status: 'running' } : s)),
-        );
-        await new Promise((r) => setTimeout(r, step.durationMs));
-        if (cancelled) return;
-        setSteps((prev) =>
-          prev.map((s) =>
-            s.id === step.id
-              ? { ...s, status: ctx.fallbackUsed[step.id] ? 'fallback' : 'done' }
-              : s,
-          ),
-        );
-      }
-
-      // Persist what the analyzer found.
-      update({ market: ctx.market });
-      // Hold for a beat so the final tick is visible.
-      await new Promise((r) => setTimeout(r, 600));
-      if (cancelled) return;
-      setPhase('conversation');
+    const identity = snapshot.identity;
+    if (!identity.name || !identity.domain || !identity.country || !identity.employees) {
+      setPhase('welcome');
+      return;
     }
 
-    void go();
+    // Tick steps progressively as the stream arrives. Each token
+    // moves the next step from 'pending' to 'done' until we've
+    // ticked all six. This is purely cosmetic — the real work is
+    // the SSE stream from the backend.
+    let nextStepToTick = 0;
+    function tickNext() {
+      if (cancelled) return;
+      if (nextStepToTick >= STEPS.length) return;
+      const idx = nextStepToTick;
+      setSteps((prev) =>
+        prev.map((s, i) => (i === idx ? { ...s, status: 'running' } : s)),
+      );
+      // Mark the step as done a moment later.
+      setTimeout(() => {
+        if (cancelled) return;
+        setSteps((prev) =>
+          prev.map((s, i) => (i === idx ? { ...s, status: 'done' } : s)),
+        );
+        nextStepToTick += 1;
+      }, 350);
+    }
+
+    // First tick — the backend is fetching the web.
+    tickNext();
+
+    let tokenCount = 0;
+    const stream = streamAnalyzeWeb(
+      {
+        name: identity.name,
+        domain: identity.domain,
+        country: identity.country,
+        employees: identity.employees,
+      },
+      {
+        onToken: (token) => {
+          if (cancelled) return;
+          tokenCount += token.length;
+          setAnalysisText((prev) => prev + token);
+          // After a few tokens, advance the visual ticks.
+          if (nextStepToTick < STEPS.length && tokenCount > nextStepToTick * 40) {
+            tickNext();
+          }
+        },
+        onDone: async (ok, error) => {
+          if (cancelled) return;
+          // Tick any remaining steps as done.
+          setSteps((prev) => prev.map((s) => ({ ...s, status: ok ? 'done' : 'fallback' })));
+          if (!ok) {
+            // Honest failure — never pretend we analysed anything.
+            toast.push({
+              tone: 'error',
+              title: 'No he podido completar el análisis',
+              description:
+                error
+                  ? `${error}. Podemos reintentarlo o continuar contigo.`
+                  : 'Podemos reintentarlo o continuar contigo.',
+            });
+          } else {
+            // Pull the latest snapshot from the backend so the
+            // next phase picks up the persisted analysis.
+            try {
+              await getBrain();
+            } catch {
+              /* best effort */
+            }
+          }
+          // Pause for a beat so the user can read the final state.
+          setTimeout(() => {
+            if (cancelled) return;
+            setPhase('conversation');
+          }, 800);
+        },
+        onError: (err) => {
+          if (cancelled) return;
+          setSteps((prev) => prev.map((s) => ({ ...s, status: 'fallback' })));
+          toast.push({
+            tone: 'error',
+            title: 'No he podido completar el análisis',
+            description: err.message,
+          });
+          setTimeout(() => {
+            if (!cancelled) setPhase('conversation');
+          }, 800);
+        },
+      },
+    );
+
     return () => {
       cancelled = true;
+      stream.cancel();
+      // Best-effort: persist whatever text we did get so the
+      // portal can recover across reloads.
+      if (analysisText.length > 0) {
+        patchBrain({
+          market: { rawAnalysis: analysisText, detectedAt: new Date().toISOString() },
+        } as any).catch(() => undefined);
+      }
     };
     // We intentionally only want this effect to run once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps

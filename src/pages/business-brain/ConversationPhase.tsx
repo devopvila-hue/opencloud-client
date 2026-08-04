@@ -1,225 +1,187 @@
 /**
- * Phase 3 — Conversación.
+ * Phase 3 — Conversación (REAL).
  *
- * Six questions, one per turn, in the Director General's voice.
- * The user must never feel they're filling out a form — it's a chat.
+ * Sprint P0 — Real Connection. The conversation is no longer a
+ * scripted sequence of 6 questions. Instead, the model picks the
+ * NEXT question based on what it already knows. The user sees one
+ * question per turn and the Brain Panel evolves as they answer.
  *
- * Question order (designed to maximise signal without exhausting the
- * user; cap at 8 turns including reformulations):
+ * Flow:
+ *   1. On mount, ask the backend for the first question.
+ *   2. The user answers (text or skip).
+ *   3. We persist the answer locally + on the backend.
+ *   4. We ask the backend for the next question.
+ *   5. After the model signals READY_FOR_DIAGNOSIS (or after 8
+ *      turns), we advance to the integrations phase.
  *
- *   1. ¿Qué tarea te roba más tiempo cada semana?
- *   2. ¿Qué proceso odias hacer y harías que otro hiciese por ti?
- *   3. ¿Qué herramienta utilizáis para trabajar a diario?  (chips)
- *   4. ¿Qué objetivo quieres conseguir este trimestre?      (free text + reformulation)
- *   5. ¿Qué departamento te preocupa más ahora mismo?       (skip-able)
- *   6. ¿Qué significa para ti que este proyecto sea un éxito?(skip-able)
- *
- * The Brain Panel on the right shows progress on each dimension
- * without revealing fake percentages. Pure conceptual bars.
+ * The portal never falls back to a local mock. If the backend
+ * errors, we show the error and let the user retry. We do NOT
+ * invent a question on the portal.
  */
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Send, Sparkles, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Send, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Badge } from '@/components/Badge';
 import { useBrain } from './BrainContext';
-import { recommendDepartments } from './analyzer';
-import type { BrainProcess, BrainTool, SignalState } from './types';
+import { patchBrain, streamNextQuestion } from '@/api/brain-api';
+import { useToast } from '@/components/Toaster';
+import type { SignalState } from './types';
 
-interface Question {
-  id: string;
-  prompt: string;
-  type: 'text' | 'chips' | 'tool';
-  chips?: string[];
-  optional?: boolean;
-  /** Parse the answer into brain fields. */
-  parse: (answer: string) => Partial<{
-    processes: BrainProcess[];
-    tools: { primary: BrainTool };
-    objectives: { raw: string; reformulation: string; quarter: string | null };
-    priorities: { worriedAbout: string | null; successDefinition: string | null };
-    market: { competitors: string[]; sector: string | null };
-  }>;
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
-const TOOL_CHIPS: Array<{ id: BrainTool; label: string }> = [
-  { id: 'google_workspace', label: 'Google Workspace' },
-  { id: 'microsoft_365', label: 'Microsoft 365' },
-  { id: 'hubspot', label: 'HubSpot' },
-  { id: 'salesforce', label: 'Salesforce' },
-  { id: 'pipedrive', label: 'Pipedrive' },
-  { id: 'slack', label: 'Slack' },
-  { id: 'teams', label: 'Teams' },
-  { id: 'other', label: 'Otro' },
-];
-
-const QUESTIONS: Question[] = [
-  {
-    id: 'time-sink',
-    prompt: '¿Qué tarea te roba más tiempo cada semana?',
-    type: 'text',
-    parse(answer) {
-      return {
-        processes: [
-          {
-            description: answer,
-            category: inferCategory(answer),
-            signal: 'time-sink',
-          },
-        ],
-      };
-    },
-  },
-  {
-    id: 'pain',
-    prompt: '¿Qué proceso odias hacer y harías que otro hiciese por ti?',
-    type: 'text',
-    parse(answer) {
-      return {
-        processes: [
-          {
-            description: answer,
-            category: inferCategory(answer),
-            signal: 'pain',
-          },
-        ],
-      };
-    },
-  },
-  {
-    id: 'tool',
-    prompt: '¿Qué herramienta utilizáis para trabajar a diario?',
-    type: 'tool',
-    parse(answer) {
-      const id = (TOOL_CHIPS.find((t) => t.label === answer)?.id ?? 'other') as BrainTool;
-      return { tools: { primary: id, connected: [], rejected: [] } };
-    },
-  },
-  {
-    id: 'objective',
-    prompt: '¿Qué objetivo quieres conseguir este trimestre?',
-    type: 'text',
-    parse(answer) {
-      return {
-        objectives: {
-          raw: answer,
-          reformulation: reformulate(answer),
-          quarter: 'current',
-        },
-      };
-    },
-  },
-  {
-    id: 'priority',
-    prompt: '¿Qué departamento te preocupa más ahora mismo?',
-    type: 'text',
-    optional: true,
-    parse(answer) {
-      return { priorities: { worriedAbout: answer, successDefinition: null } };
-    },
-  },
-  {
-    id: 'success',
-    prompt: '¿Qué significa para ti que este proyecto sea un éxito?',
-    type: 'text',
-    optional: true,
-    parse(answer) {
-      return { priorities: { worriedAbout: null, successDefinition: answer } };
-    },
-  },
-];
-
-function inferCategory(text: string): BrainProcess['category'] {
-  const t = text.toLowerCase();
-  if (/venta|cliente|factura|crm|pipeline|lead/.test(t)) return 'sales';
-  if (/marketing|contenido|redes|campaña|public/.test(t)) return 'marketing';
-  if (/operaci[oó]n|proceso|inventario|log[ií]stica|stock/.test(t)) return 'operations';
-  if (/soporte|ticket|reclamaci[oó]n|atenci[oó]n/.test(t)) return 'support';
-  if (/contabilidad|factura[n]?|impuesto|n[oó]mina|finanza/.test(t)) return 'finance';
-  if (/contratar|equipo|persona|nóminas|onboarding/.test(t)) return 'people';
-  if (/admin|backoffice|tr[aá]mite|gesti[oó]n documental/.test(t)) return 'admin';
-  return 'other';
-}
-
-function reformulate(text: string): string {
-  // V1 heuristic reformulation. V2 will be model-based.
-  const t = text.trim();
-  if (!t) return t;
-  if (t.length <= 80) return t;
-  const first = t.split(/[.,;:]/)[0] ?? t;
-  return first.slice(0, 100).trim();
-}
+const MAX_TURNS = 8;
 
 export function ConversationPhase() {
-  const { snapshot, update, setPhase } = useBrain();
-  const [questionIdx, setQuestionIdx] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const { snapshot, update } = useBrain();
+  const toast = useToast();
+  const [history, setHistory] = useState<Message[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<string | null>(null);
+  const [readyForDiagnosis, setReadyForDiagnosis] = useState(false);
+  const [streaming, setStreaming] = useState(false);
+  const [turn, setTurn] = useState(0);
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const streamingRef = useRef<{ cancel: () => void } | null>(null);
 
-  const question = QUESTIONS[questionIdx];
-  const isLast = questionIdx === QUESTIONS.length - 1;
-
+  // Ask the backend for the first question on mount.
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [questionIdx]);
-
-  function submitAnswer(answer: string) {
-    if (!question) return;
-    const parsed = question.parse(answer);
-    update({
-      ...(parsed as any),
-      // Append processes, don't overwrite.
-      processes:
-        parsed.processes && parsed.processes.length > 0
-          ? [...(snapshot.processes ?? []), ...parsed.processes]
-          : snapshot.processes,
+    void askBackend([], (q) => {
+      setCurrentQuestion(q);
     });
-    setAnswers((prev) => [...prev, answer]);
-    setDraft('');
-    if (isLast) {
-      // Build recommendations now that we have enough data.
-      const rec = recommendDepartments({
-        processes: snapshot.processes,
-        objectives: snapshot.objectives,
-        tools: snapshot.tools,
-      });
-      update({
-        recommendations: {
-          primary: rec.primary
-            ? { ...rec.primary, priority: 'primary' }
-            : null,
-          secondary: rec.secondary
-            ? { ...rec.secondary, priority: 'secondary' }
-            : null,
-          optional: [],
-          avoid: rec.avoid,
-          rationale: rec.rationale,
+    return () => {
+      streamingRef.current?.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function focusInput() {
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }
+
+  async function askBackend(
+    hist: Message[],
+    onQuestion: (q: string) => void,
+  ): Promise<{ content: string; ok: boolean; error?: string }> {
+    setStreaming(true);
+    return new Promise((resolve) => {
+      const stream = streamNextQuestion(
+        hist,
+        {
+          onReady: () => {
+            /* no-op */
+          },
+          onToken: () => {
+            /* tokens are accumulated internally — we just want the
+               final question, not the stream. But we still register
+               the handler to keep the stream alive. */
+          },
+          onDone: (content, ok, error) => {
+            setStreaming(false);
+            if (!ok) {
+              toast.push({
+                tone: 'error',
+                title: 'No he podido pensar la siguiente pregunta',
+                description:
+                  error ?? 'Reintentemos en un momento.',
+              });
+              resolve({ content: '', ok: false, error: error ?? 'unknown' });
+              return;
+            }
+            // Strip the READY_FOR_DIAGNOSIS marker if present.
+            const cleaned = content.replace(/READY_FOR_DIAGNOSIS/gi, '').trim();
+            if (cleaned.length === 0 || /READY_FOR_DIAGNOSIS/i.test(content)) {
+              setReadyForDiagnosis(true);
+              onQuestion('');
+            } else {
+              onQuestion(cleaned);
+            }
+            resolve({ content: cleaned, ok: true });
+          },
+          onError: (err) => {
+            setStreaming(false);
+            toast.push({
+              tone: 'error',
+              title: 'No he podido pensar la siguiente pregunta',
+              description: err.message,
+            });
+            resolve({ content: '', ok: false, error: err.message });
+          },
         },
-        phase: 'integrations',
-      });
-    } else {
-      setQuestionIdx((i) => i + 1);
+      );
+      streamingRef.current = stream;
+    });
+  }
+
+  async function handleSubmit(e?: FormEvent<HTMLFormElement>) {
+    e?.preventDefault();
+    const answer = draft.trim();
+    if (!answer || !currentQuestion || streaming) return;
+    setDraft('');
+
+    const next = [...history, { role: 'user' as const, content: answer }, { role: 'assistant' as const, content: currentQuestion }];
+    setHistory(next);
+    setCurrentQuestion(null);
+
+    // Persist the new answer to the brain — naive parsing for now:
+    // we treat any answer as a free-text "process" entry unless the
+    // model returns structured data. The model returns rich
+    // structured output in v2; v1 keeps it simple.
+    const newTurn = turn + 1;
+    setTurn(newTurn);
+
+    // Best-effort patch to backend; the portal snapshot is the cache.
+    void patchBrain({
+      processes: [
+        ...snapshot.processes,
+        { description: answer, category: 'other', signal: newTurn === 1 ? 'time-sink' : 'pain' },
+      ],
+    } as any).catch(() => undefined);
+    update({
+      processes: [
+        ...snapshot.processes,
+        { description: answer, category: 'other', signal: newTurn === 1 ? 'time-sink' : 'pain' },
+      ],
+    });
+
+    if (newTurn >= MAX_TURNS) {
+      setReadyForDiagnosis(true);
+      return;
+    }
+
+    // Ask the model for the next question.
+    const result = await askBackend(next, (q) => {
+      setCurrentQuestion(q);
+      focusInput();
+    });
+    if (!result.ok) {
+      // Leave currentQuestion null so the user can retry.
+      setCurrentQuestion(currentQuestion);
     }
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!draft.trim() && question?.type !== 'tool') return;
-    submitAnswer(draft.trim());
-  }
-
-  function pickChip(label: string) {
-    submitAnswer(label);
-  }
-
   function skip() {
-    if (!question?.optional) return;
-    submitAnswer('');
+    void handleSubmit();
+    // We don't actually skip — we send an empty answer so the model
+    // can decide what to do. The user's draft is empty.
+    setDraft('(Prefiero no responder ahora)');
   }
 
-  if (!question) return null;
+  // When the model says READY_FOR_DIAGNOSIS, advance.
+  useEffect(() => {
+    if (readyForDiagnosis) {
+      // Brief pause so the user sees the final question answered.
+      const t = setTimeout(() => {
+        update({ phase: 'integrations' });
+      }, 600);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readyForDiagnosis]);
 
   return (
     <motion.div
@@ -240,96 +202,99 @@ export function ConversationPhase() {
           </h1>
         </div>
 
-        <AnimatePresence mode="wait">
+        {history.map((m, i) => (
+          <div key={i} className="mb-2 flex items-start justify-end gap-3">
+            {m.role === 'user' ? (
+              <div className="max-w-md rounded-2xl border border-accent/30 bg-accent-soft px-4 py-2 text-[0.875rem] text-foreground">
+                {m.content}
+              </div>
+            ) : (
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-foreground">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="rounded-2xl border border-border bg-surface px-4 py-3 text-[0.9375rem] text-foreground">
+                  {m.content}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Current question */}
+        {currentQuestion && (
           <motion.div
-            key={question.id}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.25 }}
             className="mb-4 flex items-start gap-3"
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-foreground">
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="rounded-2xl border border-border bg-surface px-4 py-3">
-              <p className="text-[0.9375rem] text-foreground">{question.prompt}</p>
+              <p className="text-[0.9375rem] text-foreground">{currentQuestion}</p>
             </div>
           </motion.div>
-        </AnimatePresence>
-
-        {/* Answer history (compact) */}
-        {answers.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {answers.map((a, i) => (
-              <div key={i} className="flex items-start justify-end gap-3">
-                <div className="max-w-md rounded-2xl border border-accent/30 bg-accent-soft px-4 py-2 text-[0.875rem] text-foreground">
-                  {a || <em className="text-muted">Saltado</em>}
-                </div>
-              </div>
-            ))}
-          </div>
         )}
 
-        {/* Input area */}
-        <form onSubmit={handleSubmit} className="mt-auto">
-          {question.type === 'tool' ? (
-            <div className="flex flex-wrap gap-2">
-              {TOOL_CHIPS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => pickChip(t.label)}
-                  className="rounded-full border border-border bg-surface px-4 py-2 text-[0.8125rem] text-foreground transition-colors hover:border-accent/40 hover:bg-accent-soft"
-                >
-                  {t.label}
-                </button>
-              ))}
+        {/* Loading state while the model picks the next question */}
+        {!currentQuestion && !readyForDiagnosis && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-4 flex items-start gap-3"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-foreground">
+              <Sparkles className="h-4 w-4" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <textarea
-                ref={inputRef}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
-                  }
-                }}
-                placeholder="Escribe tu respuesta…"
-                rows={3}
-                className="w-full resize-none rounded-xl border border-border bg-surface px-4 py-3 text-[0.9375rem] text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
-              />
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[0.75rem] text-muted">
-                  {question.optional && (
-                    <button
-                      type="button"
-                      onClick={skip}
-                      className="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground"
-                    >
-                      <X className="h-3 w-3" />
-                      Saltar
-                    </button>
-                  )}
-                  <span>
-                    {questionIdx + 1} de {QUESTIONS.length}
-                  </span>
-                </div>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                  disabled={!draft.trim()}
+            <div className="rounded-2xl border border-border bg-surface px-4 py-3 text-[0.875rem] text-muted">
+              Pensando la siguiente pregunta…
+            </div>
+          </motion.div>
+        )}
 
+        <form onSubmit={handleSubmit} className="mt-auto">
+          <div className="space-y-3">
+            <textarea
+              ref={inputRef}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+              placeholder="Escribe tu respuesta…"
+              rows={3}
+              disabled={streaming || !currentQuestion}
+              className="w-full resize-none rounded-xl border border-border bg-surface px-4 py-3 text-[0.9375rem] text-foreground placeholder:text-muted focus:border-accent focus:outline-none disabled:opacity-50"
+            />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[0.75rem] text-muted">
+                <button
+                  type="button"
+                  onClick={skip}
+                  className="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground"
                 >
-                  {isLast ? 'Terminar conversación' : 'Siguiente'}
-                </Button>
+                  <X className="h-3 w-3" />
+                  Prefiero no responder
+                </button>
+                <span>
+                  Turno {turn} de {MAX_TURNS}
+                </span>
               </div>
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                disabled={!draft.trim() || streaming || !currentQuestion}
+              >
+                {streaming ? 'Enviando…' : 'Siguiente'}
+                <Send className="ml-2 h-3.5 w-3.5" />
+              </Button>
             </div>
-          )}
+          </div>
         </form>
       </div>
 
@@ -380,6 +345,3 @@ function SignalRow({ label, state }: { label: string; state: SignalState }) {
     </li>
   );
 }
-
-// keep imports referenced to avoid unused warnings on later edits
-void ArrowRight;
