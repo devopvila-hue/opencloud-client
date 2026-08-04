@@ -158,6 +158,7 @@ export const catalog: Catalog = {
   'nav.company':             ['Company', 'Empresa'],
   'nav.analytics':           ['Analytics', 'Analítica'],
   'nav.integrations':        ['Integrations', 'Integraciones'],
+  'nav.settings':            ['Settings', 'Configuración'],
   'sidebar.search':          ['Search or jump to anywhere…',
                              'Busca o salta a cualquier sitio…'],
   'sidebar.theme_toggle':    ['Toggle theme', 'Cambiar tema'],

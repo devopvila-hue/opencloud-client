@@ -88,6 +88,33 @@ function OnboardingOrchestrator() {
   ]);
 
   const phase = snapshot.phase;
+  const { reset: resetBrain } = useBrain();
+
+  // Emergency exit: if the brain fails repeatedly (e.g. backend
+  // tables missing), the user must be able to leave the flow and
+  // reach the dashboard. We PATCH the company with whatever we
+  // have and redirect — the brain can be re-run later from the
+  // Company page.
+  async function skipBrain() {
+    const payload = {
+      name: snapshot.identity.name ?? me.data?.email?.split('@')[0] ?? 'Mi empresa',
+      domain: snapshot.identity.domain ?? null,
+      onboarding_status: 'completed' as const,
+      onboarding_completed_at: new Date().toISOString(),
+    };
+    try {
+      if (company.data?.id) {
+        await patch.mutateAsync({ id: company.data.id, patch: payload });
+      } else {
+        await create.mutateAsync(payload);
+      }
+      await company.refetch();
+    } catch {
+      /* ignore — user can still reach the dashboard */
+    }
+    resetBrain();
+    navigate('/', { replace: true });
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -97,8 +124,20 @@ function OnboardingOrchestrator() {
         <div className="absolute -right-32 bottom-1/4 h-80 w-80 rounded-full bg-accent/2 blur-3xl" />
       </div>
 
-      <header className="relative z-10 flex justify-center px-4 pt-8 sm:pt-12">
+      <header className="relative z-10 flex justify-between px-4 pt-8 sm:pt-12">
+        <div className="flex-1" />
         <Logo variant="full" size={32} />
+        <div className="flex flex-1 items-center justify-end pr-1">
+          {phase !== 'completed' && (
+            <button
+              type="button"
+              onClick={skipBrain}
+              className="rounded-md border border-border bg-surface-soft/50 px-3 py-1.5 text-[0.8125rem] text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
+            >
+              Saltar al panel
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="relative z-10 flex flex-1 items-start justify-center px-4 py-12 sm:py-16">
