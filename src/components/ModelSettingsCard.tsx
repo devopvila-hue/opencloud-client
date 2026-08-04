@@ -40,19 +40,20 @@ export function ModelSettingsCard() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        const [list, current] = await Promise.all([
-          listModelProviders(),
-          getModelSetting(),
-        ]);
-        if (cancelled) return;
-        setProviders(list);
-        setCurrent(current);
-      } catch {
-        // ignore — empty state shows below
-      } finally {
-        if (!cancelled) setLoading(false);
+      // Fetch in parallel but never abort the catalog load if the
+      // current-setting lookup fails (e.g. schema missing).
+      const [listResult, currentResult] = await Promise.allSettled([
+        listModelProviders(),
+        getModelSetting(),
+      ]);
+      if (cancelled) return;
+      if (listResult.status === 'fulfilled') {
+        setProviders(listResult.value);
       }
+      if (currentResult.status === 'fulfilled') {
+        setCurrent(currentResult.value);
+      }
+      setLoading(false);
     })();
     return () => {
       cancelled = true;

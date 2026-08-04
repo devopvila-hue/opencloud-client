@@ -98,7 +98,7 @@ function OnboardingOrchestrator() {
   async function skipBrain() {
     const payload = {
       name: snapshot.identity.name ?? me.data?.email?.split('@')[0] ?? 'Mi empresa',
-      domain: snapshot.identity.domain ?? null,
+      domain: snapshot.identity.domain ?? undefined,
       onboarding_status: 'completed' as const,
       onboarding_completed_at: new Date().toISOString(),
     };
